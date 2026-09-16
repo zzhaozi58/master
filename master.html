@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>金大师师傅端原型</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      --green: #004428;
+      --green-2: #00643c;
+      --green-3: #e9f4ee;
+      --gold: #c98a25;
+      --ink: #14231c;
+      --muted: #66736d;
+      --line: #e8dfd0;
+      --paper: #fffdf8;
+      --bg: #f7f4ed;
+      --warn: #9a5a00;
+      --danger: #b8422c;
+      --radius: 8px;
+      --shadow: 0 10px 28px rgba(0, 45, 27, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.45;
+    }
+
+    button, input, textarea { font: inherit; }
+
+    .app {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 86px;
+      background:
+        linear-gradient(180deg, rgba(0, 68, 40, .08), rgba(255, 253, 248, 0) 230px),
+        var(--paper);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.04);
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .hero {
+      padding: 18px 18px 16px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 86% 0, rgba(244, 211, 123, .24), transparent 34%),
+        linear-gradient(145deg, #00321e, #005434 70%, #00351f);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 9px rgba(0,0,0,.28));
+    }
+
+    .kicker {
+      margin: 0 0 3px;
+      color: rgba(255,255,255,.72);
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      margin: 14px 0 0;
+      color: rgba(255,255,255,.82);
+      font-size: 13px;
+    }
+
+    main { padding: 14px; }
+
+    .section {
+      margin-bottom: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.88);
+      box-shadow: var(--shadow);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--green);
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .section-note {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pill, .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      color: var(--green);
+      background: var(--green-3);
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .tag.warn {
+      color: var(--warn);
+      background: #fff4d7;
+    }
+
+    .tag.danger {
+      color: var(--danger);
+      background: #fff0eb;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .mini-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mini-row strong {
+      min-width: 0;
+      color: var(--ink);
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .availability-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .availability-row {
+      display: grid;
+      grid-template-columns: 58px 1fr 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .day-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 820;
+    }
+
+    .slot-btn {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .slot-btn.free {
+      border-color: #79b28e;
+      color: var(--green);
+      background: var(--green-3);
+      box-shadow: inset 0 0 0 1px #79b28e;
+    }
+
+    .slot-btn.busy {
+      border-color: #e3a08e;
+      color: var(--danger);
+      background: #fff0eb;
+    }
+
+    .order-card, .settlement-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .card-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .card-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .card-meta {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .actions.single {
+      grid-template-columns: 1fr;
+    }
+
+    .btn {
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(0,68,40,.24);
+      border-radius: var(--radius);
+      color: var(--green);
+      background: #fff;
+      font-weight: 860;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      border-color: var(--green);
+      color: #fff;
+      background: var(--green);
+    }
+
+    .btn.call {
+      border-color: #d6aa4d;
+      color: #825600;
+      background: #fff4d7;
+    }
+
+    .btn:disabled {
+      opacity: .52;
+      cursor: not-allowed;
+    }
+
+    .upload-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .upload-box {
+      min-height: 82px;
+      border: 1px dashed #b4d0c2;
+      border-radius: var(--radius);
+      background: #fbfffc;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 820;
+      cursor: pointer;
+    }
+
+    .upload-box input {
+      display: none;
+    }
+
+    .preview-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .preview-item {
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--green-3);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 780;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 78px;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: #fff;
+      resize: vertical;
+      outline: none;
+    }
+
+    .settlement-total {
+      margin: 0;
+      color: var(--green);
+      font-size: 30px;
+      line-height: 1.1;
+      font-weight: 920;
+    }
+
+    .tab-bar {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      width: min(430px, 100vw);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      background: rgba(255,253,248,.96);
+      backdrop-filter: blur(14px);
+      z-index: 10;
+    }
+
+    .tab-btn {
+      min-height: 50px;
+      border: 0;
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 820;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      color: var(--green);
+      background: var(--green-3);
+    }
+
+    .tab-icon {
+      display: block;
+      margin: 0 auto 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--green);
+      line-height: 22px;
+      font-size: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 92px;
+      transform: translateX(-50%) translateY(12px);
+      width: min(360px, calc(100vw - 32px));
+      padding: 11px 14px;
+      border-radius: var(--radius);
+      color: #fff;
+      background: rgba(20,35,28,.92);
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: .18s ease;
+      z-index: 20;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 360px) {
+      .actions { grid-template-columns: 1fr; }
+      .availability-row { grid-template-columns: 50px 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="page active" data-page="time">
+      <header class="hero">
+        <div class="brand-row">
+          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <p class="kicker">师傅端 / 可用时间</p>
+            <h1>李建军</h1>
+          </div>
+        </div>
+        <p class="hero-copy">填写一周内上午、下午是否有空。不是必填，但填写后管理员更容易把合适时段的单子派给你。</p>
+      </header>
+      <main>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">本周可用时间</h2>
+              <p class="section-note">点一下切换：未知 → 有空 → 无空。</p>
+            </div>
+            <span class="pill" id="availabilityCount">0 项已填</span>
+          </div>
+          <div class="availability-grid" id="availabilityGrid"></div>
+          <div class="actions single">
+            <button class="btn primary" type="button" id="saveAvailabilityBtn">保存可用时间</button>
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <section class="page" data-page="orders">
+      <header class="hero">
+        <div class="brand-row">
+          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <p class="kicker">施工任务 / 我的订单</p>
+            <h1>我的订单</h1>
+          </div>
+        </div>
+        <p class="hero-copy">查看分配给自己的订单，预约客户，施工到场打卡，完工后上传图片和视频。</p>
+      </header>
+      <main>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">待处理订单</h2>
+              <p class="section-note">按预约、到场、完工顺序处理。</p>
+            </div>
+            <span class="pill" id="orderCount">2 单</span>
+          </div>
+          <div class="card-list" id="orderList"></div>
+        </section>
+      </main>
+    </section>
+
+    <section class="page" data-page="settlement">
+      <header class="hero">
+        <div class="brand-row">
+          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <p class="kicker">结算 / 到账明细</p>
+            <h1>我的结算</h1>
+          </div>
+        </div>
+        <p class="hero-copy">查看每个订单的施工金额、平台服务费、待到账和已到账记录。</p>
+      </header>
+      <main>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">本月预计到账</h2>
+              <p class="section-note">静态原型金额用于展示明细结构。</p>
+            </div>
+            <span class="tag warn">待结算</span>
+          </div>
+          <p class="settlement-total" id="settlementTotal">¥0</p>
+          <div class="mini-list">
+            <div class="mini-row"><span>已到账</span><strong id="paidAmount">¥0</strong></div>
+            <div class="mini-row"><span>待到账</span><strong id="pendingAmount">¥0</strong></div>
+          </div>
+        </section>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">到账明细</h2>
+              <p class="section-note">按订单查看金额来源。</p>
+            </div>
+          </div>
+          <div class="card-list" id="settlementList"></div>
+        </section>
+      </main>
+    </section>
+
+    <section class="page" data-page="profile">
+      <header class="hero">
+        <div class="brand-row">
+          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <p class="kicker">资料 / 接单信息</p>
+            <h1>我的信息</h1>
+          </div>
+        </div>
+        <p class="hero-copy">查看等级、电话、能力标签和当前接单状态。</p>
+      </header>
+      <main>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">李建军</h2>
+              <p class="section-note">银牌大师 · 家具补漆、木门修复</p>
+            </div>
+            <span class="pill">接单中</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-row"><span>联系电话</span><strong>13800002604</strong></div>
+            <div class="mini-row"><span>常驻区域</span><strong>成都主城区</strong></div>
+            <div class="mini-row"><span>本月完成</span><strong>8 单</strong></div>
+            <div class="mini-row"><span>平均验收</span><strong>98%</strong></div>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <nav class="tab-bar" aria-label="师傅端底部导航">
+    <button class="tab-btn active" type="button" data-target="time"><span class="tab-icon">时</span>时间</button>
+    <button class="tab-btn" type="button" data-target="orders"><span class="tab-icon">单</span>订单</button>
+    <button class="tab-btn" type="button" data-target="settlement"><span class="tab-icon">结</span>结算</button>
+    <button class="tab-btn" type="button" data-target="profile"><span class="tab-icon">我</span>我的</button>
+  </nav>
+
+  <script>
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+    const days = [
+      { key: "2026-09-16", label: "周三" },
+      { key: "2026-09-17", label: "周四" },
+      { key: "2026-09-18", label: "周五" },
+      { key: "2026-09-19", label: "周六" },
+      { key: "2026-09-20", label: "周日" },
+      { key: "2026-09-21", label: "周一" },
+      { key: "2026-09-22", label: "周二" }
+    ];
+
+    const statusMeta = {
+      unknown: { text: "未知", next: "free" },
+      free: { text: "有空", next: "busy" },
+      busy: { text: "无空", next: "unknown" }
+    };
+
+    const availability = {
+      "2026-09-16-am": "busy",
+      "2026-09-16-pm": "free",
+      "2026-09-17-am": "free"
+    };
+
+    const orders = [
+      {
+        no: "JD20260911005",
+        title: "大理石裂缝修复",
+        customer: "品牌售后团队",
+        contact: "售后主管",
+        phone: "13700137000",
+        address: "成都市锦江区东大街 120 号",
+        time: "2026-09-16 10:30",
+        duration: "2 天",
+        status: "待预约",
+        amount: 480,
+        note: "裂缝填补与纹理复原，现场注意保护成品。"
+      },
+      {
+        no: "JD20260909006",
+        title: "瓷砖缺角修复",
+        customer: "成都某家具厂",
+        contact: "张先生",
+        phone: "13800138000",
+        address: "成都市武侯区科华南路 88 号",
+        time: "2026-09-17 09:00",
+        duration: "1 天",
+        status: "施工中",
+        checkedInAt: "2026-09-17 08:58",
+        amount: 260,
+        note: "客户要求修复后尽量降低色差。"
+      }
+    ];
+
+    const settlements = [
+      { no: "JD20260908001", title: "家具补漆修复", gross: 220, fee: 22, amount: 198, status: "已到账", date: "2026-09-14" },
+      { no: "JD20260909006", title: "瓷砖缺角修复", gross: 260, fee: 26, amount: 234, status: "待到账", date: "验收后到账" }
+    ];
+
+    function showToast(message) {
+      const toast = $("#toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function showPage(target) {
+      $$(".page").forEach((page) => page.classList.toggle("active", page.dataset.page === target));
+      $$(".tab-btn").forEach((button) => button.classList.toggle("active", button.dataset.target === target));
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    function renderAvailability() {
+      $("#availabilityGrid").innerHTML = days.map((day) => {
+        const amKey = `${day.key}-am`;
+        const pmKey = `${day.key}-pm`;
+        const amStatus = availability[amKey] || "unknown";
+        const pmStatus = availability[pmKey] || "unknown";
+        return `
+          <div class="availability-row">
+            <div class="day-label">${day.label}<br>${day.key.slice(5)}</div>
+            <button class="slot-btn ${amStatus === "unknown" ? "" : amStatus}" type="button" data-slot="${amKey}">上午 ${statusMeta[amStatus].text}</button>
+            <button class="slot-btn ${pmStatus === "unknown" ? "" : pmStatus}" type="button" data-slot="${pmKey}">下午 ${statusMeta[pmStatus].text}</button>
+          </div>`;
+      }).join("");
+      const filled = Object.values(availability).filter((status) => status !== "unknown").length;
+      $("#availabilityCount").textContent = `${filled} 项已填`;
+      $$("[data-slot]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const current = availability[button.dataset.slot] || "unknown";
+          availability[button.dataset.slot] = statusMeta[current].next;
+          renderAvailability();
+        });
+      });
+    }
+
+    function statusClass(status) {
+      if (status === "待预约") return "warn";
+      if (status === "待完工上传") return "danger";
+      return "";
+    }
+
+    function renderOrders() {
+      $("#orderCount").textContent = `${orders.length} 单`;
+      $("#orderList").innerHTML = orders.map((order) => `
+        <article class="order-card" data-order="${order.no}">
+          <div class="card-head">
+            <div>
+              <p class="card-title">#${order.no} · ${order.title}</p>
+              <p class="card-meta">${order.customer} / ${order.contact}</p>
+            </div>
+            <span class="tag ${statusClass(order.status)}">${order.status}</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-row"><span>上门时间</span><strong>${order.time}</strong></div>
+            <div class="mini-row"><span>预计工期</span><strong>${order.duration}</strong></div>
+            <div class="mini-row"><span>地址</span><strong>${order.address}</strong></div>
+            <div class="mini-row"><span>备注</span><strong>${order.note}</strong></div>
+            ${order.checkedInAt ? `<div class="mini-row"><span>到场打卡</span><strong>${order.checkedInAt}</strong></div>` : ""}
+          </div>
+          <div class="actions">
+            <button class="btn call" type="button" data-call="${order.no}">拨打客户</button>
+            <button class="btn" type="button" data-appointment="${order.no}" ${order.status !== "待预约" ? "disabled" : ""}>已预约</button>
+            <button class="btn" type="button" data-checkin="${order.no}" ${order.status === "待预约" || order.checkedInAt ? "disabled" : ""}>到达打卡</button>
+            <button class="btn primary" type="button" data-complete="${order.no}" ${order.status === "待预约" ? "disabled" : ""}>完工上传</button>
+          </div>
+          <div class="upload-panel" id="upload-${order.no}" hidden>
+            <div class="upload-area">
+              <label class="upload-box">上传完工图片<input type="file" accept="image/*" multiple data-upload="${order.no}"></label>
+              <label class="upload-box">上传完工视频<input type="file" accept="video/*" multiple data-upload="${order.no}"></label>
+            </div>
+            <div class="preview-list" id="preview-${order.no}"></div>
+            <textarea id="note-${order.no}" placeholder="补充现场说明，例如色差、处理范围、客户确认情况"></textarea>
+            <div class="actions single">
+              <button class="btn primary" type="button" data-submit-complete="${order.no}">提交完工</button>
+            </div>
+          </div>
+        </article>`).join("");
+
+      $$("[data-call]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const order = orders.find((item) => item.no === button.dataset.call);
+          showToast(`拨打${order.contact}：${order.phone}`);
+          window.location.href = `tel:${order.phone}`;
+        });
+      });
+
+      $$("[data-appointment]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const order = orders.find((item) => item.no === button.dataset.appointment);
+          order.status = "已预约";
+          renderOrders();
+          showToast("已标记预约成功。");
+        });
+      });
+
+      $$("[data-checkin]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const order = orders.find((item) => item.no === button.dataset.checkin);
+          order.checkedInAt = new Date().toLocaleString("zh-CN", { hour12: false });
+          order.status = "施工中";
+          renderOrders();
+          showToast("到达位置打卡成功。");
+        });
+      });
+
+      $$("[data-complete]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const panel = $(`#upload-${button.dataset.complete}`);
+          panel.hidden = !panel.hidden;
+        });
+      });
+
+      $$("[data-upload]").forEach((input) => {
+        input.addEventListener("change", () => {
+          const list = $(`#preview-${input.dataset.upload}`);
+          const files = $$(`[data-upload="${input.dataset.upload}"]`).flatMap((item) => [...item.files]);
+          list.innerHTML = files.map((file) => `<span class="preview-item">${file.name}</span>`).join("");
+        });
+      });
+
+      $$("[data-submit-complete]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const order = orders.find((item) => item.no === button.dataset.submitComplete);
+          const uploads = $$(`[data-upload="${order.no}"]`).reduce((sum, input) => sum + input.files.length, 0);
+          if (!uploads) {
+            showToast("请至少上传一张完工图片或视频。");
+            return;
+          }
+          order.status = "待验收";
+          settlements.push({ no: order.no, title: order.title, gross: order.amount, fee: Math.round(order.amount * .1), amount: Math.round(order.amount * .9), status: "待到账", date: "客户验收后到账" });
+          renderOrders();
+          renderSettlements();
+          showToast("完工资料已提交，等待客户验收。");
+        });
+      });
+    }
+
+    function renderSettlements() {
+      const paid = settlements.filter((item) => item.status === "已到账").reduce((sum, item) => sum + item.amount, 0);
+      const pending = settlements.filter((item) => item.status !== "已到账").reduce((sum, item) => sum + item.amount, 0);
+      $("#settlementTotal").textContent = `¥${paid + pending}`;
+      $("#paidAmount").textContent = `¥${paid}`;
+      $("#pendingAmount").textContent = `¥${pending}`;
+      $("#settlementList").innerHTML = settlements.map((item) => `
+        <article class="settlement-card">
+          <div class="card-head">
+            <div>
+              <p class="card-title">#${item.no} · ${item.title}</p>
+              <p class="card-meta">${item.date}</p>
+            </div>
+            <span class="tag ${item.status === "已到账" ? "" : "warn"}">${item.status}</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-row"><span>订单施工金额</span><strong>¥${item.gross}</strong></div>
+            <div class="mini-row"><span>平台服务费</span><strong>-¥${item.fee}</strong></div>
+            <div class="mini-row"><span>师傅到账</span><strong>¥${item.amount}</strong></div>
+          </div>
+        </article>`).join("");
+    }
+
+    $$(".tab-btn").forEach((button) => button.addEventListener("click", () => showPage(button.dataset.target)));
+    $("#saveAvailabilityBtn").addEventListener("click", () => showToast("可用时间已保存，管理员派单时可查看。"));
+
+    renderAvailability();
+    renderOrders();
+    renderSettlements();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1948 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>金大师补漆维修 MVP</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      --green: #004428;
+      --green-2: #00643c;
+      --green-3: #e9f4ee;
+      --gold: #c98a25;
+      --gold-2: #f4d37b;
+      --silver: #aeb6be;
+      --bronze: #b4743f;
+      --ink: #15231d;
+      --muted: #66736d;
+      --line: #e8dfd0;
+      --paper: #fffdf8;
+      --bg: #f7f4ed;
+      --danger: #b8422c;
+      --shadow: 0 10px 30px rgba(0, 45, 27, .08);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .app {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background:
+        linear-gradient(180deg, rgba(0, 68, 40, .08), rgba(255, 253, 248, 0) 240px),
+        var(--paper);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.04);
+      padding-bottom: 86px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .hero {
+      position: relative;
+      padding: 18px 18px 16px;
+      color: #fff;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 85% 8%, rgba(244, 211, 123, .28), transparent 34%),
+        linear-gradient(145deg, #00321e, #005434 66%, #00351f);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -64px;
+      bottom: -78px;
+      width: 210px;
+      height: 210px;
+      border: 1px solid rgba(244, 211, 123, .25);
+      border-radius: 50%;
+    }
+
+    .brand-row,
+    .hero-copy,
+    .hero-chips {
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      flex: 0 0 auto;
+      filter: drop-shadow(0 4px 9px rgba(0,0,0,.28));
+    }
+
+    .brand-kicker {
+      margin: 0 0 3px;
+      color: rgba(255,255,255,.74);
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.12;
+      letter-spacing: 0;
+      font-weight: 800;
+    }
+
+    .hero-copy {
+      margin: 18px 0 0;
+    }
+
+    .hero-copy h2 {
+      margin: 0;
+      max-width: 330px;
+      font-size: 24px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .hero-copy p {
+      margin: 9px 0 0;
+      color: rgba(255,255,255,.82);
+      font-size: 14px;
+    }
+
+    .hero-chips {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 17px;
+    }
+
+    .hero-chip {
+      min-height: 42px;
+      padding: 8px 6px;
+      border: 1px solid rgba(244, 211, 123, .42);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.08);
+      text-align: center;
+    }
+
+    .hero-chip strong {
+      display: block;
+      color: var(--gold-2);
+      font-size: 14px;
+    }
+
+    .hero-chip span {
+      display: block;
+      margin-top: 2px;
+      color: rgba(255,255,255,.76);
+      font-size: 11px;
+    }
+
+    main {
+      padding: 14px 14px 0;
+    }
+
+    .section {
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px solid rgba(201, 138, 37, .18);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.86);
+      box-shadow: var(--shadow);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--green);
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .section-note {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pill {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: var(--green);
+      background: var(--green-3);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .fee-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: var(--radius);
+      background: linear-gradient(90deg, #fff6db, #f9ead0);
+      border: 1px solid rgba(201, 138, 37, .25);
+    }
+
+    .fee-box span {
+      color: #704818;
+      font-size: 12px;
+    }
+
+    .fee-box strong {
+      color: #693a00;
+      font-size: 19px;
+    }
+
+    .price-group {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .price-group h3 {
+      margin: 0;
+      padding: 10px 12px;
+      color: #fff;
+      background: linear-gradient(90deg, var(--green), var(--green-2));
+      font-size: 14px;
+    }
+
+    .price-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 86px;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-top: 1px solid #f0e8dc;
+      font-size: 13px;
+    }
+
+    .price-row:first-of-type {
+      border-top: 0;
+    }
+
+    .price-row b {
+      justify-self: end;
+      color: var(--green);
+      white-space: nowrap;
+    }
+
+    .rules {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .rule {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 9px 10px;
+      border-radius: var(--radius);
+      color: #304139;
+      background: #fbf7ef;
+      font-size: 12px;
+    }
+
+    .rule-mark {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--gold);
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    .benefit {
+      min-height: 82px;
+      padding: 11px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .benefit-icon {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--green);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .benefit strong {
+      display: block;
+      margin-top: 8px;
+      color: var(--green);
+      font-size: 14px;
+    }
+
+    .benefit span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .flow {
+      display: flex;
+      gap: 8px;
+      margin: 12px -2px 0;
+      padding: 2px 2px 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .flow::-webkit-scrollbar {
+      display: none;
+    }
+
+    .flow-step {
+      min-width: 72px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .flow-step i {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 5px;
+      border: 1px solid rgba(201, 138, 37, .35);
+      border-radius: 50%;
+      color: var(--green);
+      background: #fffaf0;
+      font-style: normal;
+      font-weight: 800;
+    }
+
+    .form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+    }
+
+    label,
+    .field-label {
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    .upload-tile {
+      position: relative;
+      min-height: 112px;
+      padding: 12px;
+      border: 1px dashed rgba(0, 68, 40, .36);
+      border-radius: var(--radius);
+      background: #f8fbf7;
+      overflow: hidden;
+    }
+
+    .upload-tile input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .upload-empty {
+      height: 86px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .upload-empty strong {
+      display: block;
+      color: var(--green);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .preview-list {
+      display: grid;
+      gap: 5px;
+      margin-top: 7px;
+      color: var(--green);
+      font-size: 11px;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .choice {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 7px;
+      border: 1px solid #e5dccf;
+      border-radius: var(--radius);
+      background: #fff;
+      color: #35443d;
+      font-size: 13px;
+      font-weight: 650;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .choice.active {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-3);
+      box-shadow: inset 0 0 0 1px rgba(0, 68, 40, .18);
+    }
+
+    .other-row {
+      display: grid;
+      grid-template-columns: 88px;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .other-row.active {
+      grid-template-columns: 88px minmax(0, 1fr);
+    }
+
+    .other-row .choice {
+      min-height: 46px;
+    }
+
+    .other-row input {
+      display: none;
+      min-height: 46px;
+    }
+
+    .other-row.active input {
+      display: block;
+    }
+
+    .field input,
+    .field textarea {
+      min-height: 46px;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ded7cb;
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0, 100, 60, .1);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 110px;
+      gap: 9px;
+    }
+
+    .master-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .master-row {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) 112px;
+      gap: 10px;
+      align-items: center;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .master-logo {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+    }
+
+    .grade-gold .master-logo {
+      filter: saturate(1.1) contrast(1.05);
+    }
+
+    .grade-silver .master-logo {
+      filter: grayscale(1) sepia(.08) saturate(.35) brightness(1.08) contrast(1.04);
+    }
+
+    .grade-bronze .master-logo {
+      filter: sepia(.8) hue-rotate(338deg) saturate(1.45) brightness(.9) contrast(1.05);
+    }
+
+    .master-name {
+      display: block;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .master-desc {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: 34px 1fr 34px;
+      align-items: center;
+      min-height: 36px;
+      border: 1px solid #dfd4c4;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .stepper button {
+      height: 36px;
+      border: 0;
+      color: var(--green);
+      background: #faf6ee;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .stepper span {
+      text-align: center;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .error {
+      display: none;
+      color: var(--danger);
+      font-size: 12px;
+    }
+
+    .field.invalid .error {
+      display: block;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 86px;
+      z-index: 10;
+      width: min(360px, calc(100vw - 32px));
+      transform: translateX(-50%) translateY(24px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 13px 14px;
+      border-radius: var(--radius);
+      color: #fff;
+      background: rgba(0, 52, 31, .94);
+      box-shadow: 0 10px 26px rgba(0,0,0,.2);
+      font-size: 14px;
+      transition: .25s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .inline-submit {
+      width: 100%;
+      min-height: 50px;
+      border: 0;
+      border-radius: var(--radius);
+      color: #fff;
+      background: linear-gradient(90deg, var(--green), #007448);
+      box-shadow: 0 10px 22px rgba(0, 68, 40, .18);
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .tab-bar {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 5;
+      width: min(430px, 100vw);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      padding: 7px 10px calc(7px + env(safe-area-inset-bottom));
+      background: rgba(255, 253, 248, .94);
+      border-top: 1px solid #eadfce;
+      backdrop-filter: blur(14px);
+    }
+
+    .tab-btn {
+      min-height: 54px;
+      border: 0;
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tab-icon {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    .tab-btn.active {
+      color: var(--green);
+      background: var(--green-3);
+    }
+
+    .page-top {
+      padding: 18px 18px 14px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 90% 0, rgba(244, 211, 123, .22), transparent 34%),
+        linear-gradient(145deg, #00321e, #005434 72%, #00351f);
+    }
+
+    .page-top-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-top-logo {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      filter: drop-shadow(0 3px 7px rgba(0,0,0,.25));
+    }
+
+    .page-top h1 {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.16;
+    }
+
+    .page-top p {
+      margin: 5px 0 0;
+      color: rgba(255,255,255,.78);
+      font-size: 13px;
+    }
+
+    .order-card,
+    .profile-card,
+    .contact-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .order-card + .order-card,
+    .profile-card + .profile-card {
+      margin-top: 9px;
+    }
+
+    .order-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 0 -2px 12px;
+      padding: 2px 2px 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .order-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .order-tab {
+      min-width: 132px;
+      min-height: 58px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .order-tab strong {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .order-tab span {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+    }
+
+    .order-tab.active {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-3);
+      box-shadow: inset 0 0 0 1px rgba(0, 68, 40, .15);
+    }
+
+    .order-tab.active strong {
+      color: var(--green);
+    }
+
+    .order-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .order-title {
+      margin: 0;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .order-meta {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-tag {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: #7a4a00;
+      background: #fff1cf;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status-tag.done {
+      color: var(--green);
+      background: var(--green-3);
+    }
+
+    .status-tag.danger {
+      color: #a23b2a;
+      background: #fdebe7;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .mini-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mini-row strong {
+      color: var(--ink);
+      font-weight: 750;
+    }
+
+    .profile-hero {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border-radius: var(--radius);
+      color: #fff;
+      background: linear-gradient(145deg, var(--green), var(--green-2));
+    }
+
+    .profile-avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--green);
+      background: #fffaf0;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .profile-hero h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .profile-hero p {
+      margin: 4px 0 0;
+      color: rgba(255,255,255,.76);
+      font-size: 12px;
+    }
+
+    .contact-card {
+      display: grid;
+      grid-template-columns: 1fr 92px;
+      gap: 12px;
+      align-items: center;
+      margin-top: 9px;
+      background: #fbf7ef;
+    }
+
+    .plain-btn {
+      min-height: 38px;
+      border: 1px solid rgba(0, 68, 40, .25);
+      border-radius: var(--radius);
+      color: var(--green);
+      background: #fff;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .quote-confirm-card {
+      padding: 13px;
+      border: 1px solid rgba(201, 138, 37, .34);
+      border-radius: var(--radius);
+      background: #fffaf0;
+    }
+
+    .order-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .inline-submit:disabled,
+    .plain-btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .empty-state {
+      padding: 18px 12px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: #fff;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .accept-choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      margin-bottom: 12px;
+    }
+
+    .accept-choice {
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: #fff;
+      text-align: left;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .accept-choice::before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      color: #bfc8c2;
+      font-size: 17px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .accept-choice.active {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-3);
+    }
+
+    .accept-choice.active::before {
+      content: "✓";
+      color: var(--green);
+    }
+
+    .collapse-toggle {
+      width: 100%;
+      min-height: 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--green);
+      background: #fff;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .collapse-toggle span:last-child {
+      color: var(--muted);
+      font-size: 18px;
+      transform: rotate(0deg);
+      transition: .2s ease;
+    }
+
+    .issue-panel {
+      display: none;
+      margin-top: 12px;
+    }
+
+    .issue-section.expanded .issue-panel {
+      display: block;
+    }
+
+    .issue-section.expanded .collapse-toggle span:last-child {
+      transform: rotate(180deg);
+    }
+
+    .issue-section.failed #acceptPassBtn {
+      display: none;
+    }
+
+    @media (max-width: 374px) {
+      .choice-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .benefits {
+        grid-template-columns: 1fr;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="page active" id="page-inquiry" data-page="inquiry">
+    <header class="hero">
+      <div class="brand-row">
+        <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+        <div>
+          <p class="brand-kicker">家具 / 石材 / 门窗 / 补漆 / 修复</p>
+          <h1>金大师补漆维修</h1>
+        </div>
+      </div>
+      <div class="hero-copy">
+        <h2>专业定损，明码报价，再派师傅</h2>
+        <p>面向家具厂、石材厂、家居品牌与售后服务商的维修履约解决方案。</p>
+      </div>
+      <div class="hero-chips" aria-label="核心卖点">
+        <div class="hero-chip"><strong>专业定损</strong><span>图片/视频/上门</span></div>
+        <div class="hero-chip"><strong>师傅分级</strong><span>金/银/铜匹配</span></div>
+        <div class="hero-chip"><strong>全程留痕</strong><span>施工验收可追踪</span></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="section" aria-labelledby="price-title">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title" id="price-title">参考价格表</h2>
+            <p class="section-note">以下为常规维修参考价，最终按材质、损伤深度、纹理和现场情况确认。</p>
+          </div>
+          <span class="pill">明码报价</span>
+        </div>
+
+        <div class="fee-box">
+          <span>成都绕城内上门费</span>
+          <strong>50元/次</strong>
+        </div>
+
+        <div class="price-group">
+          <h3>实木 / 板材 / 科技木 / 木门 / 橱柜 / 楼梯</h3>
+          <div class="price-row"><span>浅表划痕、烫痕、水印、漆面发白、钉眼</span><b>50元/处</b></div>
+          <div class="price-row"><span>深划痕、磕碰掉漆、缺角、凹坑、露底</span><b>120元/处</b></div>
+          <div class="price-row"><span>家具开裂、缝隙修补</span><b>150元/处</b></div>
+        </div>
+
+        <div class="price-group">
+          <h3>瓷砖 / 岩板 / 石材</h3>
+          <div class="price-row"><span>浅表划痕</span><b>100元/处</b></div>
+          <div class="price-row"><span>深划痕、崩瓷、缺角、小磕碰</span><b>130元/处</b></div>
+          <div class="price-row"><span>拼缝、开裂、断裂</span><b>170元/处</b></div>
+        </div>
+
+        <div class="price-group">
+          <h3>大理石</h3>
+          <div class="price-row"><span>浅表划痕</span><b>120元/处</b></div>
+          <div class="price-row"><span>深划痕、崩瓷、缺角、小磕碰</span><b>150元/处</b></div>
+          <div class="price-row"><span>拼缝、开裂、断裂</span><b>190元/处</b></div>
+        </div>
+
+        <div class="rules">
+          <div class="rule"><span class="rule-mark">1</span><span>普通点状损伤以 5cm x 5cm 为 1 处；细长划痕、裂缝每 5cm 为 1 个计价单位。</span></div>
+          <div class="rule"><span class="rule-mark">2</span><span>超过 30cm、大面积掉漆、整面翻新、整块门板修复等，按面积与施工难度现场报价。</span></div>
+          <div class="rule"><span class="rule-mark">3</span><span>复杂木纹、双面漆、珠光、金属漆、多色拼接等复杂工艺，根据难度加收 30-100元/处。</span></div>
+          <div class="rule"><span class="rule-mark">4</span><span>周边城市按距离面议；涉及结构松动、断裂、承重部位、拆装加固等需现场报价。</span></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="service-title">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title" id="service-title">服务方式与保障</h2>
+            <p class="section-note">先定损、再报价、后派单，降低售后纠纷。</p>
+          </div>
+          <span class="pill">B端履约</span>
+        </div>
+
+        <div class="benefits">
+          <div class="benefit"><div class="benefit-icon">定</div><strong>专业定损</strong><span>支持图片、视频与上门定损。</span></div>
+          <div class="benefit"><div class="benefit-icon">价</div><strong>平台统一报价</strong><span>减少乱报价、临时加价。</span></div>
+          <div class="benefit"><div class="benefit-icon">级</div><strong>认证师傅体系</strong><span>实名、技能、案例审核，金银铜分级。</span></div>
+          <div class="benefit"><div class="benefit-icon">痕</div><strong>全程留痕</strong><span>订单、报价、施工、验收可追踪。</span></div>
+          <div class="benefit"><div class="benefit-icon">派</div><strong>自动派单</strong><span>拒单或超时自动顺延下一位。</span></div>
+          <div class="benefit"><div class="benefit-icon">结</div><strong>微信协同结算</strong><span>微信群沟通，小程序下单，微信支付结算。</span></div>
+        </div>
+
+        <div class="flow" aria-label="标准合作流程">
+          <div class="flow-step"><i>1</i>客户报修</div>
+          <div class="flow-step"><i>2</i>视频/上门定损</div>
+          <div class="flow-step"><i>3</i>平台报价</div>
+          <div class="flow-step"><i>4</i>选择等级</div>
+          <div class="flow-step"><i>5</i>自动派单</div>
+          <div class="flow-step"><i>6</i>到场维修</div>
+          <div class="flow-step"><i>7</i>视频验收</div>
+          <div class="flow-step"><i>8</i>订单结算</div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="form-title">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title" id="form-title">维修需求</h2>
+            <p class="section-note">提交后用于定损与询价确认，复杂项目以现场报价为准。</p>
+          </div>
+          <span class="pill">询价单</span>
+        </div>
+
+        <form class="form" id="repairForm" novalidate>
+          <div class="field" data-field="uploads">
+            <div class="label-row">
+              <span class="field-label">上传图片和视频</span>
+              <span class="hint">至少上传 1 项</span>
+            </div>
+            <div class="upload-grid">
+              <label class="upload-tile">
+                <input id="photoUpload" type="file" accept="image/*" multiple>
+                <span class="upload-empty"><span><strong>＋</strong>上传图片<br>支持多张</span></span>
+              </label>
+              <label class="upload-tile">
+                <input id="videoUpload" type="file" accept="video/*" multiple>
+                <span class="upload-empty"><span><strong>＋</strong>上传视频<br>展示损伤细节</span></span>
+              </label>
+            </div>
+            <div class="preview-list" id="previewList"></div>
+            <span class="error">请上传图片或视频，方便定损报价。</span>
+          </div>
+
+          <div class="field" data-field="material">
+            <div class="label-row">
+              <span class="field-label">修复材质</span>
+              <span class="hint">单选</span>
+            </div>
+            <div class="choice-grid" id="materialChoices">
+              <button class="choice" type="button" data-value="木材">木材</button>
+              <button class="choice" type="button" data-value="实木">实木</button>
+              <button class="choice" type="button" data-value="瓷砖">瓷砖</button>
+              <button class="choice" type="button" data-value="岩板">岩板</button>
+              <button class="choice" type="button" data-value="大理石">大理石</button>
+              <button class="choice" type="button" data-value="水磨石">水磨石</button>
+            </div>
+            <div class="other-row" id="materialOtherRow">
+              <button class="choice" type="button" data-value="其他">其他</button>
+              <input id="materialOther" type="text" placeholder="请填写具体材质">
+            </div>
+            <span class="error">请选择修复材质。</span>
+          </div>
+
+          <div class="field" data-field="repairTypes">
+            <div class="label-row">
+              <span class="field-label">修复类型</span>
+              <span class="hint">可多选</span>
+            </div>
+            <div class="choice-grid" id="typeChoices">
+              <button class="choice" type="button" data-value="划痕">划痕</button>
+              <button class="choice" type="button" data-value="坑洞">坑洞</button>
+              <button class="choice" type="button" data-value="缺角">缺角</button>
+              <button class="choice" type="button" data-value="裂缝">裂缝</button>
+              <button class="choice" type="button" data-value="拼缝">拼缝</button>
+              <button class="choice" type="button" data-value="补漆">补漆</button>
+            </div>
+            <div class="other-row" id="typeOtherRow">
+              <button class="choice" type="button" data-value="其他">其他</button>
+              <input id="typeOther" type="text" placeholder="请填写具体修复类型">
+            </div>
+            <span class="error">请选择至少一种修复类型。</span>
+          </div>
+
+          <div class="two-col">
+            <div class="field" data-field="damageCount">
+              <label for="damageCount">伤口总数（处）</label>
+              <input id="damageCount" type="number" min="1" step="1" placeholder="如 3">
+              <span class="error">请输入伤口总数。</span>
+            </div>
+            <div class="field" data-field="damageLength">
+              <label for="damageLength">伤口总长度（厘米）</label>
+              <input id="damageLength" type="number" min="0" step="1" placeholder="如 15">
+              <span class="error">请输入伤口总长度。</span>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="field" data-field="visitTime">
+              <label for="visitTime">期望上门时间</label>
+              <input id="visitTime" type="datetime-local">
+              <span class="error">请选择期望上门时间。</span>
+            </div>
+            <div class="field" data-field="duration">
+              <label for="duration">预计工期（天）</label>
+              <input id="duration" type="number" min="1" step="1" placeholder="如 2">
+              <span class="error">请输入预计工期。</span>
+            </div>
+          </div>
+
+          <div class="field" data-field="address">
+            <label for="address">上门地址</label>
+            <input id="address" type="text" placeholder="请输入详细上门地址">
+            <span class="error">请填写上门地址。</span>
+          </div>
+
+          <div class="field" data-field="masters">
+            <div class="label-row">
+              <span class="field-label">选择师傅等级与人数</span>
+              <span class="hint">至少 1 位</span>
+            </div>
+            <div class="master-list">
+              <div class="master-row grade-gold" data-grade="gold">
+                <img class="master-logo" src="assets/jindashi-logo.png" alt="金牌大师">
+                <div><span class="master-name">金牌大师</span><span class="master-desc">复杂工艺 / 高要求项目</span></div>
+                <div class="stepper"><button type="button" data-step="-1">−</button><span data-count>0</span><button type="button" data-step="1">＋</button></div>
+              </div>
+              <div class="master-row grade-silver" data-grade="silver">
+                <img class="master-logo" src="assets/jindashi-logo.png" alt="银牌大师">
+                <div><span class="master-name">银牌大师</span><span class="master-desc">标准维修 / 稳定交付</span></div>
+                <div class="stepper"><button type="button" data-step="-1">−</button><span data-count>0</span><button type="button" data-step="1">＋</button></div>
+              </div>
+              <div class="master-row grade-bronze" data-grade="bronze">
+                <img class="master-logo" src="assets/jindashi-logo.png" alt="铜牌大师">
+                <div><span class="master-name">铜牌大师</span><span class="master-desc">常规小修 / 快速响应</span></div>
+                <div class="stepper"><button type="button" data-step="-1">−</button><span data-count>0</span><button type="button" data-step="1">＋</button></div>
+              </div>
+            </div>
+            <span class="error">请至少选择一位金/银/铜大师。</span>
+          </div>
+
+          <div class="field" data-field="name">
+            <label for="name">公司名称 / 用户名字</label>
+            <input id="name" type="text" placeholder="请输入公司名称或联系人姓名" autocomplete="name">
+            <span class="error">请填写公司名称或用户名字。</span>
+          </div>
+
+          <div class="field" data-field="wechat">
+            <label for="wechat">微信号 / 微信昵称</label>
+            <input id="wechat" type="text" placeholder="请输入微信号或微信昵称">
+            <span class="error">请填写微信号或微信昵称。</span>
+          </div>
+
+          <div class="field" data-field="phone">
+            <label for="phone">联系电话</label>
+            <input id="phone" type="tel" placeholder="请输入手机号" inputmode="tel" autocomplete="tel">
+            <span class="error">请输入正确的联系电话。</span>
+          </div>
+
+          <button class="inline-submit" type="submit">提交需求 / 获取报价</button>
+        </form>
+      </section>
+    </main>
+    </section>
+
+    <section class="page" id="page-acceptance" data-page="acceptance">
+      <header class="page-top">
+        <div class="page-top-row">
+          <img class="page-top-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <h1>订单验收</h1>
+            <p>验收施工结果，提交问题并补充现场凭证。</p>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="section" aria-labelledby="active-order-title">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" id="active-order-title">待验收订单</h2>
+              <p class="section-note">用于展示最近需要确认的维修履约单。</p>
+            </div>
+            <span class="pill" id="acceptanceCount">3 单待确认</span>
+          </div>
+
+          <div class="order-tabs" id="acceptanceOrderTabs" role="tablist" aria-label="待验收订单切换"></div>
+          <div class="empty-state" id="acceptanceEmpty" hidden>暂无待验收订单</div>
+
+          <div class="order-card" id="acceptOrderCard">
+            <div class="order-head">
+              <div>
+                <p class="order-title" id="acceptOrderTitle">#JD20260909006 瓷砖缺角修复</p>
+                <p class="order-meta" id="acceptOrderMeta">连锁门店售后 · 李师傅</p>
+              </div>
+              <span class="status-tag" id="acceptOrderTag">待验收</span>
+            </div>
+            <div class="mini-list">
+              <div class="mini-row"><span>维修内容</span><strong id="acceptOrderContent">瓷砖 / 缺角 / 拼缝</strong></div>
+              <div class="mini-row"><span>上门时间</span><strong id="acceptOrderTime">2026-09-12 15:00</strong></div>
+              <div class="mini-row"><span>当前状态</span><strong id="acceptOrderStatus">师傅已提交完工凭证</strong></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section issue-section" aria-labelledby="issue-title" id="issueSection">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" id="issue-title">验收结果</h2>
+              <p class="section-note">当前订单：<span id="acceptIssueOrder">#JD20260909006</span>，先确认通过或不通过。</p>
+            </div>
+            <span class="pill">客户确认</span>
+          </div>
+
+          <div class="accept-choice-grid" role="group" aria-label="验收结果选择">
+            <button class="accept-choice active" type="button" data-result="pass">通过验收</button>
+            <button class="accept-choice" type="button" data-result="fail">不通过</button>
+          </div>
+
+          <button class="inline-submit" type="button" id="acceptPassBtn">确认通过验收</button>
+
+          <button class="collapse-toggle" type="button" id="issueToggle" aria-expanded="false">
+            <span>提交验收问题</span>
+            <span>⌄</span>
+          </button>
+
+          <div class="issue-panel" id="issuePanel">
+            <form class="form" id="acceptanceForm" novalidate>
+              <div class="field" data-field="acceptUploads">
+                <div class="label-row">
+                  <span class="field-label">上传验收图片和视频 *</span>
+                  <span class="hint">必填，至少 1 项</span>
+                </div>
+                <div class="upload-grid">
+                  <label class="upload-tile">
+                    <input id="acceptPhotoUpload" type="file" accept="image/*" multiple>
+                    <span class="upload-empty"><span><strong>＋</strong>上传图片<br>补充现场细节</span></span>
+                  </label>
+                  <label class="upload-tile">
+                    <input id="acceptVideoUpload" type="file" accept="video/*" multiple>
+                    <span class="upload-empty"><span><strong>＋</strong>上传视频<br>展示问题过程</span></span>
+                  </label>
+                </div>
+                <div class="preview-list" id="acceptPreviewList"></div>
+                <span class="error">请上传验收图片或视频。</span>
+              </div>
+
+              <div class="field" data-field="acceptText">
+                <label for="acceptText">问题说明 *</label>
+                <textarea id="acceptText" rows="5" placeholder="请描述未通过验收的地方，例如色差、光泽、边角、裂缝、补漆范围等"></textarea>
+                <span class="error">请填写验收问题说明。</span>
+              </div>
+
+              <button class="inline-submit" type="submit">提交验收问题</button>
+            </form>
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <section class="page" id="page-profile" data-page="profile">
+      <header class="page-top">
+        <div class="page-top-row">
+          <img class="page-top-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <h1>我的</h1>
+            <p>维护联系人信息，查看订单历史与联系客服。</p>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="section" aria-labelledby="profile-title">
+          <div class="profile-hero">
+            <div class="profile-avatar">金</div>
+            <div>
+              <h2>成都某家具厂</h2>
+              <p>联系人：张先生 · 微信：jindashi_client</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" aria-labelledby="account-title">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" id="account-title">我的信息</h2>
+              <p class="section-note">微信号/微信昵称由用户手动维护，小程序不能自动读取真实微信号。</p>
+            </div>
+            <span class="pill">资料维护</span>
+          </div>
+
+          <form class="form" id="profileForm" novalidate>
+            <div class="field" data-field="profileName">
+              <label for="profileName">我的名字 / 公司名称</label>
+              <input id="profileName" type="text" value="成都某家具厂" placeholder="请输入姓名或公司名称">
+              <span class="error">请填写名字或公司名称。</span>
+            </div>
+
+            <div class="field" data-field="profileWechat">
+              <label for="profileWechat">微信号 / 微信昵称</label>
+              <input id="profileWechat" type="text" value="jindashi_client" placeholder="请输入微信号或微信昵称">
+              <span class="error">请填写微信号或微信昵称。</span>
+            </div>
+
+            <div class="field" data-field="profilePhone">
+              <label for="profilePhone">联系电话</label>
+              <input id="profilePhone" type="tel" value="13800138000" placeholder="请输入手机号" inputmode="tel">
+              <span class="error">请输入正确的联系电话。</span>
+            </div>
+
+            <div class="field" data-field="profileAddress">
+              <label for="profileAddress">常用上门地址</label>
+              <input id="profileAddress" type="text" value="成都市武侯区科华南路 88 号" placeholder="请输入常用上门地址">
+              <span class="error">请填写常用上门地址。</span>
+            </div>
+
+            <button class="inline-submit" type="submit">保存我的信息</button>
+          </form>
+        </section>
+
+        <section class="section" aria-labelledby="quote-confirm-title" id="quoteConfirmSection">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" id="quote-confirm-title">待确认报价</h2>
+              <p class="section-note">确认金额和师傅等级后，平台才能进入派单。</p>
+            </div>
+            <span class="pill" id="quoteConfirmCount">1 单</span>
+          </div>
+
+          <div class="quote-confirm-card" id="quoteConfirmCard">
+            <div class="order-head">
+              <div>
+                <p class="order-title">#JD20260915009 木材划痕修复</p>
+                <p class="order-meta">木材 / 浅表划痕 3 处 · 银牌大师 1 位</p>
+              </div>
+              <span class="status-tag" id="quoteConfirmStatus">待确认</span>
+            </div>
+            <div class="mini-list">
+              <div class="mini-row"><span>维修费</span><strong>150 元</strong></div>
+              <div class="mini-row"><span>上门费</span><strong>50 元</strong></div>
+              <div class="mini-row"><span>报价合计</span><strong>200 元</strong></div>
+              <div class="mini-row"><span>报价说明</span><strong>浅表划痕按 3 处计价</strong></div>
+            </div>
+            <div class="order-actions">
+              <button class="plain-btn" type="button" id="quoteQuestionBtn">对报价有疑问</button>
+              <button class="inline-submit" type="button" id="quoteConfirmBtn">确认报价</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" aria-labelledby="history-title">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" id="history-title">我的订单历史</h2>
+              <p class="section-note">快速查看报价、施工、验收和结算状态。</p>
+            </div>
+            <span class="pill">4 单</span>
+          </div>
+
+          <div class="order-card">
+            <div class="order-head">
+              <div>
+                <p class="order-title">#JD20260915009 木材划痕修复</p>
+                <p class="order-meta">木材 / 划痕 · 银牌大师 1 位</p>
+              </div>
+              <span class="status-tag" id="historyQuoteStatus">待确认报价</span>
+            </div>
+          </div>
+          <div class="order-card">
+            <div class="order-head">
+              <div>
+                <p class="order-title">#JD20260909006 瓷砖缺角修复</p>
+                <p class="order-meta">瓷砖 / 缺角 / 拼缝 · 李师傅</p>
+              </div>
+              <span class="status-tag" id="historyAcceptanceStatus">待验收</span>
+            </div>
+          </div>
+          <div class="order-card">
+            <div class="order-head">
+              <div>
+                <p class="order-title">#JD20260908003 岩板缺角修复</p>
+                <p class="order-meta">岩板 / 坑洞 · 金牌大师</p>
+              </div>
+              <span class="status-tag done">已完成</span>
+            </div>
+          </div>
+          <div class="order-card">
+            <div class="order-head">
+              <div>
+                <p class="order-title">#JD20260902006 大理石裂缝修复</p>
+                <p class="order-meta">大理石 / 裂缝 · 银牌大师</p>
+              </div>
+              <span class="status-tag done">已结算</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" aria-labelledby="support-title">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" id="support-title">联系客服</h2>
+              <p class="section-note">适合处理报价疑问、派单进度、验收争议与合作咨询。</p>
+            </div>
+            <span class="pill">微信协同</span>
+          </div>
+
+          <div class="contact-card">
+            <div>
+              <p class="order-title">金大师客服</p>
+              <p class="order-meta">工作日 09:00-18:00 · 微信群沟通 / 电话回访</p>
+            </div>
+            <button class="plain-btn" type="button" id="contactBtn">联系客服</button>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <nav class="tab-bar" aria-label="底部导航">
+    <button class="tab-btn active" type="button" data-target="inquiry"><span class="tab-icon">⌂</span>询价</button>
+    <button class="tab-btn" type="button" data-target="acceptance"><span class="tab-icon">✓</span>验收</button>
+    <button class="tab-btn" type="button" data-target="profile"><span class="tab-icon">◎</span>我的</button>
+  </nav>
+
+  <script>
+    const state = {
+      material: "",
+      repairTypes: new Set(),
+      masters: { gold: 0, silver: 0, bronze: 0 },
+      activeAcceptanceOrder: "JD20260909006",
+      acceptanceResult: "pass"
+    };
+
+    const acceptanceOrders = {
+      JD20260909006: {
+        short: "瓷砖缺角",
+        title: "#JD20260909006 瓷砖缺角修复",
+        meta: "成都某家具厂 · 李师傅",
+        content: "瓷砖 / 缺角 / 拼缝",
+        time: "2026-09-12 15:00",
+        status: "师傅已提交完工凭证",
+        result: ""
+      },
+      JD20260909007: {
+        short: "家具补漆",
+        title: "#JD20260909007 家具补漆修复",
+        meta: "成都某家具厂 · 周师傅",
+        content: "木材 / 划痕 / 补漆",
+        time: "2026-09-13 09:30",
+        status: "等待客户验收确认",
+        result: ""
+      },
+      JD20260909011: {
+        short: "大理石裂缝",
+        title: "#JD20260909011 大理石裂缝修复",
+        meta: "成都某家具厂 · 李师傅、郑师傅",
+        content: "大理石 / 裂缝 / 拼缝",
+        time: "2026-09-14 10:30",
+        status: "平台已归档施工记录",
+        result: ""
+      }
+    };
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+    function setInvalid(field, invalid) {
+      const node = document.querySelector(`[data-field="${field}"]`);
+      if (node) node.classList.toggle("invalid", invalid);
+    }
+
+    function showToast(message) {
+      const toast = $("#toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2800);
+    }
+
+    function bindUploadPreview(photoId, videoId, listId, fieldName) {
+      const render = () => {
+        const photoFiles = $(`#${photoId}`).files;
+        const videoFiles = $(`#${videoId}`).files;
+        const files = [...photoFiles, ...videoFiles];
+        const list = $(`#${listId}`);
+        list.innerHTML = "";
+        files.slice(0, 6).forEach((file) => {
+          const item = document.createElement("span");
+          item.textContent = `${file.type.startsWith("video") ? "视频" : "图片"}：${file.name}`;
+          list.appendChild(item);
+        });
+        if (files.length > 6) {
+          const item = document.createElement("span");
+          item.textContent = `另有 ${files.length - 6} 个文件已选择`;
+          list.appendChild(item);
+        }
+        if (fieldName) setInvalid(fieldName, false);
+      };
+
+      $(`#${photoId}`).addEventListener("change", render);
+      $(`#${videoId}`).addEventListener("change", render);
+    }
+
+    function switchPage(target) {
+      $$(".page").forEach((page) => page.classList.toggle("active", page.dataset.page === target));
+      $$(".tab-btn").forEach((btn) => btn.classList.toggle("active", btn.dataset.target === target));
+      document.querySelector(".app").scrollIntoView({ block: "start" });
+    }
+
+    function currentInquiryUploadCount() {
+      const photoFiles = $("#photoUpload").files;
+      const videoFiles = $("#videoUpload").files;
+      return photoFiles.length + videoFiles.length;
+    }
+
+    function currentAcceptanceUploadCount() {
+      const photoFiles = $("#acceptPhotoUpload").files;
+      const videoFiles = $("#acceptVideoUpload").files;
+      return photoFiles.length + videoFiles.length;
+    }
+
+    function renderAcceptanceTabs() {
+      const pendingOrders = Object.entries(acceptanceOrders).filter(([, order]) => !order.result);
+      $("#acceptanceCount").textContent = `${pendingOrders.length} 单待确认`;
+      $("#acceptanceOrderTabs").innerHTML = pendingOrders.map(([orderNo, order]) => `
+        <button class="order-tab" type="button" data-order="${orderNo}" role="tab" aria-selected="false">
+          <strong>${order.short}</strong>
+          <span>#${orderNo}</span>
+        </button>`).join("");
+
+      const hasPending = pendingOrders.length > 0;
+      $("#acceptanceEmpty").hidden = hasPending;
+      $("#acceptOrderCard").hidden = !hasPending;
+      $("#issueSection").hidden = !hasPending;
+      if (!hasPending) return;
+
+      if (!acceptanceOrders[state.activeAcceptanceOrder] || acceptanceOrders[state.activeAcceptanceOrder].result) {
+        state.activeAcceptanceOrder = pendingOrders[0][0];
+      }
+      $$(".order-tab", $("#acceptanceOrderTabs")).forEach((tab) => {
+        tab.addEventListener("click", () => switchAcceptanceOrder(tab.dataset.order));
+      });
+      switchAcceptanceOrder(state.activeAcceptanceOrder);
+    }
+
+    function switchAcceptanceOrder(orderNo) {
+      const order = acceptanceOrders[orderNo];
+      if (!order || order.result) return;
+
+      state.activeAcceptanceOrder = orderNo;
+      setAcceptanceResult("pass");
+      $("#acceptOrderTitle").textContent = order.title;
+      $("#acceptOrderMeta").textContent = order.meta;
+      $("#acceptOrderContent").textContent = order.content;
+      $("#acceptOrderTime").textContent = order.time;
+      $("#acceptOrderStatus").textContent = order.status;
+      $("#acceptIssueOrder").textContent = `#${orderNo}`;
+      $("#acceptOrderTag").textContent = "待验收";
+      $("#acceptOrderTag").className = "status-tag";
+
+      $$(".order-tab").forEach((tab) => {
+        const active = tab.dataset.order === orderNo;
+        tab.classList.toggle("active", active);
+        tab.setAttribute("aria-selected", active ? "true" : "false");
+      });
+    }
+
+    function completeAcceptance(result) {
+      const orderNo = state.activeAcceptanceOrder;
+      const order = acceptanceOrders[orderNo];
+      if (!order) return;
+      order.result = result;
+      if (orderNo === "JD20260909006") {
+        $("#historyAcceptanceStatus").textContent = result === "pass" ? "已通过验收" : "待返修";
+        $("#historyAcceptanceStatus").className = `status-tag ${result === "pass" ? "done" : "danger"}`;
+      }
+      renderAcceptanceTabs();
+    }
+
+    function setIssueExpanded(expanded) {
+      $("#issueSection").classList.toggle("expanded", expanded);
+      $("#issueToggle").setAttribute("aria-expanded", expanded ? "true" : "false");
+    }
+
+    function setAcceptanceResult(result) {
+      state.acceptanceResult = result;
+      $("#issueSection").classList.toggle("failed", result === "fail");
+      $$(".accept-choice").forEach((btn) => btn.classList.toggle("active", btn.dataset.result === result));
+      if (result === "fail") setIssueExpanded(true);
+      else {
+        setIssueExpanded(false);
+        setInvalid("acceptText", false);
+      }
+    }
+
+    bindUploadPreview("photoUpload", "videoUpload", "previewList", "uploads");
+    bindUploadPreview("acceptPhotoUpload", "acceptVideoUpload", "acceptPreviewList", null);
+
+    $$(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => switchPage(btn.dataset.target));
+    });
+
+    $$(".accept-choice").forEach((btn) => {
+      btn.addEventListener("click", () => setAcceptanceResult(btn.dataset.result));
+    });
+
+    $("#issueToggle").addEventListener("click", () => {
+      const expanded = $("#issueToggle").getAttribute("aria-expanded") === "true";
+      setIssueExpanded(!expanded);
+      if (expanded) setAcceptanceResult("pass");
+      else setAcceptanceResult("fail");
+    });
+
+    $("#acceptPassBtn").addEventListener("click", () => {
+      showToast("已确认通过验收，订单将进入结算流程。");
+      console.log("金大师验收通过", {
+        orderNo: state.activeAcceptanceOrder,
+        result: "pass"
+      });
+      completeAcceptance("pass");
+    });
+
+    $("#quoteQuestionBtn").addEventListener("click", () => {
+      showToast("已打开报价沟通入口，订单仍等待确认。");
+    });
+
+    $("#quoteConfirmBtn").addEventListener("click", () => {
+      $("#quoteConfirmStatus").textContent = "待派单";
+      $("#quoteConfirmStatus").className = "status-tag done";
+      $("#historyQuoteStatus").textContent = "待派单";
+      $("#historyQuoteStatus").className = "status-tag done";
+      $("#quoteConfirmBtn").textContent = "报价已确认";
+      $("#quoteConfirmBtn").disabled = true;
+      $("#quoteConfirmCount").textContent = "已确认";
+      showToast("报价已确认，平台将按银牌大师 1 位进行派单。");
+      console.log("金大师报价确认", { orderNo: "JD20260915009", result: "confirmed" });
+    });
+
+    $("#contactBtn").addEventListener("click", () => {
+      showToast("已为你打开客服沟通入口，正式小程序可接入企微/电话/在线客服。");
+    });
+
+    $("#materialChoices").addEventListener("click", (event) => {
+      const btn = event.target.closest(".choice");
+      if (!btn) return;
+      state.material = btn.dataset.value;
+      $$(".choice", $("#materialChoices")).forEach((item) => item.classList.toggle("active", item === btn));
+      $$(".choice", $("#materialOtherRow")).forEach((item) => item.classList.remove("active"));
+      $("#materialOtherRow").classList.remove("active");
+      setInvalid("material", false);
+    });
+
+    $("#materialOtherRow").addEventListener("click", (event) => {
+      const clickedButton = event.target.closest(".choice");
+      if (!clickedButton && event.target.id !== "materialOther") return;
+
+      if (clickedButton && state.material === "其他") {
+        state.material = "";
+        clickedButton.classList.remove("active");
+        $("#materialOtherRow").classList.remove("active");
+        setInvalid("material", false);
+        return;
+      }
+
+      state.material = "其他";
+      $$(".choice", $("#materialChoices")).forEach((item) => item.classList.remove("active"));
+      $$(".choice", $("#materialOtherRow")).forEach((item) => item.classList.add("active"));
+      $("#materialOtherRow").classList.add("active");
+      $("#materialOther").focus();
+      setInvalid("material", false);
+    });
+
+    $("#typeChoices").addEventListener("click", (event) => {
+      const btn = event.target.closest(".choice");
+      if (!btn) return;
+      const value = btn.dataset.value;
+      if (state.repairTypes.has(value)) state.repairTypes.delete(value);
+      else state.repairTypes.add(value);
+      btn.classList.toggle("active", state.repairTypes.has(value));
+      setInvalid("repairTypes", false);
+    });
+
+    $("#typeOtherRow").addEventListener("click", (event) => {
+      const clickedButton = event.target.closest(".choice");
+      if (!clickedButton && event.target.id !== "typeOther") return;
+      const value = "其他";
+
+      if (clickedButton && state.repairTypes.has(value)) {
+        state.repairTypes.delete(value);
+        clickedButton.classList.remove("active");
+        $("#typeOtherRow").classList.remove("active");
+        setInvalid("repairTypes", false);
+        return;
+      }
+
+      state.repairTypes.add(value);
+      $$(".choice", $("#typeOtherRow")).forEach((item) => item.classList.add("active"));
+      $("#typeOtherRow").classList.add("active");
+      $("#typeOther").focus();
+      setInvalid("repairTypes", false);
+    });
+
+    $("#materialOther").addEventListener("input", () => setInvalid("material", false));
+    $("#typeOther").addEventListener("input", () => setInvalid("repairTypes", false));
+
+    $$(".master-row").forEach((row) => {
+      row.addEventListener("click", (event) => {
+        const btn = event.target.closest("button[data-step]");
+        if (!btn) return;
+        const grade = row.dataset.grade;
+        const next = Math.max(0, Math.min(20, state.masters[grade] + Number(btn.dataset.step)));
+        state.masters[grade] = next;
+        $("[data-count]", row).textContent = next;
+        setInvalid("masters", false);
+      });
+    });
+
+    $("#repairForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const filesCount = currentInquiryUploadCount();
+      const visitTime = $("#visitTime").value;
+      const duration = Number($("#duration").value);
+      const damageCountValue = $("#damageCount").value.trim();
+      const damageLengthValue = $("#damageLength").value.trim();
+      const damageCount = Number(damageCountValue);
+      const damageLength = Number(damageLengthValue);
+      const address = $("#address").value.trim();
+      const materialOther = $("#materialOther").value.trim();
+      const typeOther = $("#typeOther").value.trim();
+      const name = $("#name").value.trim();
+      const wechat = $("#wechat").value.trim();
+      const phone = $("#phone").value.trim();
+      const masterTotal = Object.values(state.masters).reduce((sum, value) => sum + value, 0);
+      const phoneOk = /^1[3-9]\d{9}$|^\d{7,12}$/.test(phone);
+      const materialOk = Boolean(state.material) && (state.material !== "其他" || Boolean(materialOther));
+      const repairTypesOk = state.repairTypes.size > 0 && (!state.repairTypes.has("其他") || Boolean(typeOther));
+      const materialValue = state.material === "其他" ? materialOther : state.material;
+      const repairTypeValues = [...state.repairTypes].map((value) => value === "其他" ? typeOther : value);
+
+      const checks = {
+        uploads: filesCount > 0,
+        material: materialOk,
+        repairTypes: repairTypesOk,
+        damageCount: Boolean(damageCountValue) && Number.isInteger(damageCount) && damageCount >= 1,
+        damageLength: Boolean(damageLengthValue) && Number.isFinite(damageLength) && damageLength >= 0,
+        visitTime: Boolean(visitTime),
+        duration: Number.isInteger(duration) && duration >= 1,
+        address: Boolean(address),
+        masters: masterTotal > 0,
+        name: Boolean(name),
+        wechat: Boolean(wechat),
+        phone: phoneOk
+      };
+
+      Object.entries(checks).forEach(([field, ok]) => setInvalid(field, !ok));
+
+      if (!Object.values(checks).every(Boolean)) {
+        showToast("还有必填信息未完成，请检查标红提示。");
+        const firstInvalid = $(".field.invalid");
+        if (firstInvalid) firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      showToast("需求已生成，下一步可进入报价确认与派单流程。");
+      console.log("金大师维修需求", {
+        material: materialValue,
+        repairTypes: repairTypeValues,
+        damageCount,
+        damageLength,
+        visitTime,
+        duration,
+        address,
+        masters: state.masters,
+        name,
+        wechat,
+        phone,
+        filesCount
+      });
+    });
+
+    $("#acceptanceForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const text = $("#acceptText").value.trim();
+      const filesCount = currentAcceptanceUploadCount();
+      const checks = {
+        acceptUploads: filesCount > 0,
+        acceptText: Boolean(text)
+      };
+
+      Object.entries(checks).forEach(([field, ok]) => setInvalid(field, !ok));
+
+      if (!Object.values(checks).every(Boolean)) {
+        showToast("请补充验收图片/视频和问题说明。");
+        const firstInvalid = $("#acceptanceForm .field.invalid");
+        if (firstInvalid) firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      showToast("验收问题已提交，平台将复核并同步处理进度。");
+      console.log("金大师验收问题", {
+        orderNo: state.activeAcceptanceOrder,
+        result: state.acceptanceResult,
+        text,
+        filesCount
+      });
+      completeAcceptance("fail");
+    });
+
+    $("#profileForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const profileName = $("#profileName").value.trim();
+      const profileWechat = $("#profileWechat").value.trim();
+      const profilePhone = $("#profilePhone").value.trim();
+      const profileAddress = $("#profileAddress").value.trim();
+      const phoneOk = /^1[3-9]\d{9}$|^\d{7,12}$/.test(profilePhone);
+
+      const checks = {
+        profileName: Boolean(profileName),
+        profileWechat: Boolean(profileWechat),
+        profilePhone: phoneOk,
+        profileAddress: Boolean(profileAddress)
+      };
+
+      Object.entries(checks).forEach(([field, ok]) => setInvalid(field, !ok));
+
+      if (!Object.values(checks).every(Boolean)) {
+        showToast("我的信息还有未完成项，请检查提示。");
+        return;
+      }
+
+      $(".profile-hero h2").textContent = profileName;
+      $(".profile-hero p").textContent = `联系人：${profileName} · 微信：${profileWechat}`;
+      showToast("我的信息已保存。");
+    });
+
+    renderAcceptanceTabs();
+  </script>
+</body>
+</html>

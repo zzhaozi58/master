@@ -1,0 +1,1660 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>金大师管理小程序原型</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      --green: #004428;
+      --green-2: #00643c;
+      --green-3: #e9f4ee;
+      --gold: #c98a25;
+      --ink: #14231c;
+      --muted: #66736d;
+      --line: #e8dfd0;
+      --paper: #fffdf8;
+      --bg: #f7f4ed;
+      --warn: #9a5a00;
+      --danger: #b8422c;
+      --radius: 8px;
+      --shadow: 0 10px 28px rgba(0, 45, 27, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.45;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .app {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 86px;
+      background:
+        linear-gradient(180deg, rgba(0, 68, 40, .08), rgba(255, 253, 248, 0) 230px),
+        var(--paper);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.04);
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .hero {
+      padding: 18px 18px 16px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 86% 0, rgba(244, 211, 123, .24), transparent 34%),
+        linear-gradient(145deg, #00321e, #005434 70%, #00351f);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 9px rgba(0,0,0,.28));
+    }
+
+    .kicker {
+      margin: 0 0 3px;
+      color: rgba(255,255,255,.72);
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      margin: 14px 0 0;
+      color: rgba(255,255,255,.82);
+      font-size: 13px;
+    }
+
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .back-btn {
+      min-width: 42px;
+      min-height: 34px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: var(--radius);
+      color: #fff;
+      background: rgba(255,255,255,.12);
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .top-title {
+      margin: 0;
+      color: rgba(255,255,255,.88);
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    main { padding: 14px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stat {
+      min-height: 70px;
+      padding: 10px 8px;
+      border: 1px solid rgba(201, 138, 37, .18);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: var(--shadow);
+      text-align: center;
+      cursor: pointer;
+      appearance: none;
+    }
+
+    .stat.active {
+      border-color: var(--green);
+      background: var(--green-3);
+      box-shadow: inset 0 3px 0 var(--green), var(--shadow);
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--green);
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .section {
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px solid rgba(201, 138, 37, .18);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.9);
+      box-shadow: var(--shadow);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--green);
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .section-note {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pill, .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      width: max-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: var(--green);
+      background: var(--green-3);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tag.warn { color: var(--warn); background: #fff2d8; }
+    .tag.danger { color: var(--danger); background: #fdebe7; }
+
+    .search {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      margin: 10px -2px 0;
+      padding: 2px 2px 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filters::-webkit-scrollbar { display: none; }
+
+    .chip {
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: #fff;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-3);
+    }
+
+    .card-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .order-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .order-card.active {
+      border-color: var(--green);
+      background: var(--green-3);
+      box-shadow: inset 3px 0 0 var(--green);
+    }
+
+    .order-card-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 11px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .order-action {
+      min-width: 104px;
+      min-height: 40px;
+      padding: 8px 14px;
+      border: 1px solid var(--green);
+      border-radius: var(--radius);
+      color: #fff;
+      background: var(--green);
+      font-size: 13px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .card-title {
+      margin: 0;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .card-meta {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .mini-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mini-row strong {
+      color: var(--ink);
+      font-weight: 760;
+      text-align: right;
+    }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .media-box {
+      min-height: 74px;
+      display: grid;
+      place-items: center;
+      border: 1px dashed rgba(0, 68, 40, .3);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: #f8fbf7;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .form {
+      display: grid;
+      gap: 11px;
+      margin-top: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    label {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid #ded7cb;
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 78px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0, 100, 60, .1);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      min-height: 44px;
+      border: 1px solid rgba(0, 68, 40, .25);
+      border-radius: var(--radius);
+      color: var(--green);
+      background: #fff;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      border-color: var(--green);
+      color: #fff;
+      background: linear-gradient(90deg, var(--green), var(--green-2));
+    }
+
+    .btn.warn {
+      border-color: #e8c47c;
+      color: #7a4a00;
+      background: #fff4d9;
+    }
+
+    .single-action { grid-template-columns: 1fr; }
+
+    .workflow-summary {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fafbf8;
+    }
+
+    .workflow-hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .master-select-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .master-select-group {
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .master-select-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 9px;
+    }
+
+    .master-select-head strong {
+      color: var(--green);
+      font-size: 14px;
+    }
+
+    .master-select-count {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .master-name-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .master-option {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr) 76px;
+      align-items: stretch;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .master-index {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 820;
+    }
+
+    .master-choice {
+      position: relative;
+      min-width: 0;
+      cursor: pointer;
+    }
+
+    .master-choice input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .master-choice span {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: flex-start;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: #fff;
+      font-size: 14px;
+      font-weight: 760;
+      text-align: left;
+    }
+
+    .master-choice-name {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .availability-chip {
+      flex: 0 0 auto;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 820;
+      color: #66736d;
+      background: #f2f0e9;
+    }
+
+    .availability-chip.free {
+      color: #00643c;
+      background: #e9f4ee;
+    }
+
+    .availability-chip.busy {
+      color: #b8422c;
+      background: #fff0eb;
+    }
+
+    .master-choice input:checked + span {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-3);
+      box-shadow: inset 0 0 0 1px var(--green);
+    }
+
+    .master-choice input:checked + span::before {
+      content: "✓";
+      margin-right: 5px;
+      font-weight: 900;
+    }
+
+    .master-choice.is-disabled span {
+      color: #9aa39e;
+      background: #f5f5f2;
+      cursor: not-allowed;
+    }
+
+    .master-call-btn {
+      min-width: 76px;
+      min-height: 44px;
+      border: 1px solid #d6aa4d;
+      border-radius: var(--radius);
+      background: #fff4d7;
+      color: #825600;
+      font-size: 12px;
+      font-weight: 820;
+      cursor: pointer;
+    }
+
+    .master-call-btn:active {
+      transform: scale(.98);
+      background: #ffe7a5;
+    }
+
+    .manager-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .empty-state {
+      padding: 26px 18px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: #fafbf8;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .master-logo {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+    }
+
+    .manager-main {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .manager-card.active {
+      border-color: var(--green);
+      background: var(--green-3);
+      box-shadow: inset 0 0 0 1px var(--green);
+    }
+
+    .master-pay-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .pay-box {
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .pay-box span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .pay-box strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--green);
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .master-order-group {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .master-order-title {
+      margin: 0;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .master-order-card {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--green);
+      font-weight: 900;
+    }
+
+    .gold { filter: saturate(1.1) contrast(1.05); }
+    .silver { filter: grayscale(1) sepia(.08) saturate(.35) brightness(1.08) contrast(1.04); }
+    .bronze { filter: sepia(.8) hue-rotate(338deg) saturate(1.45) brightness(.9) contrast(1.05); }
+
+    .tab-bar {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 5;
+      width: min(430px, 100vw);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+      border-top: 1px solid #eadfce;
+      background: rgba(255, 253, 248, .94);
+      backdrop-filter: blur(14px);
+    }
+
+    .tab-bar.hidden { display: none; }
+
+    .tab-btn {
+      min-height: 54px;
+      border: 0;
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 760;
+      cursor: pointer;
+    }
+
+    .tab-icon {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--gold);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .tab-btn.active {
+      color: var(--green);
+      background: var(--green-3);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 86px;
+      z-index: 10;
+      width: min(360px, calc(100vw - 32px));
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      color: #fff;
+      background: rgba(0, 52, 31, .94);
+      box-shadow: 0 10px 26px rgba(0,0,0,.2);
+      font-size: 14px;
+      transition: .2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="page active" data-page="orders">
+      <header class="hero">
+        <div class="brand-row">
+          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <p class="kicker">管理员小程序 / 订单履约</p>
+            <h1>金大师管理端</h1>
+          </div>
+        </div>
+        <p class="hero-copy">处理客户维修需求、报价确认、师傅派单和施工进度。</p>
+      </header>
+
+      <main>
+        <div class="stats">
+          <button class="stat active" type="button" data-stat-filter="quote"><span>待报价</span><strong id="statQuote">0</strong></button>
+          <button class="stat" type="button" data-stat-filter="dispatch"><span>待派单</span><strong id="statDispatch">0</strong></button>
+          <button class="stat" type="button" data-stat-filter="progress"><span>施工中</span><strong id="statProgress">0</strong></button>
+          <button class="stat" type="button" data-stat-filter="acceptance"><span>待验收</span><strong id="statAcceptance">0</strong></button>
+        </div>
+
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">订单处理</h2>
+              <p class="section-note">从小程序提交的维修需求进入这里。</p>
+            </div>
+            <span class="pill">工作台</span>
+          </div>
+          <input class="search" id="searchInput" type="search" placeholder="搜索订单号、客户、手机号、材质">
+          <div class="card-list" id="orderList"></div>
+        </section>
+
+      </main>
+    </section>
+
+    <section class="page" data-page="orderDetail">
+      <header class="hero">
+        <div class="top-nav">
+          <button class="back-btn" type="button" id="backToOrders" aria-label="返回订单列表">‹</button>
+          <p class="top-title">订单详情</p>
+        </div>
+        <div class="brand-row">
+          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <p class="kicker">客户需求 / 报价派单</p>
+            <h1 id="detailTitle">订单详情</h1>
+          </div>
+        </div>
+        <p class="hero-copy">查看客户上传资料，确认报价并匹配具体施工师傅。</p>
+      </header>
+
+      <main>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">客户需求</h2>
+              <p class="section-note">查看客户需求，并按当前订单状态完成处理。</p>
+            </div>
+            <span class="tag warn" id="detailStatus">待报价</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-row"><span>订单号</span><strong id="detailNo">-</strong></div>
+            <div class="mini-row"><span>客户</span><strong id="detailCustomer">-</strong></div>
+            <div class="mini-row"><span>微信 / 电话</span><strong id="detailContact">-</strong></div>
+            <div class="mini-row"><span>材质</span><strong id="detailMaterial">-</strong></div>
+            <div class="mini-row"><span>修复类型</span><strong id="detailTypes">-</strong></div>
+            <div class="mini-row"><span>伤口</span><strong id="detailDamage">-</strong></div>
+            <div class="mini-row"><span>上门时间</span><strong id="detailTime">-</strong></div>
+            <div class="mini-row"><span>预计工期</span><strong id="detailDuration">-</strong></div>
+            <div class="mini-row"><span>上门地址</span><strong id="detailAddress">-</strong></div>
+            <div class="mini-row"><span>客户确认师傅</span><strong id="detailMasterRequest">-</strong></div>
+          </div>
+          <div class="media-grid">
+            <div class="media-box">图片<br>近景</div>
+            <div class="media-box">图片<br>全景</div>
+            <div class="media-box">视频<br>细节</div>
+          </div>
+        </section>
+
+        <section class="section" id="workflowSection">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" id="workflowTitle">订单处理</h2>
+              <p class="section-note" id="workflowNote">按当前状态完成下一步操作。</p>
+            </div>
+          </div>
+          <div id="workflowBody"></div>
+        </section>
+      </main>
+    </section>
+
+    <section class="page" data-page="acceptance">
+      <header class="hero">
+        <div class="brand-row">
+          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <p class="kicker">验收问题 / 复核处理</p>
+            <h1>验收处理</h1>
+          </div>
+        </div>
+        <p class="hero-copy">处理客户选择不通过后提交的图片、视频和问题说明。</p>
+      </header>
+      <main>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">待处理问题</h2>
+              <p class="section-note">优先处理不通过验收的订单。</p>
+            </div>
+            <span class="pill" id="acceptanceIssueCount">2 单</span>
+          </div>
+          <div class="card-list" id="acceptanceIssueList"></div>
+        </section>
+      </main>
+    </section>
+
+    <section class="page" data-page="masters">
+      <header class="hero">
+        <div class="brand-row">
+          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <p class="kicker">金 / 银 / 铜大师资源池</p>
+            <h1>师傅管理</h1>
+          </div>
+        </div>
+        <p class="hero-copy">维护等级、能力标签、接单状态和派单节奏。</p>
+      </header>
+      <main>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">师傅列表</h2>
+              <p class="section-note">用于报价后按等级和能力匹配派单。</p>
+            </div>
+            <span class="pill">12 人</span>
+          </div>
+          <div class="card-list" id="masterList"></div>
+          <div class="actions single-action">
+            <button class="btn primary" type="button" id="addMasterBtn">新增认证师傅</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" id="masterDetailName">师傅详情</h2>
+              <p class="section-note" id="masterDetailMeta">查看资料、订单与结算。</p>
+            </div>
+            <span class="pill" id="masterDetailTier">-</span>
+          </div>
+          <form class="form" id="masterProfileForm">
+            <div class="field">
+              <label for="masterPhoneInput">联系电话</label>
+              <input id="masterPhoneInput" type="tel" inputmode="tel">
+            </div>
+            <div class="field">
+              <label for="masterIntroInput">介绍信息</label>
+              <textarea id="masterIntroInput" placeholder="填写擅长材料、工艺、服务区域等"></textarea>
+            </div>
+            <div class="actions single-action">
+              <button class="btn primary" type="submit">保存师傅资料</button>
+            </div>
+          </form>
+          <div class="master-pay-grid">
+            <div class="pay-box"><span>需要支付</span><strong id="masterPendingPay">¥0</strong></div>
+            <div class="pay-box"><span>已支付</span><strong id="masterPaidPay">¥0</strong></div>
+          </div>
+          <div id="masterOrderGroups"></div>
+        </section>
+      </main>
+    </section>
+
+    <section class="page" data-page="customers">
+      <header class="hero">
+        <div class="brand-row">
+          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <p class="kicker">客户资料 / 合作记录</p>
+            <h1>客户管理</h1>
+          </div>
+        </div>
+        <p class="hero-copy">查看公司名称、联系人、微信号/微信昵称、电话和订单历史。</p>
+      </header>
+      <main>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">客户列表</h2>
+              <p class="section-note">适合客服回访和 B 端合作维护。</p>
+            </div>
+            <span class="pill">客户档案</span>
+          </div>
+          <div class="card-list">
+            <article class="manager-card">
+              <div class="manager-main">
+                <div class="avatar">家</div>
+                <div><p class="card-title">成都某家具厂</p><p class="card-meta">张先生 · wx_demo · 6 单</p></div>
+                <span class="tag">家具厂</span>
+              </div>
+            </article>
+            <article class="manager-card">
+              <div class="manager-main">
+                <div class="avatar">石</div>
+                <div><p class="card-title">成都某建材门店</p><p class="card-meta">刘女士 · stone_store · 3 单</p></div>
+                <span class="tag">建材</span>
+              </div>
+            </article>
+            <article class="manager-card">
+              <div class="manager-main">
+                <div class="avatar">售</div>
+                <div><p class="card-title">品牌售后团队</p><p class="card-meta">售后主管 · after_sales · 12 单</p></div>
+                <span class="tag">售后</span>
+              </div>
+            </article>
+          </div>
+          <div class="actions single-action">
+            <button class="btn" type="button" id="exportBtn">导出客户记录</button>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <nav class="tab-bar" aria-label="管理端底部导航">
+    <button class="tab-btn active" type="button" data-target="orders"><span class="tab-icon">单</span>订单</button>
+    <button class="tab-btn" type="button" data-target="acceptance"><span class="tab-icon">验</span>验收</button>
+    <button class="tab-btn" type="button" data-target="masters"><span class="tab-icon">师</span>师傅</button>
+    <button class="tab-btn" type="button" data-target="customers"><span class="tab-icon">客</span>客户</button>
+  </nav>
+
+  <script>
+    const orders = [
+      { no: "JD20260915009", customer: "成都某家具厂", contact: "张先生", wechat: "jindashi_client", phone: "13800138000", address: "成都市武侯区科华南路 88 号", material: "木材", types: ["浅表划痕"], damageCount: 3, damageLength: 12, time: "2026-09-17 10:00", duration: 1, masterRequest: { gold: 0, silver: 1, bronze: 0 }, status: "待客户确认", filter: "quote", quoteState: "awaitingCustomer", quoteAmount: 150, visitFee: 50, quoteNote: "浅表划痕按 3 处计价。" },
+      { no: "JD20260914001", customer: "成都某家具厂", contact: "张先生", wechat: "wx_demo", phone: "13800138000", address: "成都市高新区天府三街 66 号", material: "木材", types: ["划痕", "补漆"], damageCount: 3, damageLength: 15, time: "2026-09-16 10:00", duration: 2, masterRequest: { gold: 0, silver: 1, bronze: 0 }, status: "待报价", filter: "quote", quoteState: "needsQuote", quoteAmount: "", visitFee: 50, quoteNote: "按客户上传资料初步定损，最终以现场确认损伤深度、纹理和色差为准。" },
+      { no: "JD20260912002", customer: "成都某建材门店", contact: "刘女士", wechat: "stone_store", phone: "13900139000", address: "成都市金牛区金府路 18 号", material: "岩板", types: ["缺角", "坑洞"], damageCount: 1, damageLength: 8, time: "2026-09-14 14:00", duration: 1, masterRequest: { gold: 2, silver: 0, bronze: 0 }, selectedMasters: { gold: [], silver: [], bronze: [] }, status: "待派单", filter: "dispatch", quoteAmount: "客户已确认", visitFee: 50 },
+      { no: "JD20260911005", customer: "品牌售后团队", contact: "售后主管", wechat: "after_sales", phone: "13700137000", address: "成都市锦江区东大街 120 号", material: "大理石", types: ["裂缝", "拼缝"], damageCount: 2, damageLength: 34, time: "2026-09-13 10:30", duration: 2, masterRequest: { gold: 0, silver: 2, bronze: 0 }, selectedMasters: { gold: [], silver: ["李建军", "周海峰"], bronze: [] }, status: "施工中", filter: "progress", progressNote: "师傅已到场，正在进行裂缝填补与纹理复原。" },
+      { no: "JD20260910008", customer: "物业工程部", contact: "周经理", wechat: "property_fix", phone: "13600136000", address: "成都市成华区建设南路 9 号", material: "水磨石", types: ["其他：表面翻新"], damageCount: 4, damageLength: 0, time: "2026-09-17 09:00", duration: 3, masterRequest: { gold: 0, silver: 0, bronze: 1 }, status: "待报价", filter: "quote", quoteState: "needsQuote", quoteAmount: "", visitFee: 50, quoteNote: "需结合现场面积和工艺确认最终报价。" },
+      { no: "JD20260909006", customer: "成都某家具厂", contact: "张先生", wechat: "jindashi_client", phone: "13800138000", address: "成都市武侯区科华南路 88 号", material: "瓷砖", types: ["缺角", "拼缝"], damageCount: 2, damageLength: 12, time: "2026-09-12 15:00", duration: 1, masterRequest: { gold: 0, silver: 1, bronze: 0 }, selectedMasters: { gold: [], silver: ["李建军"], bronze: [] }, status: "待验收", filter: "acceptance", completedAt: "2026-09-14 16:20" },
+      { no: "JD20260909007", customer: "成都某家具厂", contact: "张先生", wechat: "jindashi_client", phone: "13800138000", address: "成都市武侯区科华南路 88 号", material: "木材", types: ["划痕", "补漆"], damageCount: 1, damageLength: 5, time: "2026-09-13 09:30", duration: 1, masterRequest: { gold: 0, silver: 1, bronze: 0 }, selectedMasters: { gold: [], silver: ["周海峰"], bronze: [] }, status: "待验收", filter: "acceptance", completedAt: "2026-09-14 17:10" },
+      { no: "JD20260909011", customer: "成都某家具厂", contact: "张先生", wechat: "jindashi_client", phone: "13800138000", address: "成都市武侯区科华南路 88 号", material: "大理石", types: ["裂缝", "拼缝"], damageCount: 2, damageLength: 20, time: "2026-09-14 10:30", duration: 2, masterRequest: { gold: 0, silver: 2, bronze: 0 }, selectedMasters: { gold: [], silver: ["李建军", "郑文斌"], bronze: [] }, status: "待验收", filter: "acceptance", completedAt: "2026-09-14 18:40" }
+    ];
+
+    const acceptanceIssues = [
+      { no: "JD20260908001", title: "家具补漆修复", customer: "成都某家具厂", contact: "张先生", phone: "13800138000", wechat: "jindashi_client", address: "成都市武侯区科华南路 88 号", material: "木材", types: ["补漆"], damageCount: 1, damageLength: 5, time: "2026-09-16 09:30", duration: 1, masterRequest: { gold: 0, silver: 1, bronze: 0 }, selectedMasters: { gold: [], silver: ["李建军"], bronze: [] }, issue: "补漆边缘仍有色差", evidence: "1 图 / 1 视频" },
+      { no: "JD20260908002", title: "岩板缺角修复", customer: "成都某建材门店", contact: "刘女士", phone: "13900139000", wechat: "stone_store", address: "成都市金牛区金府路 18 号", material: "岩板", types: ["缺角"], damageCount: 1, damageLength: 4, time: "2026-09-16 14:00", duration: 1, masterRequest: { gold: 1, silver: 0, bronze: 0 }, selectedMasters: { gold: ["王志强"], silver: [], bronze: [] }, issue: "修复边缘阴影明显", evidence: "2 图" }
+    ];
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+    let activeOrderNo = orders[0].no;
+    let activeFilter = "quote";
+
+    function showToast(message) {
+      const toast = $("#toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+
+    function statusClass(status) {
+      if (status === "待报价" || status === "待客户确认" || status === "待派单") return "warn";
+      if (status === "待验收") return "danger";
+      return "";
+    }
+
+    const stageMeta = {
+      quote: { status: "待报价", cardAction: "去报价", title: "提交维修报价", note: "核对客户资料，填写金额后提交给客户确认。" },
+      dispatch: { status: "待派单", cardAction: "去派单", title: "选择施工师傅", note: "按客户已确认的金、银、铜人数，在对应分类中选择具体师傅。" },
+      progress: { status: "施工中", cardAction: "跟进施工", title: "更新施工进度", note: "跟进师傅施工情况，完工后发起客户验收。" },
+      acceptance: { status: "待验收", cardAction: "查看验收", title: "客户验收进度", note: "施工已完成，等待客户在小程序确认验收结果。" }
+    };
+
+    const tierMeta = {
+      gold: { label: "金牌大师", short: "金" },
+      silver: { label: "银牌大师", short: "银" },
+      bronze: { label: "铜牌大师", short: "铜" }
+    };
+
+    const masterPool = {
+      gold: ["王志强", "陈国栋", "刘明远"],
+      silver: ["李建军", "周海峰", "郑文斌"],
+      bronze: ["赵立成", "吴德勇", "孙家辉"]
+    };
+
+    const masterPhones = {
+      "王志强": "13800002601",
+      "陈国栋": "13800002602",
+      "刘明远": "13800002603",
+      "李建军": "13800002604",
+      "周海峰": "13800002605",
+      "郑文斌": "13800002606",
+      "赵立成": "13800002607",
+      "吴德勇": "13800002608",
+      "孙家辉": "13800002609"
+    };
+
+    const masters = [
+      { name: "王志强", tier: "gold", skills: "岩板、石材、复杂纹理", status: "接单中", phone: masterPhones["王志强"], intro: "擅长岩板、大理石和复杂纹理修复，适合高难度缺角与裂缝处理。" },
+      { name: "李建军", tier: "silver", skills: "家具补漆、木门修复", status: "接单中", phone: masterPhones["李建军"], intro: "擅长家具补漆、木门磕碰、浅表划痕修复，服务成都主城区。" },
+      { name: "赵立成", tier: "bronze", skills: "常规小修、瓷砖缺角", status: "可预约", phone: masterPhones["赵立成"], intro: "擅长常规小修、瓷砖缺角和小面积补色，响应速度快。" }
+    ];
+
+    const masterSettlementRecords = [
+      { master: "王志强", no: "JD20260908002", title: "岩板缺角修复", phase: "完成", amount: 360, payStatus: "已支付" },
+      { master: "李建军", no: "JD20260908001", title: "家具补漆修复", phase: "被分配", amount: 198, payStatus: "需要支付" },
+      { master: "李建军", no: "JD20260909006", title: "瓷砖缺角修复", phase: "完成", amount: 234, payStatus: "需要支付" },
+      { master: "李建军", no: "JD20260911005", title: "大理石裂缝修复", phase: "进行中", amount: 240, payStatus: "需要支付" },
+      { master: "李建军", no: "JD20260906003", title: "木门补漆修复", phase: "完成", amount: 198, payStatus: "已支付" },
+      { master: "周海峰", no: "JD20260909007", title: "家具补漆修复", phase: "完成", amount: 180, payStatus: "需要支付" },
+      { master: "郑文斌", no: "JD20260909011", title: "大理石裂缝修复", phase: "完成", amount: 260, payStatus: "需要支付" },
+      { master: "赵立成", no: "JD20260910008", title: "水磨石表面翻新", phase: "被分配", amount: 160, payStatus: "需要支付" }
+    ];
+
+    let activeMasterName = "李建军";
+
+    const masterAvailability = {
+      "王志强": { "2026-09-14-pm": "free", "2026-09-16-am": "busy", "2026-09-17-am": "free" },
+      "陈国栋": { "2026-09-14-pm": "busy", "2026-09-16-am": "free" },
+      "刘明远": { "2026-09-14-pm": "unknown", "2026-09-17-am": "free" },
+      "李建军": { "2026-09-12-pm": "free", "2026-09-13-am": "free", "2026-09-16-am": "busy" },
+      "周海峰": { "2026-09-13-am": "free", "2026-09-14-am": "busy" },
+      "郑文斌": { "2026-09-14-am": "free", "2026-09-17-am": "unknown" },
+      "赵立成": { "2026-09-17-am": "free" },
+      "吴德勇": { "2026-09-17-am": "busy" },
+      "孙家辉": {}
+    };
+
+    const availabilityMeta = {
+      free: { label: "有空", className: "free" },
+      busy: { label: "无空", className: "busy" },
+      unknown: { label: "未知", className: "unknown" }
+    };
+
+    function orderAvailabilitySlot(order) {
+      const [date, time = "00:00"] = order.time.split(" ");
+      const hour = Number(time.split(":")[0] || 0);
+      return `${date}-${hour < 12 ? "am" : "pm"}`;
+    }
+
+    function masterAvailabilityForOrder(name, order) {
+      const status = masterAvailability[name]?.[orderAvailabilitySlot(order)] || "unknown";
+      return availabilityMeta[status] || availabilityMeta.unknown;
+    }
+
+    function masterRequestSummary(order) {
+      return Object.entries(tierMeta)
+        .filter(([tier]) => order.masterRequest[tier] > 0)
+        .map(([tier, meta]) => `${meta.short} ${order.masterRequest[tier]} 位`)
+        .join(" / ") || "未指定";
+    }
+
+    function selectedMasterSummary(order) {
+      const names = Object.values(order.selectedMasters || {}).flat();
+      return names.length ? names.join("、") : "尚未派单";
+    }
+
+    function masterLogoClass(tier) {
+      return tier === "gold" ? "gold" : tier === "silver" ? "silver" : "bronze";
+    }
+
+    function tierLabel(tier) {
+      return tierMeta[tier]?.label || "认证师傅";
+    }
+
+    function renderMasters() {
+      $("#masterList").innerHTML = masters.map((master) => {
+        const related = masterSettlementRecords.filter((item) => item.master === master.name);
+        const pending = related.filter((item) => item.payStatus === "需要支付").reduce((sum, item) => sum + item.amount, 0);
+        return `
+          <article class="manager-card ${master.name === activeMasterName ? "active" : ""}" data-open-master="${master.name}">
+            <div class="manager-main">
+              <img class="master-logo ${masterLogoClass(master.tier)}" src="assets/jindashi-logo.png" alt="${tierLabel(master.tier)}">
+              <div>
+                <p class="card-title">${master.name}</p>
+                <p class="card-meta">${master.skills} · ${master.phone}</p>
+              </div>
+              <span class="tag ${master.tier === "gold" ? "warn" : ""}">${tierMeta[master.tier].short}牌</span>
+            </div>
+            <div class="mini-list">
+              <div class="mini-row"><span>接单状态</span><strong>${master.status}</strong></div>
+              <div class="mini-row"><span>需要支付</span><strong>¥${pending}</strong></div>
+            </div>
+          </article>`;
+      }).join("");
+
+      $$("[data-open-master]").forEach((card) => {
+        card.addEventListener("click", () => {
+          activeMasterName = card.dataset.openMaster;
+          renderMasters();
+          renderMasterDetail();
+        });
+      });
+    }
+
+    function masterOrderCard(record) {
+      return `
+        <article class="master-order-card">
+          <div class="card-head">
+            <div>
+              <p class="card-title">#${record.no}</p>
+              <p class="card-meta">${record.title}</p>
+            </div>
+            <span class="tag ${record.payStatus === "需要支付" ? "warn" : ""}">${record.payStatus}</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-row"><span>订单阶段</span><strong>${record.phase}</strong></div>
+            <div class="mini-row"><span>师傅金额</span><strong>¥${record.amount}</strong></div>
+          </div>
+        </article>`;
+    }
+
+    function renderMasterDetail() {
+      const master = masters.find((item) => item.name === activeMasterName) || masters[0];
+      const records = masterSettlementRecords.filter((item) => item.master === master.name);
+      const pending = records.filter((item) => item.payStatus === "需要支付").reduce((sum, item) => sum + item.amount, 0);
+      const paid = records.filter((item) => item.payStatus === "已支付").reduce((sum, item) => sum + item.amount, 0);
+      $("#masterDetailName").textContent = `${master.name}资料`;
+      $("#masterDetailMeta").textContent = `${tierLabel(master.tier)} · ${master.skills}`;
+      $("#masterDetailTier").textContent = master.status;
+      $("#masterPhoneInput").value = master.phone;
+      $("#masterIntroInput").value = master.intro;
+      $("#masterPendingPay").textContent = `¥${pending}`;
+      $("#masterPaidPay").textContent = `¥${paid}`;
+
+      const groups = ["被分配", "进行中", "完成"];
+      $("#masterOrderGroups").innerHTML = groups.map((phase) => {
+        const list = records.filter((item) => item.phase === phase);
+        return `
+          <div class="master-order-group">
+            <p class="master-order-title">${phase}订单 · ${list.length} 单</p>
+            ${list.length ? list.map(masterOrderCard).join("") : `<div class="empty-state">暂无${phase}订单</div>`}
+          </div>`;
+      }).join("");
+    }
+
+    function orderActionLabel(order) {
+      if (order.filter === "quote" && order.quoteState === "awaitingCustomer") return "查看报价";
+      if (order.filter === "progress" && order.isRework) return "跟进返修";
+      return stageMeta[order.filter].cardAction;
+    }
+
+    function quoteAmountLabel(order) {
+      return typeof order.quoteAmount === "number" ? `${order.quoteAmount} 元` : (order.quoteAmount || "客户已确认");
+    }
+
+    function renderStats() {
+      $("#statQuote").textContent = orders.filter((order) => order.filter === "quote").length;
+      $("#statDispatch").textContent = orders.filter((order) => order.filter === "dispatch").length;
+      $("#statProgress").textContent = orders.filter((order) => order.filter === "progress").length;
+      $("#statAcceptance").textContent = orders.filter((order) => order.filter === "acceptance").length;
+      $$(".stat[data-stat-filter]").forEach((stat) => {
+        stat.classList.toggle("active", stat.dataset.statFilter === activeFilter);
+      });
+    }
+
+    function renderOrders() {
+      const keyword = $("#searchInput").value.trim().toLowerCase();
+      const visible = orders.filter((order) => {
+        const matchesFilter = order.filter === activeFilter;
+        const text = [order.no, order.customer, order.contact, order.phone, order.wechat, order.material, order.types.join(",")].join(" ").toLowerCase();
+        return matchesFilter && text.includes(keyword);
+      });
+
+      $("#orderList").innerHTML = visible.map((order) => `
+        <article class="order-card ${order.no === activeOrderNo ? "active" : ""}" data-no="${order.no}">
+          <div class="card-head">
+            <div>
+              <p class="card-title">#${order.no}</p>
+              <p class="card-meta">${order.customer} · ${order.contact}</p>
+            </div>
+            <span class="tag ${statusClass(order.status)}">${order.status}</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-row"><span>材质 / 类型</span><strong>${order.material} / ${order.types.join("、")}</strong></div>
+            <div class="mini-row"><span>伤口</span><strong>${order.damageCount} 处 / ${order.damageLength} 厘米</strong></div>
+            <div class="mini-row"><span>客户确认师傅</span><strong>${masterRequestSummary(order)}</strong></div>
+          </div>
+          <div class="order-card-footer">
+            <button class="order-action" type="button" data-open-order="${order.no}">${orderActionLabel(order)}</button>
+          </div>
+        </article>
+      `).join("");
+
+      $$("[data-open-order]").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          activeOrderNo = button.dataset.openOrder;
+          renderOrders();
+          renderDetail();
+          showPage("orderDetail");
+        });
+      });
+
+      $$(".order-card[data-no]").forEach((card) => {
+        card.addEventListener("click", () => {
+          activeOrderNo = card.dataset.no;
+          renderOrders();
+          renderDetail();
+          showPage("orderDetail");
+        });
+      });
+    }
+
+    function renderMasterGroups(order) {
+      const selectedMasters = order.selectedMasters || {};
+      return Object.entries(tierMeta)
+        .filter(([tier]) => order.masterRequest[tier] > 0)
+        .map(([tier, meta]) => {
+          const required = order.masterRequest[tier];
+          const selected = selectedMasters[tier] || [];
+          const choices = masterPool[tier].map((name, index) => {
+            const availability = masterAvailabilityForOrder(name, order);
+            return `
+            <div class="master-option">
+              <span class="master-index">${index + 1}</span>
+              <label class="master-choice">
+                <input type="checkbox" data-master-tier="${tier}" value="${name}" ${selected.includes(name) ? "checked" : ""}>
+                <span><span class="master-choice-name">${name}</span><span class="availability-chip ${availability.className}">${availability.label}</span></span>
+              </label>
+              <button class="master-call-btn" type="button" data-call-master="${name}" aria-label="拨打${name}电话确认">拨打</button>
+            </div>`;
+          }).join("");
+          return `
+            <div class="master-select-group" data-master-group="${tier}" data-required="${required}">
+              <div class="master-select-head">
+                <strong>${meta.label}</strong>
+                <span class="master-select-count" id="masterCount-${tier}">已选 ${selected.length}/${required} 位</span>
+              </div>
+              <div class="master-name-options">${choices}</div>
+            </div>`;
+        }).join("");
+    }
+
+    function renderWorkflow(order) {
+      const meta = stageMeta[order.filter];
+      $("#workflowTitle").textContent = meta.title;
+      $("#workflowNote").textContent = meta.note;
+
+      if (order.filter === "quote") {
+        if (order.quoteState === "awaitingCustomer") {
+          const total = Number(order.quoteAmount) + Number(order.visitFee || 0);
+          $("#workflowTitle").textContent = "等待客户确认报价";
+          $("#workflowNote").textContent = "报价已发送给客户；客户确认前不可派单。";
+          $("#workflowBody").innerHTML = `
+            <div class="workflow-summary">
+              <div class="mini-row"><span>维修报价</span><strong>${quoteAmountLabel(order)}</strong></div>
+              <div class="mini-row"><span>上门费</span><strong>${Number(order.visitFee || 0)} 元</strong></div>
+              <div class="mini-row"><span>客户应确认合计</span><strong>${total} 元</strong></div>
+              <div class="mini-row"><span>报价说明</span><strong>${order.quoteNote || "-"}</strong></div>
+              <p class="workflow-hint">客户在用户端确认后，正式系统自动把订单移入“待派单”。</p>
+            </div>
+            <div class="actions">
+              <button class="btn" type="button" data-workflow-action="editQuote">修改报价</button>
+              <button class="btn primary" type="button" data-workflow-action="remindQuote">提醒客户确认</button>
+            </div>`;
+        } else {
+          $("#workflowBody").innerHTML = `
+            <form class="form" id="quoteForm">
+              <div class="two-col">
+                <div class="field">
+                  <label for="quoteAmount">报价金额 *</label>
+                  <input id="quoteAmount" type="number" min="1" inputmode="decimal" required placeholder="输入最终报价" value="${order.quoteAmount || ""}">
+                </div>
+                <div class="field">
+                  <label for="visitFee">上门费</label>
+                  <input id="visitFee" type="number" min="0" inputmode="decimal" value="${order.visitFee ?? 50}">
+                </div>
+              </div>
+              <div class="field">
+                <label for="quoteNote">报价说明</label>
+                <textarea id="quoteNote">${order.quoteNote || ""}</textarea>
+              </div>
+              <p class="workflow-hint">提交后报价发送给客户确认；客户确认前订单仍归在“待报价”。</p>
+              <div class="actions">
+                <button class="btn" type="button" data-workflow-action="saveQuote">保存草稿</button>
+                <button class="btn primary" type="submit">提交报价</button>
+              </div>
+            </form>`;
+        }
+      } else if (order.filter === "dispatch") {
+        $("#workflowBody").innerHTML = `
+          <div class="workflow-summary">
+            <div class="mini-row"><span>报价状态</span><strong>${quoteAmountLabel(order)}</strong></div>
+            <div class="mini-row"><span>确认师傅人数</span><strong>${masterRequestSummary(order)}</strong></div>
+            <div class="mini-row"><span>上门时间</span><strong>${order.time}</strong></div>
+          </div>
+          <form class="form" id="dispatchForm">
+            <div class="field">
+              <label>选择具体师傅 *</label>
+              <div class="master-select-list">${renderMasterGroups(order)}</div>
+            </div>
+            <div class="field">
+              <label for="dispatchNote">派单备注</label>
+              <textarea id="dispatchNote" placeholder="填写施工重点、进场要求等">${order.dispatchNote || ""}</textarea>
+            </div>
+            <div class="actions">
+              <button class="btn" type="button" data-workflow-action="saveDispatch">保存派单设置</button>
+              <button class="btn primary" type="submit">确认派单</button>
+            </div>
+          </form>`;
+      } else if (order.filter === "progress") {
+        if (order.isRework) {
+          $("#workflowTitle").textContent = "跟进返修施工";
+          $("#workflowNote").textContent = "依据客户验收问题完成返修，再次发起客户验收。";
+        }
+        $("#workflowBody").innerHTML = `
+          <div class="workflow-summary">
+            <div class="mini-row"><span>客户确认人数</span><strong>${masterRequestSummary(order)}</strong></div>
+            <div class="mini-row"><span>执行师傅</span><strong>${selectedMasterSummary(order)}</strong></div>
+            <div class="mini-row"><span>计划上门</span><strong>${order.time}</strong></div>
+            ${order.isRework ? `<div class="mini-row"><span>返修原因</span><strong>${order.reworkReason}</strong></div>` : ""}
+          </div>
+          <form class="form" id="progressForm">
+            <div class="field">
+              <label for="progressNote">施工进度</label>
+              <textarea id="progressNote" placeholder="记录当前进度或现场情况">${order.progressNote || ""}</textarea>
+            </div>
+            <div class="actions">
+              <button class="btn" type="button" data-workflow-action="contactMaster">联系师傅</button>
+              <button class="btn primary" type="submit">${order.isRework ? "返修完成并再次验收" : "完工并发起验收"}</button>
+            </div>
+          </form>`;
+      } else {
+        $("#workflowBody").innerHTML = `
+          <div class="workflow-summary">
+            <div class="mini-row"><span>完工时间</span><strong>${order.completedAt || "已提交完工"}</strong></div>
+            <div class="mini-row"><span>执行师傅</span><strong>${selectedMasterSummary(order)}</strong></div>
+            <div class="mini-row"><span>验收状态</span><strong>等待客户确认</strong></div>
+            <p class="workflow-hint">客户选择通过后订单完成；选择不通过后将进入底部“验收”页的复核处理队列。</p>
+          </div>
+          <div class="actions">
+            <button class="btn" type="button" data-workflow-action="contactCustomer">联系客户</button>
+            <button class="btn primary" type="button" data-workflow-action="remindAcceptance">提醒客户验收</button>
+          </div>`;
+      }
+
+      bindWorkflowActions(order);
+    }
+
+    function advanceOrder(order, nextFilter, successMessage) {
+      order.filter = nextFilter;
+      order.status = stageMeta[nextFilter].status;
+      activeFilter = nextFilter;
+      renderStats();
+      renderOrders();
+      renderDetail();
+      showToast(successMessage);
+    }
+
+    function collectSelectedMasters() {
+      const selected = { gold: [], silver: [], bronze: [] };
+      $$("[data-master-tier]:checked").forEach((input) => {
+        selected[input.dataset.masterTier].push(input.value);
+      });
+      return selected;
+    }
+
+    function updateMasterGroup(order, tier) {
+      const required = order.masterRequest[tier];
+      const inputs = $$(`[data-master-tier="${tier}"]`);
+      const selectedCount = inputs.filter((input) => input.checked).length;
+      const atLimit = selectedCount >= required;
+      inputs.forEach((input) => {
+        input.disabled = atLimit && !input.checked;
+        input.closest(".master-choice").classList.toggle("is-disabled", input.disabled);
+      });
+      const count = $(`#masterCount-${tier}`);
+      if (count) count.textContent = `已选 ${selectedCount}/${required} 位`;
+    }
+
+    function bindMasterSelections(order) {
+      Object.keys(tierMeta).forEach((tier) => {
+        if (order.masterRequest[tier] > 0) updateMasterGroup(order, tier);
+      });
+      $$("[data-master-tier]").forEach((input) => {
+        input.addEventListener("change", () => updateMasterGroup(order, input.dataset.masterTier));
+      });
+    }
+
+    function callMaster(name) {
+      const phone = masterPhones[name];
+      if (!phone) {
+        showToast(`未维护${name}电话。`);
+        return;
+      }
+      showToast(`拨打${name}：${phone}`);
+      window.location.href = `tel:${phone}`;
+    }
+
+    function selectedMasterPhones(order) {
+      const names = Object.values(order.selectedMasters || {}).flat();
+      return names.map((name) => `${name} ${masterPhones[name] || "未维护电话"}`).join("、") || "尚未派单";
+    }
+
+    function bindWorkflowActions(order) {
+      if (order.filter === "dispatch") bindMasterSelections(order);
+
+      $$("[data-call-master]").forEach((button) => {
+        button.addEventListener("click", () => callMaster(button.dataset.callMaster));
+      });
+
+      const saveQuote = $("[data-workflow-action='saveQuote']");
+      if (saveQuote) saveQuote.addEventListener("click", () => {
+        order.quoteAmount = $("#quoteAmount").value;
+        order.visitFee = $("#visitFee").value;
+        order.quoteNote = $("#quoteNote").value.trim();
+        showToast("报价草稿已保存。");
+      });
+
+      const quoteForm = $("#quoteForm");
+      if (quoteForm) quoteForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (!quoteForm.reportValidity()) return;
+        order.quoteAmount = Number($("#quoteAmount").value);
+        order.visitFee = Number($("#visitFee").value || 0);
+        order.quoteNote = $("#quoteNote").value.trim();
+        order.quoteState = "awaitingCustomer";
+        order.status = "待客户确认";
+        renderStats();
+        renderOrders();
+        renderDetail();
+        showToast("报价已提交，等待客户确认。");
+      });
+
+      const editQuote = $("[data-workflow-action='editQuote']");
+      if (editQuote) editQuote.addEventListener("click", () => {
+        order.quoteState = "needsQuote";
+        order.status = "待报价";
+        renderOrders();
+        renderDetail();
+      });
+
+      const remindQuote = $("[data-workflow-action='remindQuote']");
+      if (remindQuote) remindQuote.addEventListener("click", () => showToast("已向客户发送报价确认提醒。"));
+
+      const saveDispatch = $("[data-workflow-action='saveDispatch']");
+      if (saveDispatch) saveDispatch.addEventListener("click", () => {
+        order.selectedMasters = collectSelectedMasters();
+        order.dispatchNote = $("#dispatchNote").value.trim();
+        showToast("派单设置已保存。");
+      });
+
+      const dispatchForm = $("#dispatchForm");
+      if (dispatchForm) dispatchForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const selectedMasters = collectSelectedMasters();
+        const incompleteTiers = Object.keys(tierMeta).filter((tier) => (
+          selectedMasters[tier].length !== order.masterRequest[tier]
+        ));
+        if (incompleteTiers.length) {
+          const requirements = incompleteTiers
+            .filter((tier) => order.masterRequest[tier] > 0)
+            .map((tier) => `${tierMeta[tier].label} ${order.masterRequest[tier]} 位`)
+            .join("、");
+          showToast(`请按确认人数选择：${requirements}`);
+          return;
+        }
+        order.selectedMasters = selectedMasters;
+        order.dispatchNote = $("#dispatchNote").value.trim();
+        advanceOrder(order, "progress", "派单已确认，订单已进入施工中。");
+      });
+
+      const progressForm = $("#progressForm");
+      if (progressForm) progressForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const wasRework = Boolean(order.isRework);
+        order.progressNote = $("#progressNote").value.trim();
+        order.completedAt = new Date().toLocaleString("zh-CN", { hour12: false });
+        order.isRework = false;
+        advanceOrder(order, "acceptance", wasRework ? "返修已完成，已再次发起客户验收。" : "已发起客户验收，订单进入待验收。");
+      });
+
+      const contactMaster = $("[data-workflow-action='contactMaster']");
+      if (contactMaster) contactMaster.addEventListener("click", () => showToast(selectedMasterPhones(order)));
+
+      const contactCustomer = $("[data-workflow-action='contactCustomer']");
+      if (contactCustomer) contactCustomer.addEventListener("click", () => showToast("已打开客户联系方式。"));
+
+      const remindAcceptance = $("[data-workflow-action='remindAcceptance']");
+      if (remindAcceptance) remindAcceptance.addEventListener("click", () => showToast("已向客户发送验收提醒。"));
+    }
+
+    function renderDetail() {
+      const order = orders.find((item) => item.no === activeOrderNo) || orders[0];
+      $("#detailTitle").textContent = `#${order.no}`;
+      $("#detailStatus").textContent = order.status;
+      $("#detailStatus").className = `tag ${statusClass(order.status)}`;
+      $("#detailNo").textContent = `#${order.no}`;
+      $("#detailCustomer").textContent = `${order.customer} / ${order.contact}`;
+      $("#detailContact").textContent = `${order.wechat} / ${order.phone}`;
+      $("#detailMaterial").textContent = order.material;
+      $("#detailTypes").textContent = order.types.join("、");
+      $("#detailDamage").textContent = `${order.damageCount} 处 / ${order.damageLength} 厘米`;
+      $("#detailTime").textContent = order.time;
+      $("#detailDuration").textContent = `${order.duration} 天`;
+      $("#detailAddress").textContent = order.address;
+      $("#detailMasterRequest").textContent = masterRequestSummary(order);
+      renderWorkflow(order);
+    }
+
+    function renderAcceptanceIssues() {
+      $("#acceptanceIssueCount").textContent = `${acceptanceIssues.length} 单`;
+      if (!acceptanceIssues.length) {
+        $("#acceptanceIssueList").innerHTML = `<div class="empty-state">暂无待处理的验收问题</div>`;
+        return;
+      }
+
+      $("#acceptanceIssueList").innerHTML = acceptanceIssues.map((issue) => `
+        <article class="order-card">
+          <div class="card-head">
+            <div>
+              <p class="card-title">#${issue.no} ${issue.title}</p>
+              <p class="card-meta">${issue.customer} · ${issue.contact}</p>
+            </div>
+            <span class="tag danger">验收不通过</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-row"><span>问题说明</span><strong>${issue.issue}</strong></div>
+            <div class="mini-row"><span>客户凭证</span><strong>${issue.evidence}</strong></div>
+            <div class="mini-row"><span>原执行师傅</span><strong>${selectedMasterSummary(issue)}</strong></div>
+          </div>
+          <div class="actions">
+            <button class="btn" type="button" data-contact-issue="${issue.no}">联系客户</button>
+            <button class="btn primary" type="button" data-rework-order="${issue.no}">安排返修</button>
+          </div>
+        </article>`).join("");
+
+      $$('[data-contact-issue]').forEach((button) => {
+        button.addEventListener("click", () => showToast("已打开该客户联系方式。"));
+      });
+
+      $$('[data-rework-order]').forEach((button) => {
+        button.addEventListener("click", () => {
+          const issueIndex = acceptanceIssues.findIndex((item) => item.no === button.dataset.reworkOrder);
+          if (issueIndex < 0) return;
+          const [issue] = acceptanceIssues.splice(issueIndex, 1);
+          orders.push({
+            ...issue,
+            status: "返修中",
+            filter: "progress",
+            isRework: true,
+            reworkReason: issue.issue,
+            progressNote: `客户验收不通过：${issue.issue}`
+          });
+          activeFilter = "progress";
+          activeOrderNo = issue.no;
+          renderAcceptanceIssues();
+          renderStats();
+          renderOrders();
+          renderDetail();
+          showPage("orderDetail");
+          showToast("已安排返修，订单进入施工中。");
+        });
+      });
+    }
+
+    function showPage(target) {
+      $$(".page").forEach((page) => page.classList.toggle("active", page.dataset.page === target));
+      $(".tab-bar").classList.toggle("hidden", target === "orderDetail");
+      if (target !== "orderDetail") {
+        $$(".tab-btn").forEach((item) => item.classList.toggle("active", item.dataset.target === target));
+      }
+      document.querySelector(".app").scrollIntoView({ block: "start" });
+    }
+
+    $$(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        showPage(btn.dataset.target);
+      });
+    });
+
+    $("#backToOrders").addEventListener("click", () => showPage("orders"));
+
+    $$(".stat[data-stat-filter]").forEach((stat) => {
+      stat.addEventListener("click", () => {
+        activeFilter = stat.dataset.statFilter;
+        const firstVisible = orders.find((order) => order.filter === activeFilter);
+        if (firstVisible) activeOrderNo = firstVisible.no;
+        renderStats();
+        renderOrders();
+        renderDetail();
+      });
+    });
+
+    $("#searchInput").addEventListener("input", renderOrders);
+    $("#addMasterBtn").addEventListener("click", () => showToast("正式小程序可进入师傅认证资料录入。"));
+    $("#masterProfileForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const master = masters.find((item) => item.name === activeMasterName);
+      if (!master) return;
+      master.phone = $("#masterPhoneInput").value.trim();
+      master.intro = $("#masterIntroInput").value.trim();
+      masterPhones[master.name] = master.phone;
+      renderMasters();
+      renderMasterDetail();
+      showToast("师傅资料已保存。");
+    });
+    $("#exportBtn").addEventListener("click", () => showToast("客户记录导出任务已创建。"));
+    renderStats();
+    renderOrders();
+    renderDetail();
+    renderAcceptanceIssues();
+    renderMasters();
+    renderMasterDetail();
+  </script>
+</body>
+</html>
