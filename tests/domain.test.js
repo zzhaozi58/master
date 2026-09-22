@@ -233,6 +233,8 @@ test("多师傅金额按订单金额 90% 总池分配，付款需手动确认", 
   domain.submitCompletion(state, "JD20260921003", "m_gold_1", ["图"], ["视频"], "多人订单完工");
   assert.throws(() => domain.allocateMasterAmounts(state, "JD20260921003", { m_gold_1: 300, m_bronze_1: 300 }), /必须等于/);
   domain.allocateMasterAmounts(state, "JD20260921003", { m_gold_1: 400, m_bronze_1: 257 });
+  domain.allocateMasterAmounts(state, "JD20260921003", { m_gold_1: 390, m_bronze_1: 267 }, "admin_root");
+  assert.equal(state.paymentAdjustments.some((item) => item.orderId === "JD20260921003" && item.beforeAmount === 400 && item.afterAmount === 390 && item.actor === "admin_root" && item.source === "管理员分配师傅金额"), true);
   assert.equal(domain.listPaymentRecords(state, "JD20260921003").filter((item) => item.type === "师傅付款").length, 2);
   domain.acceptOrder(state, "JD20260921003");
   domain.confirmCustomerPayment(state, "JD20260921003");

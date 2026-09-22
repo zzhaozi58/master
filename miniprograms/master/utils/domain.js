@@ -735,7 +735,15 @@ function allocateMasterAmounts(state, orderId, amounts, actor = "system") {
     const nextAmount = Number(amounts[assign.masterId]);
     if (assign.receivableAmount != null && assign.receivableAmount !== nextAmount) {
       state.paymentAdjustments = state.paymentAdjustments || [];
-      state.paymentAdjustments.push({ orderId, masterId: assign.masterId, beforeAmount: assign.receivableAmount, afterAmount: nextAmount, adjustedAt: nowText() });
+      state.paymentAdjustments.push({
+        orderId,
+        masterId: assign.masterId,
+        beforeAmount: assign.receivableAmount,
+        afterAmount: nextAmount,
+        adjustedAt: nowText(),
+        actor,
+        source: "管理员分配师傅金额"
+      });
     }
     assign.receivableAmount = nextAmount;
     ensureMasterPaymentRecord(state, item, assign);
