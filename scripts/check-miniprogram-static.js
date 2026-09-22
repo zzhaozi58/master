@@ -16,6 +16,7 @@ for (const file of wxmlFiles) {
   collectFreeTextMasterLevel(file, body);
   collectFreeTextVisitTime(file, body);
   collectMissingAdminOrderDetailFields(file, body);
+  collectMissingOrderMediaLists(file, body);
   collectClientCompletedOrderSummary(file, body);
   collectMissingMasterDetailGroups(file, body);
   collectMissingAcceptanceCompletionProof(file, body);
@@ -92,6 +93,16 @@ function collectMissingAdminOrderDetailFields(file, body) {
   }
   if (!/确认人数/.test(body)) {
     problems.push(`${relative(file)} must show confirmed master counts`);
+  }
+}
+
+function collectMissingOrderMediaLists(file, body) {
+  const name = relative(file);
+  if (/admin\/pages\/order-detail\/order-detail\.wxml$/.test(name) && (!/customerImageItems/.test(body) || !/customerVideoItems/.test(body))) {
+    problems.push(`${name} must list customer uploaded image and video items`);
+  }
+  if (/client\/pages\/order-detail\/order-detail\.wxml$/.test(name) && (!/completionImageItems/.test(body) || !/completionVideoItems/.test(body))) {
+    problems.push(`${name} must list completion image and video items`);
   }
 }
 

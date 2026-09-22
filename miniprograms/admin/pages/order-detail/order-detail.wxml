@@ -9,6 +9,12 @@
     <view class="row"><view class="label">上门时间</view><view class="value">{{order.visitTime}}</view></view>
     <view class="row"><view class="label">预计工期</view><view class="value">{{order.durationDays}} 天</view></view>
     <view class="row"><view class="label">客户图片/视频</view><view class="value">{{order.media.images.length}} 张 / {{order.media.videos.length}} 个</view></view>
+    <view class="media-list" wx:if="{{customerImageItems.length}}">
+      <view wx:for="{{customerImageItems}}" wx:key="index" class="media-item">图片{{item.index}}：{{item.name}}</view>
+    </view>
+    <view class="media-list" wx:if="{{customerVideoItems.length}}">
+      <view wx:for="{{customerVideoItems}}" wx:key="index" class="media-item">视频{{item.index}}：{{item.name}}</view>
+    </view>
     <view class="row"><view class="label">确认人数</view><view class="value">{{order.requestedMastersText}}</view></view>
     <view class="row"><view class="label">订单金额</view><view class="value">{{order.orderAmountText}}</view></view>
     <view class="row"><view class="label">师傅金额</view><view class="value">{{order.masterPoolAmountText}}</view></view>

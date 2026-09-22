@@ -5,6 +5,8 @@ Page({
     candidateGroups: [],
     selections: { gold: [], silver: [], bronze: [] },
     allocationAmounts: {},
+    customerImageItems: [],
+    customerVideoItems: [],
     canAllocateAmounts: false,
     message: ""
   },
@@ -34,6 +36,8 @@ Page({
       candidateGroups: groups,
       selections: order.dispatchDraft || { gold: [], silver: [], bronze: [] },
       allocationAmounts,
+      customerImageItems: formatMediaItems(order.media.images, "客户图片"),
+      customerVideoItems: formatMediaItems(order.media.videos, "客户视频"),
       canAllocateAmounts: order.canAllocateAmounts
     });
   },
@@ -133,3 +137,10 @@ Page({
     this.refresh();
   }
 });
+
+function formatMediaItems(items, fallbackName) {
+  return (items || []).map((item, index) => ({
+    name: typeof item === "string" ? item : item.filename || item.id || `${fallbackName}${index + 1}`,
+    index: index + 1
+  }));
+}

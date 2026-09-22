@@ -14,7 +14,13 @@
   <view class="section">
     <view class="section-title">完工凭证</view>
     <view class="row"><view class="label">完工图片</view><view class="value">{{cycle.completionMedia.images.length}} 张</view></view>
+    <view class="media-list" wx:if="{{completionImageItems.length}}">
+      <view wx:for="{{completionImageItems}}" wx:key="index" class="media-item">图片{{item.index}}：{{item.name}}</view>
+    </view>
     <view class="row"><view class="label">完工视频</view><view class="value">{{cycle.completionMedia.videos.length}} 个</view></view>
+    <view class="media-list" wx:if="{{completionVideoItems.length}}">
+      <view wx:for="{{completionVideoItems}}" wx:key="index" class="media-item">视频{{item.index}}：{{item.name}}</view>
+    </view>
     <view class="muted">{{cycle.completionNote}}</view>
   </view>
 
