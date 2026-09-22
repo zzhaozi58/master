@@ -1,0 +1,11 @@
+{
+  "name": "jindashi-miniprograms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "金大师补漆维修三端微信小程序 MVP",
+  "scripts": {
+    "test": "node tests/domain.test.js && node tests/backend.test.js && node tests/miniprogram-api.test.js && node tests/http-server.test.js && node tests/remote-miniprogram-api.test.js && node tests/media-upload.test.js",
+    "start:backend": "node backend/server.js",
+    "verify": "npm test && node scripts/check-shared-sync.js && node scripts/check-miniprogram-static.js"
+  }
+}

@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="section-title">订单工作台</view>
+  <view class="section">
+    <view class="field">
+      <view class="field-label">搜索</view>
+      <input class="input" value="{{keyword}}" placeholder="订单号 / 客户 / 电话 / 微信 / 材质 / 类型" bindinput="inputKeyword" />
+    </view>
+    <view class="btn btn-secondary" bindtap="search">搜索订单</view>
+  </view>
+  <scroll-view scroll-x class="tabs">
+    <view wx:for="{{tabs}}" wx:key="name" data-name="{{item.name}}" bindtap="switchTab" class="tab {{activeTab === item.name ? 'active' : ''}}">{{item.name}} {{item.count}}</view>
+  </scroll-view>
+  <view class="muted">共 {{total}} 单</view>
+  <view wx:if="{{orders.length === 0}}" class="empty">暂无{{activeTab}}订单</view>
+  <view wx:for="{{orders}}" wx:key="id" class="section" data-id="{{item.id}}" bindtap="openDetail">
+    <view class="row"><view class="section-title">{{item.title}}</view><view class="badge">{{item.status}}</view></view>
+    <view class="row"><view class="label">订单号</view><view class="value">{{item.id}}</view></view>
+    <view class="row"><view class="label">客户</view><view class="value">{{item.customerName}}</view></view>
+    <view class="row"><view class="label">伤口</view><view class="value">{{item.wound}}</view></view>
+    <view class="row"><view class="label">订单金额</view><view class="value">{{item.orderAmountText}}</view></view>
+    <view class="row"><view class="label">师傅金额</view><view class="value">{{item.masterPoolAmountText}}</view></view>
+    <view class="row"><view class="label">确认人数</view><view class="value">{{item.requestedMastersText}}</view></view>
+    <view wx:if="{{activeTab === '已验收'}}" class="row"><view class="label">款项</view><view class="value">{{item.paymentStatus}}</view></view>
+    <view class="btn btn-secondary">进入订单详情</view>
+  </view>
+  <view wx:if="{{hasMore}}" class="btn btn-secondary" bindtap="loadMore">加载更多</view>
+</view>

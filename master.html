@@ -207,7 +207,7 @@
       background: #fff0eb;
     }
 
-    .order-card, .settlement-card {
+    .order-card {
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -336,12 +336,75 @@
       outline: none;
     }
 
-    .settlement-total {
-      margin: 0;
+    .form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 780;
+    }
+
+    .field input, .field select {
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0, 100, 60, .1);
+    }
+
+    .field.invalid input, .field.invalid select, .field.invalid textarea {
+      border-color: var(--danger);
+    }
+
+    .field .error {
+      display: none;
+      color: var(--danger);
+      font-size: 12px;
+    }
+
+    .field.invalid .error {
+      display: block;
+    }
+
+    .order-filter-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+
+    .order-filter-tab {
+      min-height: 46px;
+      padding: 6px 4px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: #fff;
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .order-filter-tab.active {
+      border-color: var(--green);
       color: var(--green);
-      font-size: 30px;
-      line-height: 1.1;
-      font-weight: 920;
+      background: var(--green-3);
+      box-shadow: inset 0 0 0 1px var(--green);
     }
 
     .tab-bar {
@@ -351,7 +414,7 @@
       width: min(430px, 100vw);
       transform: translateX(-50%);
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 2px;
       padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
       border-top: 1px solid var(--line);
@@ -461,50 +524,13 @@
         <section class="section">
           <div class="section-head">
             <div>
-              <h2 class="section-title">待处理订单</h2>
-              <p class="section-note">按预约、到场、完工顺序处理。</p>
+              <h2 class="section-title">订单分类</h2>
+              <p class="section-note">只展示分配给自己的订单和结算信息。</p>
             </div>
             <span class="pill" id="orderCount">2 单</span>
           </div>
+          <div class="order-filter-tabs" id="orderFilterTabs"></div>
           <div class="card-list" id="orderList"></div>
-        </section>
-      </main>
-    </section>
-
-    <section class="page" data-page="settlement">
-      <header class="hero">
-        <div class="brand-row">
-          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
-          <div>
-            <p class="kicker">结算 / 到账明细</p>
-            <h1>我的结算</h1>
-          </div>
-        </div>
-        <p class="hero-copy">查看每个订单的施工金额、平台服务费、待到账和已到账记录。</p>
-      </header>
-      <main>
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">本月预计到账</h2>
-              <p class="section-note">静态原型金额用于展示明细结构。</p>
-            </div>
-            <span class="tag warn">待结算</span>
-          </div>
-          <p class="settlement-total" id="settlementTotal">¥0</p>
-          <div class="mini-list">
-            <div class="mini-row"><span>已到账</span><strong id="paidAmount">¥0</strong></div>
-            <div class="mini-row"><span>待到账</span><strong id="pendingAmount">¥0</strong></div>
-          </div>
-        </section>
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">到账明细</h2>
-              <p class="section-note">按订单查看金额来源。</p>
-            </div>
-          </div>
-          <div class="card-list" id="settlementList"></div>
         </section>
       </main>
     </section>
@@ -524,17 +550,91 @@
         <section class="section">
           <div class="section-head">
             <div>
-              <h2 class="section-title">李建军</h2>
+              <h2 class="section-title" id="profileNameText">李建军</h2>
               <p class="section-note">银牌大师 · 家具补漆、木门修复</p>
             </div>
             <span class="pill">接单中</span>
           </div>
           <div class="mini-list">
-            <div class="mini-row"><span>联系电话</span><strong>13800002604</strong></div>
-            <div class="mini-row"><span>常驻区域</span><strong>成都主城区</strong></div>
+            <div class="mini-row"><span>性别</span><strong id="profileGenderText">男</strong></div>
+            <div class="mini-row"><span>微信号</span><strong id="profileWechatText">jindashi_lijianjun</strong></div>
+            <div class="mini-row"><span>联系电话</span><strong id="profilePhoneText">13800002604</strong></div>
+            <div class="mini-row"><span>常住地址</span><strong id="profileAddressText">成都市武侯区</strong></div>
             <div class="mini-row"><span>本月完成</span><strong>8 单</strong></div>
             <div class="mini-row"><span>平均验收</span><strong>98%</strong></div>
           </div>
+          <div class="actions single">
+            <button class="btn primary" type="button" id="editProfileBtn">注册 / 完善资料</button>
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <section class="page" data-page="register">
+      <header class="hero">
+        <div class="brand-row">
+          <img class="brand-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <p class="kicker">师傅端 / 资料登记</p>
+            <h1>注册 / 完善资料</h1>
+          </div>
+        </div>
+        <p class="hero-copy">填写完整资料，方便管理员确认身份和安排合适订单。</p>
+      </header>
+      <main>
+        <section class="section">
+          <div class="mini-row"><span>注册初始等级</span><strong>铜牌大师</strong></div>
+          <p class="section-note">新注册师傅默认归入铜牌，后续等级由管理员根据资料和履约情况调整。</p>
+          <form class="form" id="masterRegisterForm" novalidate>
+            <div class="field" data-field="name">
+              <label for="registerName">姓名</label>
+              <input id="registerName" type="text" autocomplete="name" placeholder="请输入真实姓名">
+              <span class="error">请填写姓名</span>
+            </div>
+            <div class="field" data-field="gender">
+              <label for="registerGender">性别</label>
+              <select id="registerGender">
+                <option value="">请选择</option>
+                <option value="男">男</option>
+                <option value="女">女</option>
+                <option value="其他">其他</option>
+              </select>
+              <span class="error">请选择性别</span>
+            </div>
+            <div class="field" data-field="wechat">
+              <label for="registerWechat">微信号</label>
+              <input id="registerWechat" type="text" autocomplete="off" placeholder="请输入微信号">
+              <span class="error">请填写微信号</span>
+            </div>
+            <div class="field" data-field="phone">
+              <label for="registerPhone">手机号</label>
+              <input id="registerPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="请输入手机号">
+              <span class="error">请填写手机号</span>
+            </div>
+            <div class="field" data-field="city">
+              <label for="registerCity">城市</label>
+              <input id="registerCity" type="text" autocomplete="address-level2" placeholder="请输入城市">
+              <span class="error">请填写城市</span>
+            </div>
+            <div class="field" data-field="district">
+              <label for="registerDistrict">区/县</label>
+              <input id="registerDistrict" type="text" autocomplete="address-level3" placeholder="请输入区或县">
+              <span class="error">请填写区/县</span>
+            </div>
+            <div class="field" data-field="street">
+              <label for="registerStreet">街道</label>
+              <input id="registerStreet" type="text" autocomplete="street-address" placeholder="请输入街道和门牌号">
+              <span class="error">请填写街道</span>
+            </div>
+            <div class="field">
+              <label for="registerIntro">个人介绍</label>
+              <textarea id="registerIntro" placeholder="介绍擅长材料、修复类型、服务区域等（选填）"></textarea>
+            </div>
+            <div class="actions">
+              <button class="btn" type="button" id="backToProfile">返回</button>
+              <button class="btn primary" type="submit">提交资料</button>
+            </div>
+          </form>
         </section>
       </main>
     </section>
@@ -544,7 +644,6 @@
   <nav class="tab-bar" aria-label="师傅端底部导航">
     <button class="tab-btn active" type="button" data-target="time"><span class="tab-icon">时</span>时间</button>
     <button class="tab-btn" type="button" data-target="orders"><span class="tab-icon">单</span>订单</button>
-    <button class="tab-btn" type="button" data-target="settlement"><span class="tab-icon">结</span>结算</button>
     <button class="tab-btn" type="button" data-target="profile"><span class="tab-icon">我</span>我的</button>
   </nav>
 
@@ -574,6 +673,17 @@
       "2026-09-17-am": "free"
     };
 
+    const masterProfile = {
+      name: "李建军",
+      gender: "男",
+      wechat: "jindashi_lijianjun",
+      phone: "13800002604",
+      city: "成都市",
+      district: "武侯区",
+      street: "",
+      intro: "擅长家具补漆、木门磕碰、浅表划痕修复，服务成都主城区。"
+    };
+
     const orders = [
       {
         no: "JD20260911005",
@@ -585,7 +695,9 @@
         time: "2026-09-16 10:30",
         duration: "2 天",
         status: "待预约",
-        amount: 480,
+        customerAmount: 540,
+        managementFee: 60,
+        masterAmount: 480,
         note: "裂缝填补与纹理复原，现场注意保护成品。"
       },
       {
@@ -599,15 +711,26 @@
         duration: "1 天",
         status: "施工中",
         checkedInAt: "2026-09-17 08:58",
-        amount: 260,
+        customerAmount: 260,
+        managementFee: 26,
+        masterAmount: 234,
         note: "客户要求修复后尽量降低色差。"
       }
     ];
 
     const settlements = [
-      { no: "JD20260908001", title: "家具补漆修复", gross: 220, fee: 22, amount: 198, status: "已到账", date: "2026-09-14" },
-      { no: "JD20260909006", title: "瓷砖缺角修复", gross: 260, fee: 26, amount: 234, status: "待到账", date: "验收后到账" }
+      { no: "JD20260908001", title: "家具补漆修复", amount: 198, status: "已到账", date: "2026-09-14" },
+      { no: "JD20260909006", title: "瓷砖缺角修复", amount: 234, status: "待到账", date: "验收后到账" }
     ];
+
+    const orderFilters = [
+      { key: "appointment", label: "待预约", statuses: ["待预约"] },
+      { key: "progress", label: "施工中", statuses: ["已预约", "施工中", "待完工上传"] },
+      { key: "acceptance", label: "待验收", statuses: ["待验收"] },
+      { key: "done", label: "已完成", statuses: ["已完成"] }
+    ];
+
+    let activeOrderFilter = "appointment";
 
     function showToast(message) {
       const toast = $("#toast");
@@ -621,6 +744,22 @@
       $$(".page").forEach((page) => page.classList.toggle("active", page.dataset.page === target));
       $$(".tab-btn").forEach((button) => button.classList.toggle("active", button.dataset.target === target));
       window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    function renderMasterProfile() {
+      $("#profileNameText").textContent = masterProfile.name;
+      $("#profileGenderText").textContent = masterProfile.gender;
+      $("#profileWechatText").textContent = masterProfile.wechat;
+      $("#profilePhoneText").textContent = masterProfile.phone;
+      $("#profileAddressText").textContent = [masterProfile.city, masterProfile.district, masterProfile.street].filter(Boolean).join("");
+      $("#registerName").value = masterProfile.name;
+      $("#registerGender").value = masterProfile.gender;
+      $("#registerWechat").value = masterProfile.wechat;
+      $("#registerPhone").value = masterProfile.phone;
+      $("#registerCity").value = masterProfile.city;
+      $("#registerDistrict").value = masterProfile.district;
+      $("#registerStreet").value = masterProfile.street;
+      $("#registerIntro").value = masterProfile.intro;
     }
 
     function renderAvailability() {
@@ -650,12 +789,61 @@
     function statusClass(status) {
       if (status === "待预约") return "warn";
       if (status === "待完工上传") return "danger";
+      if (status === "待验收") return "warn";
       return "";
     }
 
+    function settlementForOrder(no) {
+      return settlements.find((item) => item.no === no);
+    }
+
+    function masterOrderAmount(order) {
+      return Number(order.masterAmount || settlementForOrder(order.no)?.amount || order.amount || 0);
+    }
+
+    function orderSettlementRows(order) {
+      const amount = masterOrderAmount(order);
+      const settlement = settlementForOrder(order.no);
+      const paid = settlement?.status === "已到账" ? amount : 0;
+      if (order.status !== "已完成") {
+        return `<div class="mini-row"><span>应收金额</span><strong>¥${amount}</strong></div>`;
+      }
+      return `
+        <div class="mini-row"><span>应收金额</span><strong>¥${amount}</strong></div>
+        <div class="mini-row"><span>实收金额</span><strong>¥${paid}</strong></div>`;
+    }
+
+    function mergedOrders() {
+      const list = orders.map((order) => ({ ...order }));
+      settlements.forEach((settlement) => {
+        if (list.some((order) => order.no === settlement.no)) return;
+        list.push({
+          no: settlement.no,
+          title: settlement.title,
+          customer: "历史客户",
+          contact: "已完成订单",
+          phone: "",
+          address: "历史订单地址",
+          time: settlement.date,
+          duration: "-",
+          status: "已完成",
+          masterAmount: settlement.amount,
+          note: settlement.status
+        });
+      });
+      return list;
+    }
+
     function renderOrders() {
-      $("#orderCount").textContent = `${orders.length} 单`;
-      $("#orderList").innerHTML = orders.map((order) => `
+      const allOrders = mergedOrders();
+      const activeFilter = orderFilters.find((item) => item.key === activeOrderFilter) || orderFilters[0];
+      const visibleOrders = allOrders.filter((order) => activeFilter.statuses.includes(order.status));
+      $("#orderCount").textContent = `${visibleOrders.length} 单`;
+      $("#orderFilterTabs").innerHTML = orderFilters.map((filter) => {
+        const count = allOrders.filter((order) => filter.statuses.includes(order.status)).length;
+        return `<button class="order-filter-tab ${filter.key === activeOrderFilter ? "active" : ""}" type="button" data-order-filter="${filter.key}">${filter.label}<br>${count}</button>`;
+      }).join("");
+      $("#orderList").innerHTML = visibleOrders.map((order) => `
         <article class="order-card" data-order="${order.no}">
           <div class="card-head">
             <div>
@@ -667,16 +855,17 @@
           <div class="mini-list">
             <div class="mini-row"><span>上门时间</span><strong>${order.time}</strong></div>
             <div class="mini-row"><span>预计工期</span><strong>${order.duration}</strong></div>
+            ${orderSettlementRows(order)}
             <div class="mini-row"><span>地址</span><strong>${order.address}</strong></div>
             <div class="mini-row"><span>备注</span><strong>${order.note}</strong></div>
-            ${order.checkedInAt ? `<div class="mini-row"><span>到场打卡</span><strong>${order.checkedInAt}</strong></div>` : ""}
+            <div class="mini-row"><span>到场打卡</span><strong>${order.checkedInAt || "未打卡"}</strong></div>
           </div>
-          <div class="actions">
+          ${order.status === "已完成" ? "" : `<div class="actions">
             <button class="btn call" type="button" data-call="${order.no}">拨打客户</button>
             <button class="btn" type="button" data-appointment="${order.no}" ${order.status !== "待预约" ? "disabled" : ""}>已预约</button>
             <button class="btn" type="button" data-checkin="${order.no}" ${order.status === "待预约" || order.checkedInAt ? "disabled" : ""}>到达打卡</button>
             <button class="btn primary" type="button" data-complete="${order.no}" ${order.status === "待预约" ? "disabled" : ""}>完工上传</button>
-          </div>
+          </div>`}
           <div class="upload-panel" id="upload-${order.no}" hidden>
             <div class="upload-area">
               <label class="upload-box">上传完工图片<input type="file" accept="image/*" multiple data-upload="${order.no}"></label>
@@ -689,6 +878,16 @@
             </div>
           </div>
         </article>`).join("");
+      if (!visibleOrders.length) {
+        $("#orderList").innerHTML = `<article class="order-card"><p class="card-meta">暂无${activeFilter.label}订单</p></article>`;
+      }
+
+      $$("[data-order-filter]").forEach((button) => {
+        button.addEventListener("click", () => {
+          activeOrderFilter = button.dataset.orderFilter;
+          renderOrders();
+        });
+      });
 
       $$("[data-call]").forEach((button) => {
         button.addEventListener("click", () => {
@@ -702,6 +901,7 @@
         button.addEventListener("click", () => {
           const order = orders.find((item) => item.no === button.dataset.appointment);
           order.status = "已预约";
+          activeOrderFilter = "progress";
           renderOrders();
           showToast("已标记预约成功。");
         });
@@ -741,43 +941,47 @@
             return;
           }
           order.status = "待验收";
-          settlements.push({ no: order.no, title: order.title, gross: order.amount, fee: Math.round(order.amount * .1), amount: Math.round(order.amount * .9), status: "待到账", date: "客户验收后到账" });
+          settlements.push({ no: order.no, title: order.title, amount: order.masterAmount, status: "待到账", date: "客户验收后到账" });
+          activeOrderFilter = "acceptance";
           renderOrders();
-          renderSettlements();
           showToast("完工资料已提交，等待客户验收。");
         });
       });
     }
 
-    function renderSettlements() {
-      const paid = settlements.filter((item) => item.status === "已到账").reduce((sum, item) => sum + item.amount, 0);
-      const pending = settlements.filter((item) => item.status !== "已到账").reduce((sum, item) => sum + item.amount, 0);
-      $("#settlementTotal").textContent = `¥${paid + pending}`;
-      $("#paidAmount").textContent = `¥${paid}`;
-      $("#pendingAmount").textContent = `¥${pending}`;
-      $("#settlementList").innerHTML = settlements.map((item) => `
-        <article class="settlement-card">
-          <div class="card-head">
-            <div>
-              <p class="card-title">#${item.no} · ${item.title}</p>
-              <p class="card-meta">${item.date}</p>
-            </div>
-            <span class="tag ${item.status === "已到账" ? "" : "warn"}">${item.status}</span>
-          </div>
-          <div class="mini-list">
-            <div class="mini-row"><span>订单施工金额</span><strong>¥${item.gross}</strong></div>
-            <div class="mini-row"><span>平台服务费</span><strong>-¥${item.fee}</strong></div>
-            <div class="mini-row"><span>师傅到账</span><strong>¥${item.amount}</strong></div>
-          </div>
-        </article>`).join("");
-    }
-
     $$(".tab-btn").forEach((button) => button.addEventListener("click", () => showPage(button.dataset.target)));
+    $("#editProfileBtn").addEventListener("click", () => showPage("register"));
+    $("#backToProfile").addEventListener("click", () => showPage("profile"));
+    $("#masterRegisterForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const values = {
+        name: $("#registerName").value.trim(),
+        gender: $("#registerGender").value,
+        wechat: $("#registerWechat").value.trim(),
+        phone: $("#registerPhone").value.trim(),
+        city: $("#registerCity").value.trim(),
+        district: $("#registerDistrict").value.trim(),
+        street: $("#registerStreet").value.trim(),
+        intro: $("#registerIntro").value.trim()
+      };
+      const required = ["name", "gender", "wechat", "phone", "city", "district", "street"];
+      required.forEach((field) => {
+        $(`[data-field="${field}"]`).classList.toggle("invalid", !values[field]);
+      });
+      if (required.some((field) => !values[field])) {
+        showToast("请先补全必填资料。");
+        return;
+      }
+      Object.assign(masterProfile, values);
+      renderMasterProfile();
+      showPage("profile");
+      showToast("师傅资料已提交，默认归入铜牌大师，等待管理员确认。");
+    });
     $("#saveAvailabilityBtn").addEventListener("click", () => showToast("可用时间已保存，管理员派单时可查看。"));
 
     renderAvailability();
     renderOrders();
-    renderSettlements();
+    renderMasterProfile();
   </script>
 </body>
 </html>

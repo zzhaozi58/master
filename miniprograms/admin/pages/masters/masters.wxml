@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="section-title">师傅管理</view>
+  <scroll-view scroll-x class="tabs">
+    <view wx:for="{{tabs}}" wx:key="name" data-name="{{item.name}}" bindtap="switchTab" class="tab {{activeTab === item.name ? 'active' : ''}}">{{item.name}} {{item.count}}</view>
+  </scroll-view>
+  <view wx:for="{{masters}}" wx:key="id" class="section" data-id="{{item.id}}" bindtap="openDetail">
+    <view class="row"><view class="section-title">{{item.name}}</view><view class="badge">{{item.level}}</view></view>
+    <view class="row"><view class="label">状态</view><view class="value">{{item.reviewStatus}} / {{item.workStatus}}</view></view>
+    <view class="row"><view class="label">联系电话</view><view class="value">{{item.phone}}</view></view>
+    <view class="row"><view class="label">常住地址</view><view class="value">{{item.city}}{{item.district}}</view></view>
+    <view class="row"><view class="label">微信号</view><view class="value">{{item.wechat}}</view></view>
+    <view class="row"><view class="label">专长/介绍</view><view class="value">{{item.intro}}</view></view>
+    <view class="row"><view class="label">信用分</view><view class="value">{{item.creditScore}}</view></view>
+    <view class="row"><view class="label">需要支付</view><view class="value">¥{{item.needPay}}</view></view>
+    <view class="btn btn-secondary">查看及编辑</view>
+  </view>
+</view>

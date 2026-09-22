@@ -1,0 +1,88 @@
+<view class="page">
+  <view class="section">
+    <view class="row"><view class="section-title">订单详情</view><view class="badge">{{order.status}}</view></view>
+    <view class="row"><view class="label">订单号</view><view class="value">{{order.id}}</view></view>
+    <view class="row"><view class="label">客户</view><view class="value">{{order.customerName}}</view></view>
+    <view class="row"><view class="label">微信 / 电话</view><view class="value">{{order.wechat}} / {{order.phone}}</view></view>
+    <view class="row"><view class="label">维修内容</view><view class="value">{{order.title}}</view></view>
+    <view class="row"><view class="label">伤口数量/长度</view><view class="value">{{order.wound}}</view></view>
+    <view class="row"><view class="label">上门时间</view><view class="value">{{order.visitTime}}</view></view>
+    <view class="row"><view class="label">预计工期</view><view class="value">{{order.durationDays}} 天</view></view>
+    <view class="row"><view class="label">客户图片/视频</view><view class="value">{{order.media.images.length}} 张 / {{order.media.videos.length}} 个</view></view>
+    <view class="row"><view class="label">确认人数</view><view class="value">{{order.requestedMastersText}}</view></view>
+    <view class="row"><view class="label">订单金额</view><view class="value">{{order.orderAmountText}}</view></view>
+    <view class="row"><view class="label">师傅金额</view><view class="value">{{order.masterPoolAmountText}}</view></view>
+  </view>
+
+  <view wx:if="{{order.status === '待报价' || order.status === '待客户确认报价'}}" class="section">
+    <view class="section-title">报价</view>
+    <view class="field"><view class="field-label">维修报价</view><input class="input" type="number" value="{{quote.repairFee}}" data-field="repairFee" bindinput="inputQuote" /></view>
+    <view class="field"><view class="field-label">上门费</view><input class="input" type="number" value="{{quote.visitFee}}" data-field="visitFee" bindinput="inputQuote" /></view>
+    <view class="field"><view class="field-label">报价说明</view><textarea class="textarea" value="{{quote.description}}" data-field="description" bindinput="inputQuote" /></view>
+    <view class="actions">
+      <view class="btn btn-secondary" bindtap="saveQuoteDraft">保存草稿</view>
+      <view class="btn btn-primary" bindtap="submitQuote">提交报价给客户</view>
+    </view>
+    <view wx:if="{{order.quoteHistoryCount}}" class="field">
+      <view class="field-label">报价版本</view>
+      <view wx:for="{{order.quoteHistory}}" wx:key="version" class="row">
+        <view class="label">V{{item.version}} · {{item.status}}</view>
+        <view class="value">¥{{item.total}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{order.status === '待派单'}}" class="section">
+    <view class="section-title">选择施工师傅</view>
+    <view class="muted">按客户确认等级人数选择，确认前请拨打电话。</view>
+    <view wx:for="{{candidateGroups}}" wx:key="level" class="field">
+      <view class="field-label">{{item.level}}（需 {{item.need}} 人）</view>
+      <view wx:for="{{item.candidates}}" wx:for-item="master" wx:key="id" class="row">
+        <view class="label">{{master.displayIndex}}. {{master.name}} · {{master.availability}} · 信用 {{master.creditScore}}</view>
+        <view class="actions">
+          <view class="btn btn-secondary" data-level="{{item.level}}" data-id="{{master.id}}" bindtap="toggleMaster">选择</view>
+          <view class="btn btn-ghost" data-phone="{{master.phone}}" bindtap="callMaster">拨打电话</view>
+        </view>
+      </view>
+    </view>
+    <view class="actions">
+      <view class="btn btn-secondary" bindtap="saveDispatchDraft">保存派单设置</view>
+      <view class="btn btn-primary" bindtap="dispatch">确认派单</view>
+    </view>
+  </view>
+
+  <view wx:if="{{order.isMultiMaster}}" class="section">
+    <view class="section-title">分配师傅金额</view>
+    <view class="muted">多人订单完工后分配；合计必须等于师傅金额总池。</view>
+    <view class="row"><view class="label">师傅金额总池</view><view class="value">{{order.masterPoolAmountText}}</view></view>
+    <view wx:for="{{order.assignments}}" wx:key="masterId" class="field">
+      <view class="field-label">{{item.name}} · {{item.level}}</view>
+      <input class="input" type="number" disabled="{{!canAllocateAmounts}}" value="{{item.amountInput}}" data-id="{{item.masterId}}" bindinput="inputAllocation" placeholder="完工后填写应收金额" />
+    </view>
+    <view class="btn {{canAllocateAmounts ? 'btn-primary' : 'btn-disabled'}}" bindtap="saveAllocation">保存师傅金额</view>
+  </view>
+
+  <view wx:if="{{order.status === '待验收'}}" class="section">
+    <view class="section-title">验收跟进</view>
+    <view class="muted">客户暂未确认时，可发送一次验收提醒。</view>
+    <view class="btn btn-secondary" bindtap="remindAcceptance">发送验收提醒</view>
+  </view>
+
+  <view wx:if="{{order.status === '已验收'}}" class="section">
+    <view class="section-title">收付款</view>
+    <view class="row"><view class="label">款项状态</view><view class="value">{{order.paymentStatus}}</view></view>
+    <view wx:if="{{order.paymentRecordCount}}" class="field">
+      <view class="field-label">款项明细</view>
+      <view wx:for="{{order.paymentRecords}}" wx:key="id" class="row">
+        <view class="label">{{item.type}} · {{item.status}}</view>
+        <view class="value">¥{{item.paidAmount}} / ¥{{item.dueAmount}}</view>
+      </view>
+    </view>
+    <view class="actions">
+      <view class="btn btn-secondary" bindtap="confirmCustomerPayment">确认已从客户收款</view>
+      <view class="btn btn-primary" bindtap="confirmMasterPayment">确认已支付给师傅</view>
+    </view>
+  </view>
+
+  <view wx:if="{{message}}" class="toast">{{message}}</view>
+</view>

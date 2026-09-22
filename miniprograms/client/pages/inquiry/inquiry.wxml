@@ -1,0 +1,114 @@
+<view class="hero">
+  <view class="hero-row">
+    <image class="logo" src="/assets/jindashi-logo.png" mode="aspectFit" />
+    <view>
+      <view class="hero-title">金大师补漆维修</view>
+      <view class="hero-subtitle">家具 · 木门 · 石材 · 瓷砖 · 岩板上门修复</view>
+    </view>
+  </view>
+</view>
+
+<view class="page">
+  <view class="section">
+    <view class="section-title">参考价格</view>
+    <view wx:for="{{prices}}" wx:key="label" class="row">
+      <view class="label">{{item.label}}</view>
+      <view class="value">{{item.price}}</view>
+    </view>
+    <view class="muted">最终报价以平台确认内容为准；复杂工艺、大面积、结构问题现场报价。</view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">服务方式 / 保障</view>
+    <view wx:for="{{services}}" wx:key="*this" class="row">
+      <view class="label">{{item}}</view>
+      <view class="value">✓</view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">维修需求</view>
+    <view class="field">
+      <view class="field-label">上传图片 / 视频 <text class="required">*</text></view>
+      <view class="media-box" bindtap="addMedia">{{mediaLabel}}</view>
+      <view wx:if="{{uploadMessage}}" class="muted">{{uploadMessage}}</view>
+      <view wx:if="{{uploadFailed}}" class="btn btn-secondary" bindtap="addMedia">重试上传</view>
+    </view>
+
+    <view class="field">
+      <view class="field-label">修复材质 <text class="required">*</text></view>
+      <view class="chip-grid">
+        <view wx:for="{{materials}}" wx:key="*this" data-value="{{item}}" bindtap="chooseMaterial" class="chip {{form.material === item ? 'active' : ''}}">{{item}}</view>
+      </view>
+      <input wx:if="{{form.material === '其他'}}" class="input" placeholder="请填写具体材质" value="{{form.materialOther}}" bindinput="inputMaterialOther" />
+    </view>
+
+    <view class="field">
+      <view class="field-label">修复类型 <text class="required">*</text></view>
+      <view class="chip-grid">
+        <view wx:for="{{repairTypes}}" wx:key="value" data-value="{{item.value}}" bindtap="toggleType" class="chip checkbox {{item.active ? 'active' : ''}}">{{item.value}}</view>
+      </view>
+      <input wx:if="{{otherTypeSelected}}" class="input" placeholder="请填写具体类型" value="{{form.typeOther}}" bindinput="inputTypeOther" />
+    </view>
+
+    <view class="actions">
+      <view class="field">
+        <view class="field-label">伤口总数（处）<text class="required">*</text></view>
+        <input class="input" type="number" placeholder="如 3" value="{{form.woundCount}}" data-field="woundCount" bindinput="inputField" />
+      </view>
+      <view class="field">
+        <view class="field-label">伤口总长度（厘米）<text class="required">*</text></view>
+        <input class="input" type="digit" placeholder="如 15" value="{{form.woundLength}}" data-field="woundLength" bindinput="inputField" />
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="field-label">期望上门时间 <text class="required">*</text></view>
+      <view class="actions">
+        <picker mode="date" value="{{visitDate}}" bindchange="pickVisitDate">
+          <view class="picker">{{visitDateLabel}}</view>
+        </picker>
+        <picker mode="time" value="{{visitClock}}" bindchange="pickVisitClock">
+          <view class="picker">{{visitClockLabel}}</view>
+        </picker>
+      </view>
+      <view wx:if="{{form.visitTime}}" class="muted">已选择：{{form.visitTime}}</view>
+    </view>
+    <view class="field">
+      <view class="field-label">预计工期（天）<text class="required">*</text></view>
+      <input class="input" type="number" placeholder="如 1" value="{{form.durationDays}}" data-field="durationDays" bindinput="inputField" />
+    </view>
+    <view class="field">
+      <view class="field-label">上门地址 <text class="required">*</text></view>
+      <input class="input" placeholder="请输入详细地址" value="{{form.address}}" data-field="address" bindinput="inputField" />
+    </view>
+
+    <view class="field">
+      <view class="field-label">选择金 / 银 / 铜大师人数 <text class="required">*</text></view>
+      <view wx:for="{{levels}}" wx:key="key" class="row">
+        <view class="label">{{item.label}}</view>
+        <view class="stepper">
+          <view class="chip" data-key="{{item.key}}" data-delta="-1" bindtap="stepMaster">-</view>
+          <view class="value">{{item.count}}</view>
+          <view class="chip active" data-key="{{item.key}}" data-delta="1" bindtap="stepMaster">+</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="field-label">公司名称 / 用户名字 <text class="required">*</text></view>
+      <input class="input" value="{{form.customerName}}" data-field="customerName" bindinput="inputField" />
+    </view>
+    <view class="field">
+      <view class="field-label">微信号 / 微信昵称 <text class="required">*</text></view>
+      <input class="input" value="{{form.wechat}}" data-field="wechat" bindinput="inputField" />
+    </view>
+    <view class="field">
+      <view class="field-label">联系电话 <text class="required">*</text></view>
+      <input class="input" type="number" value="{{form.phone}}" data-field="phone" bindinput="inputField" />
+    </view>
+
+    <view class="btn btn-primary" bindtap="submit">提交询价</view>
+    <view wx:if="{{message}}" class="toast">{{message}}</view>
+  </view>
+</view>

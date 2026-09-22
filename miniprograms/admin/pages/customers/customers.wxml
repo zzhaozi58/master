@@ -1,0 +1,10 @@
+<view class="page">
+  <view class="section-title">客户管理</view>
+  <view wx:for="{{customers}}" wx:key="id" class="section" data-id="{{item.id}}" bindtap="openCustomer">
+    <view class="row"><view class="section-title">{{item.name}}</view><view class="badge">{{item.type}}</view></view>
+    <view class="row"><view class="label">联系人</view><view class="value">{{item.contact}}</view></view>
+    <view class="row"><view class="label">电话</view><view class="value">{{item.phone}}</view></view>
+    <view class="row"><view class="label">订单数</view><view class="value">{{item.orderCount}}</view></view>
+    <view class="btn btn-secondary">查看及编辑</view>
+  </view>
+</view>

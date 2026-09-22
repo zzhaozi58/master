@@ -1,0 +1,28 @@
+{
+  "pages": [
+    "pages/inquiry/inquiry",
+    "pages/orders/orders",
+    "pages/acceptance/acceptance",
+    "pages/order-detail/order-detail",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTitleText": "金大师补漆维修",
+    "navigationBarBackgroundColor": "#005536",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F7F5EF"
+  },
+  "tabBar": {
+    "color": "#66736D",
+    "selectedColor": "#005536",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/inquiry/inquiry", "text": "询价" },
+      { "pagePath": "pages/orders/orders", "text": "订单" },
+      { "pagePath": "pages/profile/profile", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

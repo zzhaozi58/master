@@ -1,0 +1,26 @@
+{
+  "pages": [
+    "pages/schedule/schedule",
+    "pages/orders/orders",
+    "pages/register/register",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTitleText": "金大师师傅端",
+    "navigationBarBackgroundColor": "#005536",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F7F5EF"
+  },
+  "tabBar": {
+    "color": "#66736D",
+    "selectedColor": "#005536",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      { "pagePath": "pages/schedule/schedule", "text": "时间" },
+      { "pagePath": "pages/orders/orders", "text": "订单" },
+      { "pagePath": "pages/profile/profile", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

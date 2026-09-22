@@ -1,0 +1,25 @@
+<view class="page">
+  <view class="section-title">异常</view>
+  <view wx:if="{{exceptions.length === 0}}" class="empty">暂无异常</view>
+  <view wx:for="{{exceptions}}" wx:key="id" class="section">
+    <view class="row"><view class="section-title">{{item.type}}</view><view class="badge">{{item.status}}</view></view>
+    <view class="row"><view class="label">订单号</view><view class="value">{{item.orderId}}</view></view>
+    <view class="row"><view class="label">原订单状态</view><view class="value">{{item.statusSnapshot}}</view></view>
+    <view class="row"><view class="label">原执行师傅</view><view class="value">{{item.mastersSnapshot}}</view></view>
+    <view class="row"><view class="label">原因</view><view class="value">{{item.reason}}</view></view>
+    <view wx:if="{{item.adminNote}}" class="row"><view class="label">处理说明</view><view class="value">{{item.adminNote}}</view></view>
+    <view wx:if="{{item.handledAt}}" class="row"><view class="label">处理时间</view><view class="value">{{item.handledAt}}</view></view>
+    <view wx:if="{{item.status === '待处理'}}" class="field">
+      <view class="field-label">处理说明 <text class="required">*</text></view>
+      <textarea class="textarea" data-id="{{item.id}}" bindinput="inputNote" placeholder="确认取消、保留订单或强制完成时必须填写" />
+    </view>
+    <view class="actions">
+      <view wx:if="{{item.type === '客户取消' && item.status === '待处理'}}" class="btn btn-danger" data-id="{{item.id}}" bindtap="confirmCancel">确认取消</view>
+      <view wx:if="{{item.type === '客户取消' && item.status === '待处理'}}" class="btn btn-secondary" data-id="{{item.id}}" bindtap="keepOrder">保留订单</view>
+      <view wx:if="{{item.type === '验收不通过' && item.status === '待处理'}}" class="btn btn-secondary" data-id="{{item.id}}" bindtap="arrangeRework">安排返修</view>
+      <view wx:if="{{item.type === '验收不通过' && item.status === '待处理'}}" class="btn btn-danger" data-id="{{item.id}}" bindtap="forceComplete">驳回异常</view>
+      <view class="btn btn-ghost" data-id="{{item.orderId}}" bindtap="openOrder">查看订单</view>
+    </view>
+  </view>
+  <view wx:if="{{message}}" class="toast">{{message}}</view>
+</view>

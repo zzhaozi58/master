@@ -407,6 +407,54 @@
       gap: 9px;
     }
 
+    .media-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    .media-preview-card {
+      min-height: 112px;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      border: 1px solid rgba(0, 68, 40, .2);
+      border-radius: var(--radius);
+      color: var(--green);
+      background: #f5faf6;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .media-preview-card strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 22px;
+    }
+
+    .media-preview-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .completion-note {
+      margin: 10px 0 0;
+      padding: 11px 12px;
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: #fbf7ef;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .completion-note strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--green);
+      font-size: 12px;
+    }
+
     .upload-tile {
       position: relative;
       min-height: 112px;
@@ -524,6 +572,20 @@
       display: grid;
       grid-template-columns: 1fr 110px;
       gap: 9px;
+    }
+
+    .damage-fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .damage-fields .field {
+      grid-template-rows: 42px 46px auto;
+    }
+
+    .damage-fields input {
+      height: 46px;
+      min-height: 46px;
     }
 
     .master-list {
@@ -663,6 +725,10 @@
       backdrop-filter: blur(14px);
     }
 
+    .tab-bar.hidden {
+      display: none;
+    }
+
     .tab-btn {
       min-height: 54px;
       border: 0;
@@ -733,6 +799,78 @@
       margin-top: 9px;
     }
 
+    .client-order-list,
+    .completed-order-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .client-order-card .quote-confirm-card,
+    .client-order-card .empty-state {
+      margin-top: 12px;
+    }
+
+    .completed-order-item {
+      width: 100%;
+      min-height: 64px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .completed-order-item strong,
+    .completed-order-item span {
+      display: block;
+    }
+
+    .completed-order-item strong {
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .completed-order-item span {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .completed-order-item b {
+      color: var(--green);
+      font-size: 19px;
+    }
+
+    .client-detail-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .client-back-btn {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: var(--radius);
+      color: #fff;
+      background: rgba(255,255,255,.1);
+      font-size: 26px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .client-detail-nav strong {
+      color: #fff;
+      font-size: 16px;
+    }
+
     .order-tabs {
       display: flex;
       gap: 8px;
@@ -747,8 +885,8 @@
     }
 
     .order-tab {
-      min-width: 132px;
-      min-height: 58px;
+      min-width: 104px;
+      min-height: 54px;
       padding: 8px 10px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -778,6 +916,51 @@
     }
 
     .order-tab.active strong {
+      color: var(--green);
+    }
+
+    .status-order-list {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .status-order-item {
+      width: 100%;
+      min-height: 64px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .status-order-item strong,
+    .status-order-item span {
+      display: block;
+    }
+
+    .status-order-item strong {
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .status-order-item span {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .status-order-item.active {
+      border-color: var(--green);
+      background: var(--green-3);
+      box-shadow: inset 0 0 0 1px rgba(0, 68, 40, .15);
+    }
+
+    .status-order-item.active strong {
       color: var(--green);
     }
 
@@ -904,6 +1087,10 @@
       grid-template-columns: 1fr 1fr;
       gap: 9px;
       margin-top: 12px;
+    }
+
+    .order-actions.single {
+      grid-template-columns: 1fr;
     }
 
     .inline-submit:disabled,
@@ -1189,7 +1376,7 @@
             <span class="error">请选择至少一种修复类型。</span>
           </div>
 
-          <div class="two-col">
+          <div class="two-col damage-fields">
             <div class="field" data-field="damageCount">
               <label for="damageCount">伤口总数（处）</label>
               <input id="damageCount" type="number" min="1" step="1" placeholder="如 3">
@@ -1270,13 +1457,13 @@
     </main>
     </section>
 
-    <section class="page" id="page-acceptance" data-page="acceptance">
+    <section class="page" id="page-orders" data-page="orders">
       <header class="page-top">
         <div class="page-top-row">
           <img class="page-top-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
           <div>
-            <h1>订单验收</h1>
-            <p>验收施工结果，提交问题并补充现场凭证。</p>
+            <h1>我的订单</h1>
+            <p>查看报价、派单、施工、验收和结算进度。</p>
           </div>
         </div>
       </header>
@@ -1285,36 +1472,78 @@
         <section class="section" aria-labelledby="active-order-title">
           <div class="section-head">
             <div>
-              <h2 class="section-title" id="active-order-title">待验收订单</h2>
-              <p class="section-note">用于展示最近需要确认的维修履约单。</p>
+              <h2 class="section-title" id="active-order-title">订单列表</h2>
+              <p class="section-note">按当前状态查看订单与处理进度。</p>
             </div>
-            <span class="pill" id="acceptanceCount">3 单待确认</span>
+            <span class="pill" id="activeOrderCount">0 单</span>
           </div>
+          <div class="order-tabs" id="clientOrderTabs" role="tablist" aria-label="订单状态分类"></div>
+          <div class="client-order-list" id="activeOrderCards"></div>
+          <div class="empty-state" id="activeOrdersEmpty" hidden>暂无订单</div>
+          <div class="completed-order-list" id="completedOrderList" hidden></div>
+          <div class="empty-state" id="completedOrdersEmpty" hidden>暂无已完成订单</div>
+        </section>
 
-          <div class="order-tabs" id="acceptanceOrderTabs" role="tablist" aria-label="待验收订单切换"></div>
-          <div class="empty-state" id="acceptanceEmpty" hidden>暂无待验收订单</div>
+      </main>
+    </section>
 
-          <div class="order-card" id="acceptOrderCard">
-            <div class="order-head">
-              <div>
-                <p class="order-title" id="acceptOrderTitle">#JD20260909006 瓷砖缺角修复</p>
-                <p class="order-meta" id="acceptOrderMeta">连锁门店售后 · 李师傅</p>
-              </div>
-              <span class="status-tag" id="acceptOrderTag">待验收</span>
-            </div>
-            <div class="mini-list">
-              <div class="mini-row"><span>维修内容</span><strong id="acceptOrderContent">瓷砖 / 缺角 / 拼缝</strong></div>
-              <div class="mini-row"><span>上门时间</span><strong id="acceptOrderTime">2026-09-12 15:00</strong></div>
-              <div class="mini-row"><span>当前状态</span><strong id="acceptOrderStatus">师傅已提交完工凭证</strong></div>
-            </div>
+    <section class="page" id="page-client-acceptance" data-page="clientAcceptance">
+      <header class="page-top">
+        <div class="client-detail-nav">
+          <button class="client-back-btn" type="button" id="backToClientOrdersFromAcceptance" aria-label="返回订单列表">‹</button>
+          <strong>订单验收</strong>
+        </div>
+        <div class="page-top-row">
+          <img class="page-top-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <h1 id="acceptanceDetailTitle">订单验收</h1>
+            <p>确认施工结果，或提交需要返修的问题。</p>
           </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">本次维修</h2>
+              <p class="section-note">订单号：<span id="acceptIssueOrder">#JD20260909006</span></p>
+            </div>
+            <span class="status-tag" id="acceptanceDetailStatus">待验收</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-row"><span>维修内容</span><strong id="acceptanceDetailContent">-</strong></div>
+            <div class="mini-row"><span>上门时间</span><strong id="acceptanceDetailTime">-</strong></div>
+            <div class="mini-row"><span>服务师傅</span><strong id="acceptanceDetailMaster">-</strong></div>
+            <div class="mini-row"><span>订单金额</span><strong id="acceptanceDetailAmount">-</strong></div>
+            <div class="mini-row"><span>施工进度</span><strong id="acceptanceDetailProgress">-</strong></div>
+          </div>
+        </section>
+
+        <section class="section" aria-labelledby="completion-media-title">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" id="completion-media-title">师傅完工凭证</h2>
+              <p class="section-note">查看师傅上传的施工图片和视频。</p>
+            </div>
+            <span class="pill">待查看</span>
+          </div>
+          <div class="media-preview-grid">
+            <button class="media-preview-card" type="button" data-preview-media="photo" aria-label="查看师傅上传的完工图片">
+              <span><strong>图</strong><span id="acceptancePhotoMeta">完工图片</span></span>
+            </button>
+            <button class="media-preview-card" type="button" data-preview-media="video" aria-label="查看师傅上传的完工视频">
+              <span><strong>▶</strong><span id="acceptanceVideoMeta">完工视频</span></span>
+            </button>
+          </div>
+          <p class="completion-note"><strong>师傅完工说明</strong><span id="acceptanceCompletionNote">-</span></p>
         </section>
 
         <section class="section issue-section" aria-labelledby="issue-title" id="issueSection">
           <div class="section-head">
             <div>
               <h2 class="section-title" id="issue-title">验收结果</h2>
-              <p class="section-note">当前订单：<span id="acceptIssueOrder">#JD20260909006</span>，先确认通过或不通过。</p>
+              <p class="section-note">先确认通过或不通过。</p>
             </div>
             <span class="pill">客户确认</span>
           </div>
@@ -1360,6 +1589,58 @@
 
               <button class="inline-submit" type="submit">提交验收问题</button>
             </form>
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <section class="page" id="page-client-order-detail" data-page="clientOrderDetail">
+      <header class="page-top">
+        <div class="client-detail-nav">
+          <button class="client-back-btn" type="button" id="backToClientOrders" aria-label="返回订单列表">‹</button>
+          <strong>订单详情</strong>
+        </div>
+        <div class="page-top-row">
+          <img class="page-top-logo" src="assets/jindashi-logo.png" alt="金大师 Logo">
+          <div>
+            <h1 id="clientDetailTitle">已完成订单</h1>
+            <p>查看本次维修、验收与客户付款记录。</p>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">服务记录</h2>
+              <p class="section-note">本次维修、验收与客户付款信息。</p>
+            </div>
+            <span class="status-tag done" id="clientDetailStatus">已完成</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-row"><span>订单号</span><strong id="clientDetailNo">-</strong></div>
+            <div class="mini-row"><span>维修内容</span><strong id="clientDetailContent">-</strong></div>
+            <div class="mini-row"><span>上门时间</span><strong id="clientDetailTime">-</strong></div>
+            <div class="mini-row"><span>服务师傅</span><strong id="clientDetailMaster">-</strong></div>
+            <div class="mini-row"><span>订单金额</span><strong id="clientDetailAmount">-</strong></div>
+            <div class="mini-row"><span>完工时间</span><strong id="clientDetailCompletedAt">-</strong></div>
+            <div class="mini-row"><span>验收结果</span><strong id="clientDetailAcceptance">-</strong></div>
+            <div class="mini-row"><span>客户付款</span><strong id="clientDetailPayment">-</strong></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">完工凭证</h2>
+              <p class="section-note">查看师傅提交并由客户验收的施工记录。</p>
+            </div>
+            <span class="pill">已归档</span>
+          </div>
+          <div class="upload-grid">
+            <div class="upload-tile"><span class="upload-empty"><span><strong>图</strong>完工近景</span></span></div>
+            <div class="upload-tile"><span class="upload-empty"><span><strong>影</strong>完工视频</span></span></div>
           </div>
         </section>
       </main>
@@ -1423,36 +1704,6 @@
 
             <button class="inline-submit" type="submit">保存我的信息</button>
           </form>
-        </section>
-
-        <section class="section" aria-labelledby="quote-confirm-title" id="quoteConfirmSection">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title" id="quote-confirm-title">待确认报价</h2>
-              <p class="section-note">确认金额和师傅等级后，平台才能进入派单。</p>
-            </div>
-            <span class="pill" id="quoteConfirmCount">1 单</span>
-          </div>
-
-          <div class="quote-confirm-card" id="quoteConfirmCard">
-            <div class="order-head">
-              <div>
-                <p class="order-title">#JD20260915009 木材划痕修复</p>
-                <p class="order-meta">木材 / 浅表划痕 3 处 · 银牌大师 1 位</p>
-              </div>
-              <span class="status-tag" id="quoteConfirmStatus">待确认</span>
-            </div>
-            <div class="mini-list">
-              <div class="mini-row"><span>维修费</span><strong>150 元</strong></div>
-              <div class="mini-row"><span>上门费</span><strong>50 元</strong></div>
-              <div class="mini-row"><span>报价合计</span><strong>200 元</strong></div>
-              <div class="mini-row"><span>报价说明</span><strong>浅表划痕按 3 处计价</strong></div>
-            </div>
-            <div class="order-actions">
-              <button class="plain-btn" type="button" id="quoteQuestionBtn">对报价有疑问</button>
-              <button class="inline-submit" type="button" id="quoteConfirmBtn">确认报价</button>
-            </div>
-          </div>
         </section>
 
         <section class="section" aria-labelledby="history-title">
@@ -1526,7 +1777,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <nav class="tab-bar" aria-label="底部导航">
     <button class="tab-btn active" type="button" data-target="inquiry"><span class="tab-icon">⌂</span>询价</button>
-    <button class="tab-btn" type="button" data-target="acceptance"><span class="tab-icon">✓</span>验收</button>
+    <button class="tab-btn" type="button" data-target="orders"><span class="tab-icon">单</span>订单</button>
     <button class="tab-btn" type="button" data-target="profile"><span class="tab-icon">◎</span>我的</button>
   </nav>
 
@@ -1535,11 +1786,93 @@
       material: "",
       repairTypes: new Set(),
       masters: { gold: 0, silver: 0, bronze: 0 },
-      activeAcceptanceOrder: "JD20260909006",
+      activeOrderGroup: "unquoted",
+      activeAcceptanceOrder: "JD20260915010",
+      activeClientDetailOrder: "",
       acceptanceResult: "pass"
     };
 
+    const orderGroups = [
+      { key: "unquoted", label: "待报价", types: ["unquoted"] },
+      { key: "quote", label: "待确认报价", types: ["quote"] },
+      { key: "dispatch", label: "待派单", types: ["dispatch"] },
+      { key: "progress", label: "施工中", types: ["progress", "rework"] },
+      { key: "acceptance", label: "待验收", types: ["acceptance"] },
+      { key: "done", label: "已完成", types: ["done"] }
+    ];
+
     const acceptanceOrders = {
+      JD20260915010: {
+        short: "等待报价",
+        title: "#JD20260915010 岩板缺角修复",
+        meta: "成都某建材门店 · 已提交需求",
+        content: "岩板 / 缺角 / 坑洞",
+        time: "期望 2026-09-19 14:00",
+        status: "平台正在定损报价",
+        statusLabel: "待报价",
+        tagClass: "",
+        type: "unquoted",
+        serviceMaster: "待平台派单",
+        result: ""
+      },
+      JD20260915009: {
+        short: "确认报价",
+        title: "#JD20260915009 木材划痕修复",
+        meta: "成都某家具厂 · 银牌大师 1 位",
+        content: "木材 / 浅表划痕 3 处",
+        time: "期望 2026-09-17 10:00",
+        status: "报价已生成，等待客户确认",
+        statusLabel: "待确认报价",
+        tagClass: "",
+        type: "quote",
+        quoteFee: 150,
+        visitFee: 50,
+        quoteNote: "浅表划痕按 3 处计价",
+        serviceMaster: "银牌大师 1 位（待派单）",
+        result: ""
+      },
+      JD20260912002: {
+        short: "岩板缺角",
+        title: "#JD20260912002 岩板缺角修复",
+        meta: "成都某建材门店 · 金牌大师 2 位",
+        content: "岩板 / 缺角 / 坑洞",
+        time: "期望 2026-09-14 14:00",
+        status: "报价已确认，等待平台派单",
+        statusLabel: "待派单",
+        tagClass: "",
+        type: "dispatch",
+        orderAmount: 860,
+        serviceMaster: "金牌大师 2 位（待派单）",
+        result: ""
+      },
+      JD20260912003: {
+        short: "木门补漆",
+        title: "#JD20260912003 木门补漆修复",
+        meta: "成都某家具厂 · 银牌大师 1 位、铜牌大师 1 位",
+        content: "木材 / 划痕 / 补漆",
+        time: "期望 2026-09-15 09:00",
+        status: "报价已确认，等待平台派单",
+        statusLabel: "待派单",
+        tagClass: "",
+        type: "dispatch",
+        orderAmount: 420,
+        serviceMaster: "银牌大师 1 位、铜牌大师 1 位（待派单）",
+        result: ""
+      },
+      JD20260911005: {
+        short: "施工中",
+        title: "#JD20260911005 大理石裂缝修复",
+        meta: "品牌售后团队 · 李师傅、周师傅",
+        content: "大理石 / 裂缝 / 拼缝",
+        time: "2026-09-13 10:30",
+        status: "师傅已到场，正在进行裂缝填补与纹理复原",
+        statusLabel: "施工中",
+        tagClass: "",
+        type: "progress",
+        orderAmount: 620,
+        serviceMaster: "李建军、周海峰",
+        result: ""
+      },
       JD20260909006: {
         short: "瓷砖缺角",
         title: "#JD20260909006 瓷砖缺角修复",
@@ -1547,6 +1880,13 @@
         content: "瓷砖 / 缺角 / 拼缝",
         time: "2026-09-12 15:00",
         status: "师傅已提交完工凭证",
+        statusLabel: "待验收",
+        tagClass: "",
+        type: "acceptance",
+        orderAmount: 260,
+        serviceMaster: "李建军",
+        completionMedia: { photos: "3 张图片", videos: "1 个视频" },
+        completionNote: "瓷砖缺角已补齐，拼缝颜色已按现场纹理调整，表面已完成清洁。",
         result: ""
       },
       JD20260909007: {
@@ -1556,6 +1896,13 @@
         content: "木材 / 划痕 / 补漆",
         time: "2026-09-13 09:30",
         status: "等待客户验收确认",
+        statusLabel: "待验收",
+        tagClass: "",
+        type: "acceptance",
+        orderAmount: 220,
+        serviceMaster: "周海峰",
+        completionMedia: { photos: "4 张图片", videos: "1 个视频" },
+        completionNote: "划痕区域已完成补漆和抛光，现场已确认漆面干燥。",
         result: ""
       },
       JD20260909011: {
@@ -1565,7 +1912,31 @@
         content: "大理石 / 裂缝 / 拼缝",
         time: "2026-09-14 10:30",
         status: "平台已归档施工记录",
+        statusLabel: "待验收",
+        tagClass: "",
+        type: "acceptance",
+        orderAmount: 560,
+        serviceMaster: "李建军、郑文斌",
+        completionMedia: { photos: "5 张图片", videos: "2 个视频" },
+        completionNote: "裂缝与拼缝已完成填补，已上传近景和整体施工视频供客户验收。",
         result: ""
+      },
+      JD20260908003: {
+        short: "已完成",
+        title: "#JD20260908003 大理石裂缝修复",
+        meta: "酒店工程部 · 陈国栋",
+        content: "大理石 / 裂缝 / 补漆",
+        time: "2026-09-10 13:30",
+        status: "客户已验收，施工记录已归档",
+        statusLabel: "已验收",
+        tagClass: "done",
+        type: "done",
+        orderAmount: 680,
+        serviceMaster: "陈国栋（金牌大师）",
+        completedAt: "2026-09-10 18:20",
+        acceptedAt: "2026-09-11 10:15",
+        paymentStatus: "已支付 680 元",
+        result: "pass"
       }
     };
 
@@ -1610,8 +1981,10 @@
     }
 
     function switchPage(target) {
+      const isSubPage = target === "clientOrderDetail" || target === "clientAcceptance";
       $$(".page").forEach((page) => page.classList.toggle("active", page.dataset.page === target));
       $$(".tab-btn").forEach((btn) => btn.classList.toggle("active", btn.dataset.target === target));
+      $(".tab-bar").classList.toggle("hidden", isSubPage);
       document.querySelector(".app").scrollIntoView({ block: "start" });
     }
 
@@ -1627,50 +2000,142 @@
       return photoFiles.length + videoFiles.length;
     }
 
-    function renderAcceptanceTabs() {
-      const pendingOrders = Object.entries(acceptanceOrders).filter(([, order]) => !order.result);
-      $("#acceptanceCount").textContent = `${pendingOrders.length} 单待确认`;
-      $("#acceptanceOrderTabs").innerHTML = pendingOrders.map(([orderNo, order]) => `
-        <button class="order-tab" type="button" data-order="${orderNo}" role="tab" aria-selected="false">
-          <strong>${order.short}</strong>
-          <span>#${orderNo}</span>
-        </button>`).join("");
-
-      const hasPending = pendingOrders.length > 0;
-      $("#acceptanceEmpty").hidden = hasPending;
-      $("#acceptOrderCard").hidden = !hasPending;
-      $("#issueSection").hidden = !hasPending;
-      if (!hasPending) return;
-
-      if (!acceptanceOrders[state.activeAcceptanceOrder] || acceptanceOrders[state.activeAcceptanceOrder].result) {
-        state.activeAcceptanceOrder = pendingOrders[0][0];
-      }
-      $$(".order-tab", $("#acceptanceOrderTabs")).forEach((tab) => {
-        tab.addEventListener("click", () => switchAcceptanceOrder(tab.dataset.order));
-      });
-      switchAcceptanceOrder(state.activeAcceptanceOrder);
+    function clientOrderAmount(order) {
+      if (typeof order.orderAmount === "number") return `${order.orderAmount} 元`;
+      if (order.type === "quote") return `${Number(order.quoteFee || 0) + Number(order.visitFee || 0)} 元`;
+      return "待平台报价";
     }
 
-    function switchAcceptanceOrder(orderNo) {
-      const order = acceptanceOrders[orderNo];
-      if (!order || order.result) return;
+    function orderActionMarkup(orderNo, order) {
+      if (order.type === "quote") {
+        const total = Number(order.quoteFee || 0) + Number(order.visitFee || 0);
+        return `
+          <div class="quote-confirm-card">
+            <div class="mini-list">
+              <div class="mini-row"><span>维修费</span><strong>${order.quoteFee} 元</strong></div>
+              <div class="mini-row"><span>上门费</span><strong>${order.visitFee} 元</strong></div>
+              <div class="mini-row"><span>报价合计</span><strong>${total} 元</strong></div>
+              <div class="mini-row"><span>报价说明</span><strong>${order.quoteNote}</strong></div>
+            </div>
+            <div class="order-actions">
+              <button class="plain-btn" type="button" data-order-action="quoteQuestion" data-order-no="${orderNo}">对报价有疑问</button>
+              <button class="inline-submit" type="button" data-order-action="quoteConfirm" data-order-no="${orderNo}">确认报价</button>
+            </div>
+          </div>`;
+      }
+      if (order.type === "unquoted") {
+        return `<div class="empty-state">平台正在根据图片、视频和修复信息报价，报价后可直接在本卡片确认。</div>`;
+      }
+      if (order.type === "dispatch") {
+        return `<div class="empty-state">报价已确认，平台正在联系符合等级与时间要求的师傅。</div>`;
+      }
+      if (order.type === "progress" || order.type === "rework") {
+        return `
+          <div class="order-actions">
+            <button class="plain-btn" type="button" data-order-action="contactService" data-order-no="${orderNo}">联系平台</button>
+            <button class="inline-submit" type="button" data-order-action="progressRemind" data-order-no="${orderNo}">${order.type === "rework" ? "询问返修进度" : "询问施工进度"}</button>
+          </div>`;
+      }
+      if (order.type === "acceptance" && !order.result) {
+        return `<div class="order-actions single"><button class="inline-submit" type="button" data-order-action="openAcceptance" data-order-no="${orderNo}">验收此订单</button></div>`;
+      }
+      return "";
+    }
 
-      state.activeAcceptanceOrder = orderNo;
-      setAcceptanceResult("pass");
-      $("#acceptOrderTitle").textContent = order.title;
-      $("#acceptOrderMeta").textContent = order.meta;
-      $("#acceptOrderContent").textContent = order.content;
-      $("#acceptOrderTime").textContent = order.time;
-      $("#acceptOrderStatus").textContent = order.status;
-      $("#acceptIssueOrder").textContent = `#${orderNo}`;
-      $("#acceptOrderTag").textContent = "待验收";
-      $("#acceptOrderTag").className = "status-tag";
+    function clientOrderCard(orderNo, order) {
+      return `
+        <article class="order-card client-order-card" data-client-order="${orderNo}">
+          <div class="order-head">
+            <div>
+              <p class="order-title">${order.title}</p>
+              <p class="order-meta">${order.meta}</p>
+            </div>
+            <span class="status-tag ${order.tagClass || ""}">${order.statusLabel}</span>
+          </div>
+          <div class="mini-list">
+            <div class="mini-row"><span>维修内容</span><strong>${order.content}</strong></div>
+            <div class="mini-row"><span>上门时间</span><strong>${order.time}</strong></div>
+            <div class="mini-row"><span>服务师傅</span><strong>${order.serviceMaster || "待平台安排"}</strong></div>
+            <div class="mini-row"><span>订单金额</span><strong>${clientOrderAmount(order)}</strong></div>
+            <div class="mini-row"><span>当前进度</span><strong>${order.status}</strong></div>
+          </div>
+          ${orderActionMarkup(orderNo, order)}
+        </article>`;
+    }
 
-      $$(".order-tab").forEach((tab) => {
-        const active = tab.dataset.order === orderNo;
-        tab.classList.toggle("active", active);
-        tab.setAttribute("aria-selected", active ? "true" : "false");
+    function renderClientOrders() {
+      const orderEntries = Object.entries(acceptanceOrders);
+      const group = orderGroups.find((item) => item.key === state.activeOrderGroup) || orderGroups[0];
+      const groupOrders = orderEntries.filter(([, order]) => group.types.includes(order.type));
+      const isCompletedGroup = group.key === "done";
+
+      $("#clientOrderTabs").innerHTML = orderGroups.map((item) => {
+        const count = orderEntries.filter(([, order]) => item.types.includes(order.type)).length;
+        return `
+          <button class="order-tab ${item.key === group.key ? "active" : ""}" type="button" data-client-order-group="${item.key}" role="tab" aria-selected="${item.key === group.key}">
+            <strong>${item.label}</strong>
+            <span>${count} 单</span>
+          </button>`;
+      }).join("");
+
+      $("#activeOrderCount").textContent = `${groupOrders.length} 单`;
+      $("#activeOrderCards").hidden = isCompletedGroup;
+      $("#activeOrderCards").innerHTML = isCompletedGroup ? "" : groupOrders.map(([orderNo, order]) => clientOrderCard(orderNo, order)).join("");
+      $("#completedOrderList").hidden = !isCompletedGroup;
+      $("#completedOrderList").innerHTML = isCompletedGroup ? groupOrders.map(([orderNo, order]) => `
+        <button class="completed-order-item" type="button" data-completed-order="${orderNo}">
+          <span><strong>${order.title}</strong><span>${order.content} · ${order.statusLabel}</span></span>
+          <b aria-hidden="true">›</b>
+        </button>`).join("") : "";
+      $("#activeOrdersEmpty").textContent = `暂无${group.label}订单`;
+      $("#activeOrdersEmpty").hidden = isCompletedGroup || groupOrders.length > 0;
+      $("#completedOrdersEmpty").hidden = !isCompletedGroup || groupOrders.length > 0;
+      $("#issueSection").hidden = true;
+
+      $$("[data-client-order-group]", $("#clientOrderTabs")).forEach((button) => {
+        button.addEventListener("click", () => {
+          state.activeOrderGroup = button.dataset.clientOrderGroup;
+          renderClientOrders();
+        });
       });
+    }
+
+    function openAcceptanceOrder(orderNo) {
+      const order = acceptanceOrders[orderNo];
+      if (!order || order.type !== "acceptance") return;
+      state.activeAcceptanceOrder = orderNo;
+      $("#acceptanceDetailTitle").textContent = order.title.replace(/^#\S+\s*/, "");
+      $("#acceptanceDetailStatus").textContent = order.statusLabel;
+      $("#acceptanceDetailStatus").className = `status-tag ${order.tagClass || ""}`.trim();
+      $("#acceptIssueOrder").textContent = `#${orderNo}`;
+      $("#acceptanceDetailContent").textContent = order.content;
+      $("#acceptanceDetailTime").textContent = order.time;
+      $("#acceptanceDetailMaster").textContent = order.serviceMaster || "待平台安排";
+      $("#acceptanceDetailAmount").textContent = clientOrderAmount(order);
+      $("#acceptanceDetailProgress").textContent = order.status;
+      $("#acceptancePhotoMeta").textContent = order.completionMedia?.photos || "已上传完工图片";
+      $("#acceptanceVideoMeta").textContent = order.completionMedia?.videos || "已上传完工视频";
+      $("#acceptanceCompletionNote").textContent = order.completionNote || "师傅暂未填写完工说明。";
+      setAcceptanceResult("pass");
+      $("#issueSection").hidden = false;
+      switchPage("clientAcceptance");
+    }
+
+    function openClientOrderDetail(orderNo) {
+      const order = acceptanceOrders[orderNo];
+      if (!order || order.type !== "done") return;
+      state.activeClientDetailOrder = orderNo;
+      $("#clientDetailTitle").textContent = order.title.replace(/^#\S+\s*/, "");
+      $("#clientDetailStatus").textContent = order.statusLabel;
+      $("#clientDetailNo").textContent = orderNo;
+      $("#clientDetailContent").textContent = order.content;
+      $("#clientDetailTime").textContent = order.time;
+      $("#clientDetailMaster").textContent = order.serviceMaster || "平台已安排";
+      $("#clientDetailAmount").textContent = clientOrderAmount(order);
+      $("#clientDetailCompletedAt").textContent = order.completedAt || "已完工";
+      $("#clientDetailAcceptance").textContent = order.acceptedAt ? `已通过 · ${order.acceptedAt}` : "已通过验收";
+      $("#clientDetailPayment").textContent = order.paymentStatus || "待确认";
+      switchPage("clientOrderDetail");
     }
 
     function completeAcceptance(result) {
@@ -1678,11 +2143,22 @@
       const order = acceptanceOrders[orderNo];
       if (!order) return;
       order.result = result;
+      order.type = result === "pass" ? "done" : "rework";
+      order.statusLabel = result === "pass" ? "已通过验收" : "待返修";
+      order.tagClass = result === "pass" ? "done" : "danger";
+      order.status = result === "pass" ? "已确认通过验收，订单进入结算流程" : "验收问题已提交，平台正在复核返修";
+      state.activeOrderGroup = result === "pass" ? "done" : "progress";
+      if (result === "pass") {
+        order.completedAt = order.completedAt || "师傅已提交完工记录";
+        order.acceptedAt = "刚刚";
+        order.paymentStatus = "待支付";
+      }
       if (orderNo === "JD20260909006") {
         $("#historyAcceptanceStatus").textContent = result === "pass" ? "已通过验收" : "待返修";
         $("#historyAcceptanceStatus").className = `status-tag ${result === "pass" ? "done" : "danger"}`;
       }
-      renderAcceptanceTabs();
+      renderClientOrders();
+      switchPage("orders");
     }
 
     function setIssueExpanded(expanded) {
@@ -1708,6 +2184,57 @@
       btn.addEventListener("click", () => switchPage(btn.dataset.target));
     });
 
+    $("#activeOrderCards").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-order-action]");
+      if (!button) return;
+      const orderNo = button.dataset.orderNo;
+      const order = acceptanceOrders[orderNo];
+      if (!order) return;
+
+      if (button.dataset.orderAction === "quoteQuestion") {
+        showToast("已打开报价沟通入口，订单仍等待确认。");
+      }
+      if (button.dataset.orderAction === "quoteConfirm") {
+        order.type = "dispatch";
+        order.orderAmount = Number(order.quoteFee || 0) + Number(order.visitFee || 0);
+        order.statusLabel = "待派单";
+        order.tagClass = "done";
+        order.status = "报价已确认，平台正在安排银牌大师 1 位";
+        order.serviceMaster = "银牌大师 1 位（待派单）";
+        state.activeOrderGroup = "dispatch";
+        $("#historyQuoteStatus").textContent = "待派单";
+        $("#historyQuoteStatus").className = "status-tag done";
+        showToast("报价已确认，平台将按银牌大师 1 位进行派单。");
+        console.log("金大师报价确认", { orderNo, result: "confirmed" });
+        renderClientOrders();
+      }
+      if (button.dataset.orderAction === "contactService") {
+        showToast("已打开平台沟通入口。");
+      }
+      if (button.dataset.orderAction === "progressRemind") {
+        showToast(order.type === "rework" ? "已向平台发送返修进度询问。" : "已向平台发送施工进度询问。");
+      }
+      if (button.dataset.orderAction === "openAcceptance") {
+        openAcceptanceOrder(orderNo);
+      }
+    });
+
+    $("#completedOrderList").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-completed-order]");
+      if (button) openClientOrderDetail(button.dataset.completedOrder);
+    });
+
+    $("#backToClientOrders").addEventListener("click", () => switchPage("orders"));
+
+    $("#backToClientOrdersFromAcceptance").addEventListener("click", () => switchPage("orders"));
+
+    $$('[data-preview-media]').forEach((button) => {
+      button.addEventListener("click", () => {
+        const mediaType = button.dataset.previewMedia === "photo" ? "完工图片" : "完工视频";
+        showToast(`已打开${mediaType}预览。`);
+      });
+    });
+
     $$(".accept-choice").forEach((btn) => {
       btn.addEventListener("click", () => setAcceptanceResult(btn.dataset.result));
     });
@@ -1726,22 +2253,6 @@
         result: "pass"
       });
       completeAcceptance("pass");
-    });
-
-    $("#quoteQuestionBtn").addEventListener("click", () => {
-      showToast("已打开报价沟通入口，订单仍等待确认。");
-    });
-
-    $("#quoteConfirmBtn").addEventListener("click", () => {
-      $("#quoteConfirmStatus").textContent = "待派单";
-      $("#quoteConfirmStatus").className = "status-tag done";
-      $("#historyQuoteStatus").textContent = "待派单";
-      $("#historyQuoteStatus").className = "status-tag done";
-      $("#quoteConfirmBtn").textContent = "报价已确认";
-      $("#quoteConfirmBtn").disabled = true;
-      $("#quoteConfirmCount").textContent = "已确认";
-      showToast("报价已确认，平台将按银牌大师 1 位进行派单。");
-      console.log("金大师报价确认", { orderNo: "JD20260915009", result: "confirmed" });
     });
 
     $("#contactBtn").addEventListener("click", () => {
@@ -1942,7 +2453,7 @@
       showToast("我的信息已保存。");
     });
 
-    renderAcceptanceTabs();
+    renderClientOrders();
   </script>
 </body>
 </html>

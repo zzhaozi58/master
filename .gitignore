@@ -1,1 +1,18 @@
-.vercel
+.DS_Store
+node_modules/
+data/
+coverage/
+.nyc_output/
+
+# Local browser/runtime artifacts
+.playwright-cli/
+work/playwright/
+
+# Local deployment metadata
+outputs/
+outputs/.git/
+outputs/.vercel/
+
+# Logs and temporary files
+*.log
+*.tmp

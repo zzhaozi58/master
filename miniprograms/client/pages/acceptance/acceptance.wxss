@@ -1,0 +1,5 @@
+.btn-primary,
+.btn-danger,
+.btn-ghost {
+  margin-top: 20rpx;
+}

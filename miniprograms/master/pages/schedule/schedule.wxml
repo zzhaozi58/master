@@ -1,0 +1,12 @@
+<view class="page">
+  <view class="section">
+    <view class="section-title">未来一周可用时间</view>
+    <view class="muted">非必填；填写后管理员派单时会看到有空、无空或未知。</view>
+    <view wx:for="{{rows}}" wx:key="key" class="row">
+      <view class="label">{{item.date}} {{item.slot}}</view>
+      <view class="tab {{item.status === '有空' ? 'active' : ''}}" data-index="{{index}}" bindtap="cycleStatus">{{item.status}}</view>
+    </view>
+    <view class="btn btn-primary" bindtap="save">保存时间</view>
+    <view wx:if="{{message}}" class="toast">{{message}}</view>
+  </view>
+</view>

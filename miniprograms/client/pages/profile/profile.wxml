@@ -1,0 +1,22 @@
+<view class="page">
+  <view class="section">
+    <view class="section-title">我的信息</view>
+    <view class="field"><view class="field-label">公司名称 / 用户名字 <text class="required">*</text></view><input class="input" value="{{profile.name}}" data-field="name" bindinput="inputField" /></view>
+    <view class="field"><view class="field-label">微信号 / 微信昵称 <text class="required">*</text></view><input class="input" value="{{profile.wechat}}" data-field="wechat" bindinput="inputField" /></view>
+    <view class="field"><view class="field-label">联系电话 <text class="required">*</text></view><input class="input" value="{{profile.phone}}" data-field="phone" bindinput="inputField" /></view>
+    <view class="field"><view class="field-label">常用上门地址 <text class="required">*</text></view><input class="input" value="{{profile.address}}" data-field="address" bindinput="inputField" /></view>
+    <view class="btn btn-primary" bindtap="save">保存资料</view>
+    <view wx:if="{{message}}" class="toast">{{message}}</view>
+  </view>
+  <view class="section">
+    <view class="section-title">订单历史</view>
+    <view wx:for="{{orders}}" wx:key="id" class="row" data-id="{{item.id}}" bindtap="openOrder">
+      <view class="label">{{item.id}}</view>
+      <view class="value">{{item.category}}</view>
+    </view>
+  </view>
+  <view class="section">
+    <view class="section-title">联系客服</view>
+    <view class="btn btn-secondary" bindtap="callService">拨打客服</view>
+  </view>
+</view>

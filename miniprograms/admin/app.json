@@ -1,0 +1,30 @@
+{
+  "pages": [
+    "pages/orders/orders",
+    "pages/order-detail/order-detail",
+    "pages/exceptions/exceptions",
+    "pages/masters/masters",
+    "pages/master-detail/master-detail",
+    "pages/customers/customers",
+    "pages/customer-detail/customer-detail"
+  ],
+  "window": {
+    "navigationBarTitleText": "金大师管理端",
+    "navigationBarBackgroundColor": "#005536",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F7F5EF"
+  },
+  "tabBar": {
+    "color": "#66736D",
+    "selectedColor": "#005536",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      { "pagePath": "pages/orders/orders", "text": "订单" },
+      { "pagePath": "pages/exceptions/exceptions", "text": "异常" },
+      { "pagePath": "pages/masters/masters", "text": "师傅" },
+      { "pagePath": "pages/customers/customers", "text": "客户" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

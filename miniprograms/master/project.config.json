@@ -1,0 +1,11 @@
+{
+  "appid": "touristappid",
+  "projectname": "jindashi-master",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true
+  }
+}

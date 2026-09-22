@@ -1,0 +1,37 @@
+<view class="page">
+  <view class="section-title">我的订单</view>
+  <view wx:if="{{!approved}}" class="section">
+    <view class="section-title">{{reviewStatus === '已拒绝' ? '审核未通过' : '账号待审核'}}</view>
+    <view wx:if="{{reviewStatus === '已拒绝'}}" class="muted">原因：{{reviewReason}}</view>
+    <view wx:else class="muted">管理员通过注册后才能查看和处理订单。</view>
+    <view class="btn btn-secondary" bindtap="openRegister">修改资料</view>
+  </view>
+  <block wx:if="{{approved}}">
+    <scroll-view scroll-x class="tabs">
+      <view wx:for="{{tabs}}" wx:key="name" data-name="{{item.name}}" bindtap="switchTab" class="tab {{activeTab === item.name ? 'active' : ''}}">{{item.name}} {{item.count}}</view>
+    </scroll-view>
+    <view wx:if="{{orders.length === 0}}" class="empty">暂无{{activeTab}}订单</view>
+    <view wx:for="{{orders}}" wx:key="id" class="section">
+      <view class="row"><view class="section-title">{{item.title}}</view><view class="value">{{item.status}}</view></view>
+      <view class="row"><view class="label">上门时间</view><view class="value">{{item.visitTime}}</view></view>
+      <view class="row"><view class="label">预计工期</view><view class="value">{{item.durationDays}} 天</view></view>
+      <view class="row"><view class="label">应收金额</view><view class="value">{{item.receivableAmountText}}</view></view>
+      <view wx:if="{{activeTab === '已完成'}}" class="row"><view class="label">实收金额</view><view class="value">{{item.paidAmountText}}</view></view>
+      <view class="row"><view class="label">地址</view><view class="value">{{item.address}}</view></view>
+      <view class="row"><view class="label">备注</view><view class="value">{{item.note}}</view></view>
+      <view class="row"><view class="label">到场打卡</view><view class="value">{{item.checkIn}}</view></view>
+      <view wx:if="{{item.isCanceled}}" class="watermark">已取消</view>
+      <view wx:if="{{activeTab === '施工中'}}" class="field">
+        <view class="field-label">完工文字说明（选填）</view>
+        <textarea class="textarea" data-id="{{item.id}}" bindinput="inputCompletionNote" placeholder="请填写施工结果、色差边界或现场说明" />
+      </view>
+      <view class="actions">
+        <view class="btn {{item.isCanceled ? 'btn-disabled' : 'btn-ghost'}}" data-canceled="{{item.isCanceled}}" data-phone="{{item.customerPhone}}" bindtap="callCustomer">拨打客户</view>
+        <view wx:if="{{activeTab === '待预约'}}" class="btn {{item.isCanceled ? 'btn-disabled' : 'btn-secondary'}}" data-canceled="{{item.isCanceled}}" data-id="{{item.id}}" bindtap="appoint">已预约</view>
+        <view wx:if="{{activeTab === '施工中'}}" class="btn {{item.canCheckIn && !item.isCanceled ? 'btn-secondary' : 'btn-disabled'}}" data-canceled="{{item.isCanceled}}" data-id="{{item.id}}" bindtap="checkIn">到达打卡</view>
+        <view wx:if="{{activeTab === '施工中'}}" class="btn {{item.canComplete && !item.isCanceled ? 'btn-primary' : 'btn-disabled'}}" data-canceled="{{item.isCanceled || !item.canComplete}}" data-id="{{item.id}}" bindtap="complete">提交完工</view>
+      </view>
+    </view>
+  </block>
+  <view wx:if="{{message}}" class="toast">{{message}}</view>
+</view>

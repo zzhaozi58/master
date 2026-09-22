@@ -1,0 +1,44 @@
+<view class="page">
+  <view class="section">
+    <view class="row"><view class="section-title">{{master.name}}</view><view class="badge">{{master.level}}</view></view>
+    <view class="row"><view class="label">审核状态</view><view class="value">{{master.reviewStatus}}</view></view>
+    <view class="row"><view class="label">接单状态</view><view class="value">{{master.workStatus}}</view></view>
+    <view class="row"><view class="label">性别</view><view class="value">{{master.gender}}</view></view>
+    <view class="row"><view class="label">微信号</view><view class="value">{{master.wechat}}</view></view>
+    <view class="row"><view class="label">联系电话</view><view class="value">{{master.phone}}</view></view>
+    <view class="row"><view class="label">常住地址</view><view class="value">{{master.city}}{{master.district}}{{master.street}}</view></view>
+    <view class="row"><view class="label">个人介绍</view><view class="value">{{master.intro}}</view></view>
+    <view class="row"><view class="label">需要支付</view><view class="value">¥{{master.needPay}}</view></view>
+    <view class="row"><view class="label">已支付金额</view><view class="value">¥{{master.paidAmount}}</view></view>
+    <view class="field">
+      <view class="field-label">师傅等级</view>
+      <picker range="{{levelOptions}}" value="{{levelIndex}}" bindchange="pickLevel">
+        <view class="input picker-value">{{form.level}}</view>
+      </picker>
+    </view>
+    <view class="field"><view class="field-label">信用分</view><input class="input" type="number" value="{{form.creditScore}}" data-field="creditScore" bindinput="inputField" /></view>
+    <view class="field"><view class="field-label">已支付金额</view><input class="input" type="number" value="{{form.paidAmount}}" data-field="paidAmount" bindinput="inputField" /></view>
+    <view wx:if="{{master.reviewStatus === '待审核'}}" class="field">
+      <view class="field-label">拒绝原因 <text class="required">*</text></view>
+      <textarea class="textarea" value="{{rejectReason}}" bindinput="inputRejectReason" placeholder="拒绝注册时必须填写，师傅端会看到此原因" />
+    </view>
+    <view wx:if="{{master.reviewStatus === '待审核'}}" class="actions">
+      <view class="btn btn-secondary" bindtap="approve">通过注册</view>
+      <view class="btn btn-danger" bindtap="reject">拒绝注册</view>
+    </view>
+    <view class="btn btn-primary" bindtap="save">保存管理字段</view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">订单记录</view>
+    <view wx:for="{{orderGroups}}" wx:key="title" class="field">
+      <view class="field-label">{{item.title}}（{{item.count}}）</view>
+      <view wx:if="{{item.orders.length === 0}}" class="muted">暂无</view>
+      <view wx:for="{{item.orders}}" wx:for-item="order" wx:key="id" class="row" data-id="{{order.id}}" bindtap="openOrder">
+        <view class="label">{{order.id}}</view>
+        <view class="value">{{order.status}} · {{order.receivableAmountText}}</view>
+      </view>
+    </view>
+  </view>
+  <view wx:if="{{message}}" class="toast">{{message}}</view>
+</view>
