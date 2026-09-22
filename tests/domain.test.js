@@ -41,6 +41,8 @@ test("报价必须由客户确认后才能进入待派单", () => {
   const order = domain.confirmQuote(state, "JD20260921001");
   assert.equal(order.status, domain.STATUS.DISPATCHING);
   assert.equal(order.orderAmount, 350);
+  assert.equal(order.quote.totalCents, 35000);
+  assert.equal(order.orderAmountCents, 35000);
 });
 
 test("修改已提交报价会作废旧版本且客户只能确认最新报价", () => {
@@ -254,6 +256,8 @@ test("验收后生成款项明细且重复确认收付款保持幂等", () => {
   assert.equal(records.length, 2);
   assert(records.some((item) => item.type === "客户收款" && item.dueAmount === 290));
   assert(records.some((item) => item.type === "师傅付款" && item.dueAmount === 261));
+  assert(records.some((item) => item.type === "客户收款" && item.dueAmountCents === 29000));
+  assert(records.some((item) => item.type === "师傅付款" && item.dueAmountCents === 26100));
 
   domain.confirmCustomerPayment(state, "JD20260921004");
   domain.confirmCustomerPayment(state, "JD20260921004");
@@ -262,6 +266,7 @@ test("验收后生成款项明细且重复确认收付款保持幂等", () => {
   const after = domain.listPaymentRecords(state, "JD20260921004");
   assert.equal(after.length, 2);
   assert(after.every((item) => item.status === "已完成"));
+  assert(after.every((item) => item.paidAmountCents === item.dueAmountCents));
   assert.equal(domain.listNotifications(state).filter((item) => item.event === "平台已确认师傅付款").length, 1);
 });
 

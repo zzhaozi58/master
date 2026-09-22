@@ -185,7 +185,21 @@ function master(id, name, gender, level, creditScore, phone, wechat, city, distr
 }
 
 function quote(version, repairFee, visitFee, description, status) {
-  return { id: `q_${version}`, version, repairFee, visitFee, total: repairFee + visitFee, description, status, submittedAt: nowText(), confirmedAt: "" };
+  const total = repairFee + visitFee;
+  return {
+    id: `q_${version}`,
+    version,
+    repairFee,
+    repairFeeCents: toCents(repairFee),
+    visitFee,
+    visitFeeCents: toCents(visitFee),
+    total,
+    totalCents: toCents(total),
+    description,
+    status,
+    submittedAt: nowText(),
+    confirmedAt: ""
+  };
 }
 
 function assignment(masterId, level, receivableAmount, status = "待预约", paidAmount = 0) {
@@ -238,17 +252,24 @@ function order(input) {
     quote: null,
     quoteHistory: [],
     orderAmount: null,
+    orderAmountCents: null,
     dispatchDraft: { gold: [], silver: [], bronze: [] },
     assignments: [],
     cycles: [],
     cancelRequest: null,
-    payments: { customerPaid: 0, masterPaid: {} },
+    payments: { customerPaid: 0, customerPaidCents: 0, masterPaid: {}, masterPaidCents: {} },
     note: "",
     createdAt: nowText(),
     updatedAt: nowText()
   };
   const result = Object.assign(base, input);
   if (result.quote && !result.quoteHistory.length) result.quoteHistory = [result.quote];
+  if (result.orderAmount != null && result.orderAmountCents == null) result.orderAmountCents = toCents(result.orderAmount);
+  result.payments = Object.assign({ customerPaid: 0, customerPaidCents: 0, masterPaid: {}, masterPaidCents: {} }, result.payments || {});
+  if (result.payments.customerPaidCents == null) result.payments.customerPaidCents = toCents(result.payments.customerPaid);
+  if (!result.payments.masterPaidCents) {
+    result.payments.masterPaidCents = Object.fromEntries(Object.entries(result.payments.masterPaid || {}).map(([masterId, amount]) => [masterId, toCents(amount)]));
+  }
   return result;
 }
 
@@ -456,14 +477,15 @@ function confirmQuote(state, orderId, actor = "system") {
   const item = orderById(state, orderId);
   assert(item.status === STATUS.QUOTE_CONFIRMING, "当前订单不在待客户确认报价状态");
   assert(item.quote && item.quote.status === "待客户确认", "没有可确认的最新报价");
-  const before = auditSnapshot(item, ["status", "quote", "orderAmount"]);
+  const before = auditSnapshot(item, ["status", "quote", "orderAmount", "orderAmountCents"]);
   item.quote.status = "已确认";
   item.quote.confirmedAt = nowText();
   item.orderAmount = item.quote.total;
+  item.orderAmountCents = item.quote.totalCents;
   item.status = STATUS.DISPATCHING;
   touch(item);
-  audit(state, "客户确认报价", orderId, "", before, auditSnapshot(item, ["status", "quote", "orderAmount"]), actor);
-  enqueueNotification(state, "客户已确认报价", [{ role: "admin", id: "admin_root" }], orderId, { total: item.orderAmount });
+  audit(state, "客户确认报价", orderId, "", before, auditSnapshot(item, ["status", "quote", "orderAmount", "orderAmountCents"]), actor);
+  enqueueNotification(state, "客户已确认报价", [{ role: "admin", id: "admin_root" }], orderId, { total: item.orderAmount, totalCents: item.orderAmountCents });
   return item;
 }
 
@@ -760,10 +782,12 @@ function confirmCustomerPayment(state, orderId, actor = "system") {
   if (record.paidAmount >= record.dueAmount) return item;
   const beforePaid = record.paidAmount;
   record.paidAmount = record.dueAmount;
+  record.paidAmountCents = record.dueAmountCents;
   record.status = "已完成";
   record.confirmedAt = nowText();
   record.updatedAt = nowText();
   item.payments.customerPaid = item.orderAmount;
+  item.payments.customerPaidCents = item.orderAmountCents;
   audit(state, "确认已从客户收款", orderId, "", { paidAmount: beforePaid }, { paidAmount: record.paidAmount }, actor);
   return item;
 }
@@ -777,11 +801,14 @@ function confirmMasterPayment(state, orderId, masterId, actor = "system") {
   if (record.paidAmount >= record.dueAmount) return item;
   const beforePaid = record.paidAmount;
   record.paidAmount = record.dueAmount;
+  record.paidAmountCents = record.dueAmountCents;
   record.status = "已完成";
   record.confirmedAt = nowText();
   record.updatedAt = nowText();
   assign.paidAmount = assign.receivableAmount;
+  item.payments.masterPaidCents = item.payments.masterPaidCents || {};
   item.payments.masterPaid[masterId] = assign.receivableAmount;
+  item.payments.masterPaidCents[masterId] = toCents(assign.receivableAmount);
   syncMasterPaidAmount(state, masterId);
   audit(state, "确认已支付给师傅", orderId, masterId, { paidAmount: beforePaid }, { paidAmount: record.paidAmount }, actor);
   enqueueNotification(state, "平台已确认师傅付款", [{ role: "master", id: masterId }], orderId, { amount: assign.receivableAmount });
@@ -997,6 +1024,8 @@ function ensureCustomerPaymentRecord(state, item) {
     state.paymentRecords.push(record);
   } else {
     record.dueAmount = item.orderAmount || 0;
+    record.dueAmountCents = toCents(record.dueAmount);
+    record.paidAmountCents = toCents(record.paidAmount);
     record.status = record.paidAmount >= record.dueAmount ? "已完成" : record.paidAmount > 0 ? "部分完成" : "未完成";
   }
   return record;
@@ -1011,6 +1040,8 @@ function ensureMasterPaymentRecord(state, item, assign) {
   } else {
     record.dueAmount = assign.receivableAmount || 0;
     record.paidAmount = assign.paidAmount || record.paidAmount || 0;
+    record.dueAmountCents = toCents(record.dueAmount);
+    record.paidAmountCents = toCents(record.paidAmount);
     record.status = record.paidAmount >= record.dueAmount ? "已完成" : record.paidAmount > 0 ? "部分完成" : "未完成";
   }
   return record;
@@ -1024,7 +1055,9 @@ function paymentRecord(orderId, type, targetId, dueAmount, paidAmount) {
     type,
     targetId,
     dueAmount,
+    dueAmountCents: toCents(dueAmount),
     paidAmount,
+    paidAmountCents: toCents(paidAmount),
     status,
     confirmedAt: status === "已完成" ? nowText() : "",
     createdAt: nowText(),
@@ -1052,6 +1085,10 @@ function clientCustomerPaymentStatus(item) {
 function masterPoolAmount(orderAmount) {
   if (orderAmount == null) return null;
   return Math.round(orderAmount * 0.9);
+}
+
+function toCents(amount) {
+  return Math.round(Number(amount || 0) * 100);
 }
 
 function latestCycle(item) {
