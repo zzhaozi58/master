@@ -1,5 +1,5 @@
 Page({
-  data: { form: {}, message: "" },
+  data: { form: {}, submitting: false, message: "" },
   onShow() { this.refresh(); },
   async refresh() {
     const app = getApp();
@@ -10,17 +10,21 @@ Page({
     this.setData({ [`form.${event.currentTarget.dataset.field}`]: event.detail.value });
   },
   async save() {
+    if (this.data.submitting) return;
     const error = validateForm(this.data.form);
     if (error) {
       this.setData({ message: error });
       return;
     }
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.updateCustomer(this.data.form);
       this.setData({ message: "客户资料已保存。" });
     } catch (saveError) {
       this.setData({ message: saveError.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   }
 });

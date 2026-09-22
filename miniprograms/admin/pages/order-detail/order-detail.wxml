@@ -26,8 +26,8 @@
     <view class="field"><view class="field-label">上门费</view><input class="input" type="number" value="{{quote.visitFee}}" data-field="visitFee" bindinput="inputQuote" /></view>
     <view class="field"><view class="field-label">报价说明</view><textarea class="textarea" value="{{quote.description}}" data-field="description" bindinput="inputQuote" /></view>
     <view class="actions">
-      <view class="btn btn-secondary" bindtap="saveQuoteDraft">保存草稿</view>
-      <view class="btn btn-primary" bindtap="submitQuote">提交报价给客户</view>
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-secondary'}}" bindtap="saveQuoteDraft">保存草稿</view>
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="submitQuote">提交报价给客户</view>
     </view>
     <view wx:if="{{order.quoteHistoryCount}}" class="field">
       <view class="field-label">报价版本</view>
@@ -52,8 +52,8 @@
       </view>
     </view>
     <view class="actions">
-      <view class="btn btn-secondary" bindtap="saveDispatchDraft">保存派单设置</view>
-      <view class="btn btn-primary" bindtap="dispatch">确认派单</view>
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-secondary'}}" bindtap="saveDispatchDraft">保存派单设置</view>
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="dispatch">确认派单</view>
     </view>
   </view>
 
@@ -65,13 +65,13 @@
       <view class="field-label">{{item.name}} · {{item.level}}</view>
       <input class="input" type="number" disabled="{{!canAllocateAmounts}}" value="{{item.amountInput}}" data-id="{{item.masterId}}" bindinput="inputAllocation" placeholder="完工后填写应收金额" />
     </view>
-    <view class="btn {{canAllocateAmounts ? 'btn-primary' : 'btn-disabled'}}" bindtap="saveAllocation">保存师傅金额</view>
+    <view class="btn {{canAllocateAmounts && !submitting ? 'btn-primary' : 'btn-disabled'}}" bindtap="saveAllocation">保存师傅金额</view>
   </view>
 
   <view wx:if="{{order.status === '待验收'}}" class="section">
     <view class="section-title">验收跟进</view>
     <view class="muted">客户暂未确认时，可发送一次验收提醒。</view>
-    <view class="btn btn-secondary" bindtap="remindAcceptance">发送验收提醒</view>
+    <view class="btn {{submitting ? 'btn-disabled' : 'btn-secondary'}}" bindtap="remindAcceptance">发送验收提醒</view>
   </view>
 
   <view wx:if="{{order.status === '已验收'}}" class="section">
@@ -85,8 +85,8 @@
       </view>
     </view>
     <view class="actions">
-      <view class="btn btn-secondary" bindtap="confirmCustomerPayment">确认已从客户收款</view>
-      <view class="btn btn-primary" bindtap="confirmMasterPayment">确认已支付给师傅</view>
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-secondary'}}" bindtap="confirmCustomerPayment">确认已从客户收款</view>
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="confirmMasterPayment">确认已支付给师傅</view>
     </view>
   </view>
 

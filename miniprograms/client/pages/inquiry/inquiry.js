@@ -40,6 +40,7 @@ Page({
     uploadMessage: "",
     uploadFailed: false,
     otherTypeSelected: false,
+    submitting: false,
     message: ""
   },
   onLoad() {
@@ -125,7 +126,9 @@ Page({
     });
   },
   async submit() {
+    if (this.data.submitting) return;
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       const form = Object.assign({}, this.data.form, {
         types: Object.keys(this.data.form.typesMap).filter((key) => this.data.form.typesMap[key])
@@ -134,6 +137,8 @@ Page({
       this.setData({ message: `已提交，订单号 ${order.id}，当前状态待报价。` });
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   }
 });

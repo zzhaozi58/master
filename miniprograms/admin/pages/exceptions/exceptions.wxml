@@ -14,10 +14,10 @@
       <textarea class="textarea" data-id="{{item.id}}" bindinput="inputNote" placeholder="确认取消、保留订单或强制完成时必须填写" />
     </view>
     <view class="actions">
-      <view wx:if="{{item.type === '客户取消' && item.status === '待处理'}}" class="btn btn-danger" data-id="{{item.id}}" bindtap="confirmCancel">确认取消</view>
-      <view wx:if="{{item.type === '客户取消' && item.status === '待处理'}}" class="btn btn-secondary" data-id="{{item.id}}" bindtap="keepOrder">保留订单</view>
-      <view wx:if="{{item.type === '验收不通过' && item.status === '待处理'}}" class="btn btn-secondary" data-id="{{item.id}}" bindtap="arrangeRework">安排返修</view>
-      <view wx:if="{{item.type === '验收不通过' && item.status === '待处理'}}" class="btn btn-danger" data-id="{{item.id}}" bindtap="forceComplete">驳回异常</view>
+      <view wx:if="{{item.type === '客户取消' && item.status === '待处理'}}" class="btn {{submitting ? 'btn-disabled' : 'btn-danger'}}" data-id="{{item.id}}" bindtap="confirmCancel">确认取消</view>
+      <view wx:if="{{item.type === '客户取消' && item.status === '待处理'}}" class="btn {{submitting ? 'btn-disabled' : 'btn-secondary'}}" data-id="{{item.id}}" bindtap="keepOrder">保留订单</view>
+      <view wx:if="{{item.type === '验收不通过' && item.status === '待处理'}}" class="btn {{submitting ? 'btn-disabled' : 'btn-secondary'}}" data-id="{{item.id}}" bindtap="arrangeRework">安排返修</view>
+      <view wx:if="{{item.type === '验收不通过' && item.status === '待处理'}}" class="btn {{submitting ? 'btn-disabled' : 'btn-danger'}}" data-id="{{item.id}}" bindtap="forceComplete">驳回异常</view>
       <view class="btn btn-ghost" data-id="{{item.orderId}}" bindtap="openOrder">查看订单</view>
     </view>
   </view>

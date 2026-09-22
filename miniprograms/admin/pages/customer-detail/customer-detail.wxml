@@ -8,7 +8,7 @@
     <view class="field"><view class="field-label">联系电话 <text class="required">*</text></view><input class="input" value="{{form.phone}}" data-field="phone" bindinput="inputField" /></view>
     <view class="field"><view class="field-label">常用地址 <text class="required">*</text></view><input class="input" value="{{form.address}}" data-field="address" bindinput="inputField" /></view>
     <view class="field"><view class="field-label">客户备注</view><textarea class="textarea" value="{{form.note}}" data-field="note" bindinput="inputField" /></view>
-    <view class="btn btn-primary" bindtap="save">保存客户资料</view>
+    <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="save">保存客户资料</view>
     <view wx:if="{{message}}" class="toast">{{message}}</view>
   </view>
 </view>

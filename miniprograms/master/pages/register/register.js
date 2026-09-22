@@ -1,5 +1,5 @@
 Page({
-  data: { form: {}, message: "" },
+  data: { form: {}, submitting: false, message: "" },
   async onShow() {
     const master = await getApp().globalData.api.getProfile();
     this.setData({ form: Object.assign({}, master) });
@@ -8,17 +8,21 @@ Page({
     this.setData({ [`form.${event.currentTarget.dataset.field}`]: event.detail.value });
   },
   async submit() {
+    if (this.data.submitting) return;
     const error = validateForm(this.data.form);
     if (error) {
       this.setData({ message: error });
       return;
     }
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.updateProfile(this.data.form);
       this.setData({ message: "资料已提交，等待管理员审核。" });
     } catch (submitError) {
       this.setData({ message: submitError.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   }
 });

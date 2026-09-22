@@ -23,10 +23,10 @@
       <view class="muted">{{item.quote.description}}</view>
     </view>
     <view class="actions">
-      <view wx:if="{{activeTab === '待确认报价'}}" class="btn btn-primary" data-id="{{item.id}}" bindtap="confirmQuote">确认报价</view>
+      <view wx:if="{{activeTab === '待确认报价'}}" class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" data-id="{{item.id}}" bindtap="confirmQuote">确认报价</view>
       <view wx:if="{{activeTab === '待确认报价'}}" class="btn btn-secondary" bindtap="callService">对报价有疑问</view>
       <view wx:if="{{item.canAccept}}" class="btn btn-primary" data-id="{{item.id}}" bindtap="goAcceptance">验收此订单</view>
-      <view wx:if="{{item.canCancel}}" class="btn btn-danger" data-id="{{item.id}}" bindtap="cancelOrder">申请取消</view>
+      <view wx:if="{{item.canCancel}}" class="btn {{submitting ? 'btn-disabled' : 'btn-danger'}}" data-id="{{item.id}}" bindtap="cancelOrder">申请取消</view>
       <view wx:if="{{activeTab === '已完成'}}" class="btn btn-secondary" data-id="{{item.id}}" bindtap="goDetail">查看详情</view>
     </view>
   </view>

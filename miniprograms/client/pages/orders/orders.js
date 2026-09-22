@@ -5,6 +5,7 @@ Page({
     activeTab: "待报价",
     tabs: [],
     orders: [],
+    submitting: false,
     message: ""
   },
   onShow() {
@@ -23,19 +24,29 @@ Page({
     this.refresh();
   },
   async confirmQuote(event) {
+    if (this.data.submitting) return;
     const app = getApp();
-    await app.globalData.api.confirmQuote(event.currentTarget.dataset.id);
-    this.setData({ activeTab: "待派单", message: "报价已确认，等待平台派单。" });
-    this.refresh();
+    this.setData({ submitting: true });
+    try {
+      await app.globalData.api.confirmQuote(event.currentTarget.dataset.id);
+      this.setData({ activeTab: "待派单", message: "报价已确认，等待平台派单。" });
+      this.refresh();
+    } finally {
+      this.setData({ submitting: false });
+    }
   },
   async cancelOrder(event) {
+    if (this.data.submitting) return;
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.requestCancel(event.currentTarget.dataset.id, "客户在小程序申请取消");
       this.setData({ message: "取消申请已提交，等待管理员确认。" });
       this.refresh();
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   goAcceptance(event) {

@@ -27,7 +27,7 @@
       <view class="btn {{result === 'pass' ? 'btn-primary' : 'btn-ghost'}}" data-value="pass" bindtap="chooseResult">✓ 通过验收</view>
       <view class="btn {{result === 'fail' ? 'btn-danger' : 'btn-ghost'}}" data-value="fail" bindtap="chooseResult">不通过</view>
     </view>
-    <view class="btn btn-primary" bindtap="submitPass" wx:if="{{result === 'pass'}}">确认通过验收</view>
+    <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="submitPass" wx:if="{{result === 'pass'}}">确认通过验收</view>
     <view wx:if="{{result === 'fail'}}">
       <view class="field">
         <view class="field-label">上传验收图片 / 视频 <text class="required">*</text></view>
@@ -39,7 +39,7 @@
         <view class="field-label">问题说明 <text class="required">*</text></view>
         <textarea class="textarea" value="{{issue.description}}" bindinput="inputIssue" placeholder="请说明需要返修的问题" />
       </view>
-      <view class="btn btn-primary" bindtap="submitFail">提交验收问题</view>
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="submitFail">提交验收问题</view>
     </view>
     <view wx:if="{{message}}" class="toast">{{message}}</view>
   </view>

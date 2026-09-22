@@ -25,6 +25,7 @@ page {
 .btn-secondary { color: #005536; background: #eef6f1; border: 1rpx solid #005536; }
 .btn-ghost { color: #005536; background: #fff; border: 1rpx solid #ded2c0; }
 .btn-danger { color: #8a241d; background: #fff2ef; border: 1rpx solid #e8b6ad; }
+.btn-disabled { color: #8a8f8b; background: #ece8df; }
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 16rpx; margin-top: 20rpx; }
 .empty { padding: 80rpx 0; color: #69766f; text-align: center; }
 .toast { margin-top: 16rpx; padding: 18rpx; border-radius: 12rpx; color: #005536; background: #e9f4ee; }

@@ -1,5 +1,5 @@
 Page({
-  data: { master: {}, form: {}, levelOptions: ["金牌", "银牌", "铜牌"], levelIndex: 2, orderGroups: [], rejectReason: "", message: "" },
+  data: { master: {}, form: {}, levelOptions: ["金牌", "银牌", "铜牌"], levelIndex: 2, orderGroups: [], rejectReason: "", submitting: false, message: "" },
   onShow() { this.refresh(); },
   async refresh() {
     const app = getApp();
@@ -24,33 +24,47 @@ Page({
     this.setData({ rejectReason: event.detail.value });
   },
   async approve() {
+    if (this.data.submitting) return;
     const app = getApp();
-    await app.globalData.api.reviewMaster(this.data.master.id, true);
-    this.setData({ message: "已通过注册。" });
-    this.refresh();
+    this.setData({ submitting: true });
+    try {
+      await app.globalData.api.reviewMaster(this.data.master.id, true);
+      this.setData({ message: "已通过注册。" });
+      this.refresh();
+    } finally {
+      this.setData({ submitting: false });
+    }
   },
   async reject() {
+    if (this.data.submitting) return;
     const app = getApp();
     if (!this.data.rejectReason || !this.data.rejectReason.trim()) {
       this.setData({ message: "拒绝注册必须填写原因。" });
       return;
     }
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.reviewMaster(this.data.master.id, false, this.data.rejectReason);
       this.setData({ message: "已拒绝注册。" });
       this.refresh();
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   async save() {
+    if (this.data.submitting) return;
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.updateMasterAdminFields(this.data.master.id, this.data.form);
       this.setData({ message: "师傅等级、信用分和已支付金额已保存。" });
       this.refresh();
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   openOrder(event) {

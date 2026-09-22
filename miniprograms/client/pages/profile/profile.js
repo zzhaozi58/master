@@ -2,6 +2,7 @@ Page({
   data: {
     profile: {},
     orders: [],
+    submitting: false,
     message: ""
   },
   async onShow() {
@@ -17,17 +18,21 @@ Page({
     this.setData({ [`profile.${event.currentTarget.dataset.field}`]: event.detail.value });
   },
   async save() {
+    if (this.data.submitting) return;
     const error = validateProfile(this.data.profile);
     if (error) {
       this.setData({ message: error });
       return;
     }
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.updateProfile(this.data.profile);
       this.setData({ message: "资料已保存。" });
     } catch (saveError) {
       this.setData({ message: saveError.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   openOrder(event) {

@@ -194,6 +194,11 @@ page {
   border: 1rpx solid #e8b6ad;
 }
 
+.btn-disabled {
+  color: #8a8f8b;
+  background: #ece8df;
+}
+
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

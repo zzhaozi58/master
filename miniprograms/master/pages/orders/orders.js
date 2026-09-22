@@ -1,7 +1,7 @@
 const tabs = ["待预约", "施工中", "待验收", "已完成"];
 
 Page({
-  data: { approved: false, reviewStatus: "", reviewReason: "", activeTab: "待预约", tabs: [], orders: [], completionNotes: {}, message: "" },
+  data: { approved: false, reviewStatus: "", reviewReason: "", activeTab: "待预约", tabs: [], orders: [], completionNotes: {}, submitting: false, message: "" },
   onShow() { this.refresh(); },
   async refresh() {
     const app = getApp();
@@ -27,31 +27,44 @@ Page({
     wx.makePhoneCall({ phoneNumber: event.currentTarget.dataset.phone });
   },
   async appoint(event) {
+    if (this.data.submitting) return;
     if (isCanceledEvent(event)) return;
     const app = getApp();
-    await app.globalData.api.appoint(event.currentTarget.dataset.id);
-    this.setData({ activeTab: "施工中", message: "已确认预约。" });
-    this.refresh();
+    this.setData({ submitting: true });
+    try {
+      await app.globalData.api.appoint(event.currentTarget.dataset.id);
+      this.setData({ activeTab: "施工中", message: "已确认预约。" });
+      this.refresh();
+    } finally {
+      this.setData({ submitting: false });
+    }
   },
   async checkIn(event) {
+    if (this.data.submitting) return;
     if (isCanceledEvent(event)) return;
     const app = getApp();
-    const location = await getLocationForCheckIn();
-    await app.globalData.api.checkIn(event.currentTarget.dataset.id, location);
-    this.setData({ message: location.ok ? "已打卡并记录定位。" : `已打卡，定位未成功：${location.reason}` });
-    this.refresh();
+    this.setData({ submitting: true });
+    try {
+      const location = await getLocationForCheckIn();
+      await app.globalData.api.checkIn(event.currentTarget.dataset.id, location);
+      this.setData({ message: location.ok ? "已打卡并记录定位。" : `已打卡，定位未成功：${location.reason}` });
+      this.refresh();
+    } finally {
+      this.setData({ submitting: false });
+    }
   },
   inputCompletionNote(event) {
     const id = event.currentTarget.dataset.id;
     this.setData({ [`completionNotes.${id}`]: event.detail.value });
   },
   async complete(event) {
+    if (this.data.submitting) return;
     if (isCanceledEvent(event)) return;
     const app = getApp();
     const orderId = event.currentTarget.dataset.id;
     const note = (this.data.completionNotes[orderId] || "").trim();
     try {
-      this.setData({ message: "正在选择并上传完工凭证..." });
+      this.setData({ submitting: true, message: "正在选择并上传完工凭证..." });
       const picked = await chooseMediaFallback({ purpose: "师傅完工凭证" });
       validateCompletionMedia(picked);
       const uploaded = [];
@@ -67,6 +80,8 @@ Page({
       this.refresh();
     } catch (error) {
       this.setData({ message: `完工凭证上传失败：${error.message || "请重试"}` });
+    } finally {
+      this.setData({ submitting: false });
     }
   }
 });

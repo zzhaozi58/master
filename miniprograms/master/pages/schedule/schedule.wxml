@@ -6,7 +6,7 @@
       <view class="label">{{item.date}} {{item.slot}}</view>
       <view class="tab {{item.status === '有空' ? 'active' : ''}}" data-index="{{index}}" bindtap="cycleStatus">{{item.status}}</view>
     </view>
-    <view class="btn btn-primary" bindtap="save">保存时间</view>
+    <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="save">保存时间</view>
     <view wx:if="{{message}}" class="toast">{{message}}</view>
   </view>
 </view>

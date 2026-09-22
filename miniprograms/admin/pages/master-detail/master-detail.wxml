@@ -23,10 +23,10 @@
       <textarea class="textarea" value="{{rejectReason}}" bindinput="inputRejectReason" placeholder="拒绝注册时必须填写，师傅端会看到此原因" />
     </view>
     <view wx:if="{{master.reviewStatus === '待审核'}}" class="actions">
-      <view class="btn btn-secondary" bindtap="approve">通过注册</view>
-      <view class="btn btn-danger" bindtap="reject">拒绝注册</view>
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-secondary'}}" bindtap="approve">通过注册</view>
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-danger'}}" bindtap="reject">拒绝注册</view>
     </view>
-    <view class="btn btn-primary" bindtap="save">保存管理字段</view>
+    <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="save">保存管理字段</view>
   </view>
 
   <view class="section">

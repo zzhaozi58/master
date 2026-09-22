@@ -10,6 +10,7 @@ Page({
     issueMediaLabel: "点击添加问题凭证",
     uploadMessage: "",
     uploadFailed: false,
+    submitting: false,
     message: ""
   },
   onLoad(query) {
@@ -55,17 +56,27 @@ Page({
     this.setData({ "issue.description": event.detail.value });
   },
   async submitPass() {
+    if (this.data.submitting) return;
     const app = getApp();
-    await app.globalData.api.acceptOrder(this.data.orderId);
-    this.setData({ message: "验收已通过，订单进入已完成。" });
+    this.setData({ submitting: true });
+    try {
+      await app.globalData.api.acceptOrder(this.data.orderId);
+      this.setData({ message: "验收已通过，订单进入已完成。" });
+    } finally {
+      this.setData({ submitting: false });
+    }
   },
   async submitFail() {
+    if (this.data.submitting) return;
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.rejectAcceptance(this.data.orderId, this.data.issue);
       this.setData({ message: "验收问题已提交，平台会安排处理。" });
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   refreshIssueLabel() {

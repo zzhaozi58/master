@@ -8,6 +8,7 @@ Page({
     customerImageItems: [],
     customerVideoItems: [],
     canAllocateAmounts: false,
+    submitting: false,
     message: ""
   },
   onShow() { this.refresh(); },
@@ -45,23 +46,31 @@ Page({
     this.setData({ [`quote.${event.currentTarget.dataset.field}`]: event.detail.value });
   },
   async submitQuote() {
+    if (this.data.submitting) return;
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.submitQuote(this.data.order.id, this.data.quote);
       this.setData({ message: "报价已提交，等待客户确认。" });
       this.refresh();
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   async saveQuoteDraft() {
+    if (this.data.submitting) return;
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.saveQuoteDraft(this.data.order.id, this.data.quote);
       this.setData({ message: "报价草稿已保存，未通知客户。" });
       this.refresh();
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   toggleMaster(event) {
@@ -80,61 +89,89 @@ Page({
     this.setData({ [`allocationAmounts.${event.currentTarget.dataset.id}`]: event.detail.value });
   },
   async saveAllocation() {
+    if (this.data.submitting) return;
     if (!this.data.canAllocateAmounts) {
       this.setData({ message: "多人订单完工后才能分配师傅金额。" });
       return;
     }
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.allocateMasterAmounts(this.data.order.id, this.data.allocationAmounts);
       this.setData({ message: "师傅金额已保存。" });
       this.refresh();
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   async dispatch() {
+    if (this.data.submitting) return;
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.dispatch(this.data.order.id, this.data.selections);
       this.setData({ message: "派单完成，订单进入待施工。" });
       this.refresh();
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   async saveDispatchDraft() {
+    if (this.data.submitting) return;
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.saveDispatchDraft(this.data.order.id, this.data.selections);
       this.setData({ message: "派单设置已保存，可稍后继续补齐。" });
       this.refresh();
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   async remindAcceptance() {
+    if (this.data.submitting) return;
     const app = getApp();
+    this.setData({ submitting: true });
     try {
       await app.globalData.api.remindAcceptance(this.data.order.id);
       this.setData({ message: "已发送验收提醒。" });
     } catch (error) {
       this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
     }
   },
   async confirmCustomerPayment() {
+    if (this.data.submitting) return;
     const app = getApp();
-    await app.globalData.api.confirmCustomerPayment(this.data.order.id);
-    this.setData({ message: "已确认客户收款。" });
-    this.refresh();
+    this.setData({ submitting: true });
+    try {
+      await app.globalData.api.confirmCustomerPayment(this.data.order.id);
+      this.setData({ message: "已确认客户收款。" });
+      this.refresh();
+    } finally {
+      this.setData({ submitting: false });
+    }
   },
   async confirmMasterPayment() {
+    if (this.data.submitting) return;
     const app = getApp();
-    for (const assign of this.data.order.assignments) {
-      await app.globalData.api.confirmMasterPayment(this.data.order.id, assign.masterId);
+    this.setData({ submitting: true });
+    try {
+      for (const assign of this.data.order.assignments) {
+        await app.globalData.api.confirmMasterPayment(this.data.order.id, assign.masterId);
+      }
+      this.setData({ message: "已确认支付给师傅。" });
+      this.refresh();
+    } finally {
+      this.setData({ submitting: false });
     }
-    this.setData({ message: "已确认支付给师傅。" });
-    this.refresh();
   }
 });
 

@@ -27,9 +27,9 @@
       </view>
       <view class="actions">
         <view class="btn {{item.isCanceled ? 'btn-disabled' : 'btn-ghost'}}" data-canceled="{{item.isCanceled}}" data-phone="{{item.customerPhone}}" bindtap="callCustomer">拨打客户</view>
-        <view wx:if="{{activeTab === '待预约'}}" class="btn {{item.isCanceled ? 'btn-disabled' : 'btn-secondary'}}" data-canceled="{{item.isCanceled}}" data-id="{{item.id}}" bindtap="appoint">已预约</view>
-        <view wx:if="{{activeTab === '施工中'}}" class="btn {{item.canCheckIn && !item.isCanceled ? 'btn-secondary' : 'btn-disabled'}}" data-canceled="{{item.isCanceled}}" data-id="{{item.id}}" bindtap="checkIn">到达打卡</view>
-        <view wx:if="{{activeTab === '施工中'}}" class="btn {{item.canComplete && !item.isCanceled ? 'btn-primary' : 'btn-disabled'}}" data-canceled="{{item.isCanceled || !item.canComplete}}" data-id="{{item.id}}" bindtap="complete">提交完工</view>
+        <view wx:if="{{activeTab === '待预约'}}" class="btn {{item.isCanceled || submitting ? 'btn-disabled' : 'btn-secondary'}}" data-canceled="{{item.isCanceled}}" data-id="{{item.id}}" bindtap="appoint">已预约</view>
+        <view wx:if="{{activeTab === '施工中'}}" class="btn {{item.canCheckIn && !item.isCanceled && !submitting ? 'btn-secondary' : 'btn-disabled'}}" data-canceled="{{item.isCanceled || submitting}}" data-id="{{item.id}}" bindtap="checkIn">到达打卡</view>
+        <view wx:if="{{activeTab === '施工中'}}" class="btn {{item.canComplete && !item.isCanceled && !submitting ? 'btn-primary' : 'btn-disabled'}}" data-canceled="{{item.isCanceled || !item.canComplete || submitting}}" data-id="{{item.id}}" bindtap="complete">提交完工</view>
       </view>
     </view>
   </block>
