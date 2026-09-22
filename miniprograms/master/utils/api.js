@@ -40,6 +40,9 @@ function createMasterApi(state, domain) {
         master.reviewStatus = "待审核";
         master.workStatus = "待审核";
         master.reviewReason = "";
+        master.reviewedBy = "";
+        master.reviewedAt = "";
+        master.reviewNote = "";
       }
       return clone(master);
     },

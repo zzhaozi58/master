@@ -2,6 +2,9 @@
   <view class="section">
     <view class="row"><view class="section-title">{{master.name}}</view><view class="badge">{{master.level}}</view></view>
     <view class="row"><view class="label">审核状态</view><view class="value">{{master.reviewStatus}}</view></view>
+    <view wx:if="{{master.reviewedBy}}" class="row"><view class="label">审核管理员</view><view class="value">{{master.reviewedBy}}</view></view>
+    <view wx:if="{{master.reviewedAt}}" class="row"><view class="label">审核时间</view><view class="value">{{master.reviewedAt}}</view></view>
+    <view wx:if="{{master.reviewNote}}" class="row"><view class="label">审核备注</view><view class="value">{{master.reviewNote}}</view></view>
     <view class="row"><view class="label">接单状态</view><view class="value">{{master.workStatus}}</view></view>
     <view class="row"><view class="label">性别</view><view class="value">{{master.gender}}</view></view>
     <view class="row"><view class="label">微信号</view><view class="value">{{master.wechat}}</view></view>

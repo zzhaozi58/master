@@ -181,7 +181,27 @@ function createInitialState() {
 }
 
 function master(id, name, gender, level, creditScore, phone, wechat, city, district, street, intro, workStatus, reviewStatus, paidAmount) {
-  return { id, name, gender, level, creditScore, phone, wechat, city, district, street, intro, skills: intro.split("、").slice(0, 3), workStatus, reviewStatus, paidAmount };
+  return {
+    id,
+    name,
+    gender,
+    level,
+    creditScore,
+    phone,
+    wechat,
+    city,
+    district,
+    street,
+    intro,
+    skills: intro.split("、").slice(0, 3),
+    workStatus,
+    reviewStatus,
+    reviewReason: "",
+    reviewedBy: "",
+    reviewedAt: "",
+    reviewNote: "",
+    paidAmount
+  };
 }
 
 function quote(version, repairFee, visitFee, description, status) {
@@ -830,11 +850,14 @@ function reviewMaster(state, masterId, approved, reason = "", actor = "system") 
   const item = findById(state.masters, masterId);
   assert(item.reviewStatus === "待审核", "只有待审核师傅可以审核");
   if (!approved) assert(reason && String(reason).trim(), "拒绝注册必须填写原因");
-  const before = auditSnapshot(item, ["reviewStatus", "workStatus", "reviewReason"]);
+  const before = auditSnapshot(item, ["reviewStatus", "workStatus", "reviewReason", "reviewedBy", "reviewedAt", "reviewNote"]);
   item.reviewStatus = approved ? "已通过" : "已拒绝";
   item.workStatus = approved ? "接单中" : "审核未通过";
   item.reviewReason = approved ? "" : reason;
-  audit(state, approved ? "管理员通过师傅注册" : "管理员拒绝师傅注册", masterId, reason, before, auditSnapshot(item, ["reviewStatus", "workStatus", "reviewReason"]), actor);
+  item.reviewedBy = actor;
+  item.reviewedAt = nowText();
+  item.reviewNote = approved ? String(reason || "") : reason;
+  audit(state, approved ? "管理员通过师傅注册" : "管理员拒绝师傅注册", masterId, reason, before, auditSnapshot(item, ["reviewStatus", "workStatus", "reviewReason", "reviewedBy", "reviewedAt", "reviewNote"]), actor);
   enqueueNotification(state, approved ? "师傅注册已通过" : "师傅注册已拒绝", [{ role: "master", id: masterId }], masterId, { reason });
   return item;
 }

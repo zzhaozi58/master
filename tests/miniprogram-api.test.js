@@ -97,7 +97,7 @@ test("师傅端 API 包装能保存时间并提交完工", () => {
 test("师傅端本地 API 支持拒绝后修改资料重新待审核", () => {
   const state = masterDomain.createInitialState();
   state.currentMasterId = "m_pending_1";
-  masterDomain.reviewMaster(state, "m_pending_1", false, "资料不完整");
+  masterDomain.reviewMaster(state, "m_pending_1", false, "资料不完整", "admin_root");
   const api = createMasterApi(state, masterDomain);
 
   assert.throws(() => api.updateProfile({ phone: "12345" }), /手机号格式不正确/);
@@ -106,6 +106,9 @@ test("师傅端本地 API 支持拒绝后修改资料重新待审核", () => {
   assert.equal(updated.reviewStatus, "待审核");
   assert.equal(updated.workStatus, "待审核");
   assert.equal(updated.reviewReason, "");
+  assert.equal(updated.reviewedBy, "");
+  assert.equal(updated.reviewedAt, "");
+  assert.equal(updated.reviewNote, "");
   assert.equal(api.listOrders().length, 0);
 });
 

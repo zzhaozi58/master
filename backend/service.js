@@ -113,6 +113,9 @@ function masterApi(state, masterId) {
         master.reviewStatus = "待审核";
         master.workStatus = "待审核";
         master.reviewReason = "";
+        master.reviewedBy = "";
+        master.reviewedAt = "";
+        master.reviewNote = "";
       }
       const after = pick(master, ["name", "gender", "wechat", "phone", "city", "district", "street", "intro"]);
       domain.recordAudit(state, "师傅修改资料", masterId, "", before, after, masterId);

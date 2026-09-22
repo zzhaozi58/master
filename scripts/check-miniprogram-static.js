@@ -124,6 +124,9 @@ function collectMissingMasterDetailGroups(file, body) {
   if (!body.includes("需要支付")) {
     problems.push(`${relative(file)} must show need-pay amount`);
   }
+  if (!/审核管理员/.test(body) || !/审核时间/.test(body)) {
+    problems.push(`${relative(file)} must show master review actor and time`);
+  }
 }
 
 function collectMissingAcceptanceCompletionProof(file, body) {

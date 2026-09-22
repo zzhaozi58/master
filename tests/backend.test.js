@@ -62,7 +62,11 @@ test("被拒绝师傅修改资料后重新进入待审核且不能查看订单",
   const admin = backend.asAdmin("admin_root");
   assert.throws(() => admin.reviewMaster("m_pending_1", false, ""), /必须填写原因/);
   admin.reviewMaster("m_pending_1", false, "资料不完整");
-  assert.equal(backend.asMaster("m_pending_1").profile().reviewReason, "资料不完整");
+  const rejectedProfile = backend.asMaster("m_pending_1").profile();
+  assert.equal(rejectedProfile.reviewReason, "资料不完整");
+  assert.equal(rejectedProfile.reviewedBy, "admin_root");
+  assert(rejectedProfile.reviewedAt);
+  assert.equal(rejectedProfile.reviewNote, "资料不完整");
 
   assert.throws(() => backend.asMaster("m_pending_1").updateProfile({ phone: "12345" }), /手机号格式不正确/);
   const updated = backend.asMaster("m_pending_1").updateProfile({ intro: "补充完整施工经验" });
@@ -70,6 +74,9 @@ test("被拒绝师傅修改资料后重新进入待审核且不能查看订单",
   assert.equal(updated.reviewStatus, "待审核");
   assert.equal(updated.workStatus, "待审核");
   assert.equal(updated.reviewReason, "");
+  assert.equal(updated.reviewedBy, "");
+  assert.equal(updated.reviewedAt, "");
+  assert.equal(updated.reviewNote, "");
   assert.equal(backend.asMaster("m_pending_1").listOrders().length, 0);
 });
 

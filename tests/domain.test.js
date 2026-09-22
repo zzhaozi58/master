@@ -276,7 +276,10 @@ test("验收后生成款项明细且重复确认收付款保持幂等", () => {
 test("待审核师傅默认铜牌，审核后才能进入候选池", () => {
   const state = domain.createInitialState();
   assert.equal(domain.rankCandidates(state, "JD20260921003", "铜牌").some((item) => item.id === "m_pending_1"), false);
-  domain.reviewMaster(state, "m_pending_1", true);
+  const approved = domain.reviewMaster(state, "m_pending_1", true, "资料齐全", "admin_root");
+  assert.equal(approved.reviewedBy, "admin_root");
+  assert(approved.reviewedAt);
+  assert.equal(approved.reviewNote, "资料齐全");
   assert.equal(domain.rankCandidates(state, "JD20260921003", "铜牌").some((item) => item.id === "m_pending_1"), true);
   domain.updateMasterAdminFields(state, "m_pending_1", { level: "银牌", creditScore: 88 });
   const updated = state.masters.find((item) => item.id === "m_pending_1");
@@ -304,9 +307,12 @@ test("候选排序公平分包含已分配订单和结算记录", () => {
 test("拒绝师傅注册必须填写原因并允许重新提交", () => {
   const state = domain.createInitialState();
   assert.throws(() => domain.reviewMaster(state, "m_pending_1", false, ""), /必须填写原因/);
-  const rejected = domain.reviewMaster(state, "m_pending_1", false, "手机号无法联系");
+  const rejected = domain.reviewMaster(state, "m_pending_1", false, "手机号无法联系", "admin_root");
   assert.equal(rejected.reviewStatus, "已拒绝");
   assert.equal(rejected.reviewReason, "手机号无法联系");
+  assert.equal(rejected.reviewedBy, "admin_root");
+  assert(rejected.reviewedAt);
+  assert.equal(rejected.reviewNote, "手机号无法联系");
 });
 
 test("管理员编辑师傅累计已支付金额会按结算记录冲抵", () => {

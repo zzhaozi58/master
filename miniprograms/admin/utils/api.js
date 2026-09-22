@@ -54,7 +54,7 @@ function createAdminApi(state, domain) {
       return domain.getMasterOrders(state, masterId);
     },
     reviewMaster(masterId, approved, reason = "") {
-      return domain.reviewMaster(state, masterId, approved, reason);
+      return domain.reviewMaster(state, masterId, approved, reason, "admin_root");
     },
     updateMasterAdminFields(masterId, fields) {
       return domain.updateMasterAdminFields(state, masterId, fields);
