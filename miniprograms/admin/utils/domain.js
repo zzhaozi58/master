@@ -783,6 +783,9 @@ function confirmCustomerPayment(state, orderId, actor = "system") {
   const beforePaid = record.paidAmount;
   record.paidAmount = record.dueAmount;
   record.paidAmountCents = record.dueAmountCents;
+  record.confirmedBy = actor;
+  record.confirmedAmount = record.dueAmount;
+  record.confirmedAmountCents = record.dueAmountCents;
   record.status = "已完成";
   record.confirmedAt = nowText();
   record.updatedAt = nowText();
@@ -802,6 +805,9 @@ function confirmMasterPayment(state, orderId, masterId, actor = "system") {
   const beforePaid = record.paidAmount;
   record.paidAmount = record.dueAmount;
   record.paidAmountCents = record.dueAmountCents;
+  record.confirmedBy = actor;
+  record.confirmedAmount = record.dueAmount;
+  record.confirmedAmountCents = record.dueAmountCents;
   record.status = "已完成";
   record.confirmedAt = nowText();
   record.updatedAt = nowText();
@@ -881,7 +887,7 @@ function updateMasterAdminFields(state, masterId, fields, actor = "system") {
   if (fields.paidAmount != null) {
     const paid = Number(fields.paidAmount);
     assert(paid >= 0, "已支付金额不能小于 0");
-    applyMasterPaidAmountAggregate(state, masterId, paid);
+    applyMasterPaidAmountAggregate(state, masterId, paid, actor);
   }
   const after = pick(item, ["level", "creditScore", "paidAmount"]);
   audit(state, "管理员修改师傅管理字段", masterId, "", before, after, actor);
@@ -979,7 +985,7 @@ function masterSettlementRows(state, masterId) {
     ));
 }
 
-function applyMasterPaidAmountAggregate(state, masterId, paidAmount) {
+function applyMasterPaidAmountAggregate(state, masterId, paidAmount, actor = "system") {
   const masterItem = findById(state.masters, masterId);
   const rows = masterSettlementRows(state, masterId);
   const totalDue = rows.reduce((sum, row) => sum + row.dueAmount, 0);
@@ -994,8 +1000,12 @@ function applyMasterPaidAmountAggregate(state, masterId, paidAmount) {
     row.assign.paidAmount = nextPaid;
     row.order.payments.masterPaid[masterId] = nextPaid;
     record.paidAmount = nextPaid;
+    record.paidAmountCents = toCents(nextPaid);
     record.status = nextPaid >= record.dueAmount ? "已完成" : nextPaid > 0 ? "部分完成" : "未完成";
     record.confirmedAt = nextPaid >= record.dueAmount ? nowText() : "";
+    record.confirmedBy = nextPaid >= record.dueAmount ? actor : "";
+    record.confirmedAmount = nextPaid >= record.dueAmount ? nextPaid : 0;
+    record.confirmedAmountCents = nextPaid >= record.dueAmount ? toCents(nextPaid) : 0;
     record.updatedAt = nowText();
     if (beforePaid !== nextPaid) {
       state.paymentAdjustments.push({
@@ -1059,6 +1069,9 @@ function paymentRecord(orderId, type, targetId, dueAmount, paidAmount) {
     paidAmount,
     paidAmountCents: toCents(paidAmount),
     status,
+    confirmedBy: "",
+    confirmedAmount: status === "已完成" ? paidAmount : 0,
+    confirmedAmountCents: status === "已完成" ? toCents(paidAmount) : 0,
     confirmedAt: status === "已完成" ? nowText() : "",
     createdAt: nowText(),
     updatedAt: nowText()

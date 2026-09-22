@@ -82,10 +82,13 @@ test("管理员白名单形态校验和敏感操作审计", () => {
   const admin = backend.asAdmin("admin_root");
   admin.confirmCustomerPayment("JD20260921006");
   admin.confirmMasterPayment("JD20260921006", "m_gold_1");
+  const paymentRecords = admin.listPaymentRecords("JD20260921006");
   const actions = admin.auditTrail().map((item) => item.action);
   assert(actions.includes("确认已从客户收款"));
   assert(actions.includes("确认已支付给师傅"));
-  assert.equal(admin.listPaymentRecords("JD20260921006").some((item) => item.type === "师傅付款" && item.status === "已完成"), true);
+  assert.equal(paymentRecords.some((item) => item.type === "师傅付款" && item.status === "已完成"), true);
+  assert(paymentRecords.every((item) => item.confirmedBy === "admin_root"));
+  assert(paymentRecords.every((item) => item.confirmedAmount === item.dueAmount));
 });
 
 test("后端管理端可查看通知失败并重新加入重试", () => {

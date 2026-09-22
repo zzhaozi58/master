@@ -94,6 +94,9 @@ function collectMissingAdminOrderDetailFields(file, body) {
   if (!/确认人数/.test(body)) {
     problems.push(`${relative(file)} must show confirmed master counts`);
   }
+  if (/款项明细/.test(body) && (!/确认人/.test(body) || !/确认金额/.test(body))) {
+    problems.push(`${relative(file)} must show payment confirmation actor and amount`);
+  }
 }
 
 function collectMissingOrderMediaLists(file, body) {

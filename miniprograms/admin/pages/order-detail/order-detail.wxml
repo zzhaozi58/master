@@ -79,9 +79,12 @@
     <view class="row"><view class="label">款项状态</view><view class="value">{{order.paymentStatus}}</view></view>
     <view wx:if="{{order.paymentRecordCount}}" class="field">
       <view class="field-label">款项明细</view>
-      <view wx:for="{{order.paymentRecords}}" wx:key="id" class="row">
-        <view class="label">{{item.type}} · {{item.status}}</view>
-        <view class="value">¥{{item.paidAmount}} / ¥{{item.dueAmount}}</view>
+      <view wx:for="{{order.paymentRecords}}" wx:key="id" class="payment-row">
+        <view class="row">
+          <view class="label">{{item.type}} · {{item.status}}</view>
+          <view class="value">¥{{item.paidAmount}} / ¥{{item.dueAmount}}</view>
+        </view>
+        <view wx:if="{{item.confirmedBy}}" class="muted payment-confirmed">确认人：{{item.confirmedBy}} · 确认金额 ¥{{item.confirmedAmount}} · {{item.confirmedAt}}</view>
       </view>
     </view>
     <view class="actions">
