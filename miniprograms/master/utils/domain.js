@@ -677,7 +677,7 @@ function rejectAcceptance(state, orderId, issue, actor = "system") {
   current.result = "不通过";
   current.customerIssue = issue;
   setOrderStatus(item, STATUS.ACCEPT_REJECTED);
-  const exception = { id: `ex_${state.exceptions.length + 1}`, orderId, type: "验收不通过", status: "待处理", reason: issue.description, statusSnapshot: STATUS.ACCEPTING, mastersSnapshot: assignmentNames(state, item), createdAt: nowText() };
+  const exception = { id: `ex_${state.exceptions.length + 1}`, orderId, type: "验收不通过", status: "待处理", reason: issue.description, createdBy: actor, statusSnapshot: STATUS.ACCEPTING, mastersSnapshot: assignmentNames(state, item), createdAt: nowText(), handledBy: "", handledAt: "", adminNote: "" };
   state.exceptions.unshift(exception);
   touch(item);
   audit(state, "客户验收不通过", orderId, issue.description, before, auditSnapshot(item, ["status", "cycles"]), actor);
@@ -691,6 +691,7 @@ function arrangeRework(state, exceptionId, actor = "system") {
   assert(item.status === STATUS.ACCEPT_REJECTED, "只有验收不通过待处理订单可以安排返修");
   const before = auditSnapshot(item, ["status"]);
   exception.status = "已安排返修";
+  exception.handledBy = actor;
   exception.handledAt = nowText();
   setOrderStatus(item, STATUS.REWORKING);
   touch(item);
@@ -705,6 +706,7 @@ function forceCompleteException(state, exceptionId, description, actor = "system
   const item = orderById(state, exception.orderId);
   const before = auditSnapshot(item, ["status", "cycles", "payments", "assignments"]);
   exception.status = "已驳回并强制完成";
+  exception.handledBy = actor;
   exception.adminNote = description;
   exception.handledAt = nowText();
   const current = latestCycle(item);
@@ -726,7 +728,7 @@ function requestCancel(state, orderId, reason, actor = "客户") {
   assert(reason && reason.trim(), "取消必须填写原因");
   const before = auditSnapshot(item, ["status", "cancelRequest"]);
   item.cancelRequest = { actor, reason, requestedAt: nowText(), previousStatus: item.status };
-  state.exceptions.unshift({ id: `ex_${state.exceptions.length + 1}`, orderId, type: "客户取消", status: "待处理", reason, statusSnapshot: item.status, mastersSnapshot: assignmentNames(state, item), createdAt: nowText() });
+  state.exceptions.unshift({ id: `ex_${state.exceptions.length + 1}`, orderId, type: "客户取消", status: "待处理", reason, createdBy: actor, statusSnapshot: item.status, mastersSnapshot: assignmentNames(state, item), createdAt: nowText(), handledBy: "", handledAt: "", adminNote: "" });
   audit(state, "提交取消申请", orderId, reason, before, auditSnapshot(item, ["status", "cancelRequest"]), actor);
   return item.cancelRequest;
 }
@@ -738,6 +740,7 @@ function confirmCancel(state, exceptionId, adminReason, actor = "system") {
   assert(adminReason && adminReason.trim(), "确认取消必须填写原因");
   const before = auditSnapshot(item, ["status", "assignments"]);
   exception.status = "已取消";
+  exception.handledBy = actor;
   exception.adminNote = adminReason;
   exception.handledAt = nowText();
   setOrderStatus(item, STATUS.CANCELED);
@@ -758,6 +761,7 @@ function keepCancelOrder(state, exceptionId, adminReason, actor = "system") {
   if (item.cancelRequest && item.cancelRequest.previousStatus) setOrderStatus(item, item.cancelRequest.previousStatus);
   item.cancelRequest = null;
   exception.status = "已保留订单";
+  exception.handledBy = actor;
   exception.adminNote = adminReason;
   exception.handledAt = nowText();
   touch(item);

@@ -21,7 +21,7 @@ function createClientApi(state, domain) {
       return domain.acceptOrder(state, orderId);
     },
     rejectAcceptance(orderId, issue) {
-      return domain.rejectAcceptance(state, orderId, issue);
+      return domain.rejectAcceptance(state, orderId, issue, customerId);
     },
     getProfile() {
       return clone(state.customers.find((item) => item.id === customerId));

@@ -33,16 +33,16 @@ function createAdminApi(state, domain) {
       return state.exceptions.map(clone);
     },
     confirmCancel(exceptionId, reason) {
-      return domain.confirmCancel(state, exceptionId, reason);
+      return domain.confirmCancel(state, exceptionId, reason, "admin_root");
     },
     keepCancelOrder(exceptionId, reason) {
-      return domain.keepCancelOrder(state, exceptionId, reason);
+      return domain.keepCancelOrder(state, exceptionId, reason, "admin_root");
     },
     arrangeRework(exceptionId) {
-      return domain.arrangeRework(state, exceptionId);
+      return domain.arrangeRework(state, exceptionId, "admin_root");
     },
     forceCompleteException(exceptionId, description) {
-      return domain.forceCompleteException(state, exceptionId, description);
+      return domain.forceCompleteException(state, exceptionId, description, "admin_root");
     },
     listMasters(filter = "全部") {
       return domain.getAdminMasters(state, filter);

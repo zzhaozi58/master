@@ -180,22 +180,26 @@ test("到场打卡保存定位成功详情或失败原因", () => {
 
 test("验收不通过进入异常，管理员可安排返修", () => {
   const state = domain.createInitialState();
-  const exception = domain.rejectAcceptance(state, "JD20260921005", { images: ["问题图"], videos: [], description: "拼缝仍有高低差" });
+  const exception = domain.rejectAcceptance(state, "JD20260921005", { images: ["问题图"], videos: [], description: "拼缝仍有高低差" }, "c_001");
   assert.equal(exception.type, "验收不通过");
+  assert.equal(exception.createdBy, "c_001");
   assert.equal(domain.getAdminOrders(state, "异常").some((item) => item.id === "JD20260921005"), true);
-  const order = domain.arrangeRework(state, exception.id);
+  const order = domain.arrangeRework(state, exception.id, "admin_root");
   assert.equal(order.status, domain.STATUS.REWORKING);
+  assert.equal(exception.handledBy, "admin_root");
   assert.equal(exception.handledAt, "2026-09-21 20:00");
 });
 
 test("取消申请只能在允许阶段由管理员确认", () => {
   const state = domain.createInitialState();
-  const request = domain.requestCancel(state, "JD20260921003", "客户项目延期");
+  const request = domain.requestCancel(state, "JD20260921003", "客户项目延期", "c_001");
   assert.equal(request.previousStatus, domain.STATUS.DISPATCHING);
   const exception = state.exceptions.find((item) => item.orderId === "JD20260921003");
+  assert.equal(exception.createdBy, "c_001");
   assert.equal(exception.statusSnapshot, domain.STATUS.DISPATCHING);
-  const order = domain.confirmCancel(state, exception.id, "电话确认客户取消");
+  const order = domain.confirmCancel(state, exception.id, "电话确认客户取消", "admin_root");
   assert.equal(order.status, domain.STATUS.CANCELED);
+  assert.equal(exception.handledBy, "admin_root");
   assert.equal(exception.adminNote, "电话确认客户取消");
   assert.equal(exception.handledAt, "2026-09-21 20:00");
   assert.throws(() => domain.requestCancel(state, "JD20260921005", "已施工不做"), /不能提交取消/);
@@ -203,13 +207,15 @@ test("取消申请只能在允许阶段由管理员确认", () => {
 
 test("管理员驳回验收异常并强制完成必须填写说明", () => {
   const state = domain.createInitialState();
-  const exception = domain.rejectAcceptance(state, "JD20260921005", { images: ["问题图"], videos: [], description: "修补处仍有色差" });
+  const exception = domain.rejectAcceptance(state, "JD20260921005", { images: ["问题图"], videos: [], description: "修补处仍有色差" }, "c_001");
 
   assert.throws(() => domain.forceCompleteException(state, exception.id, ""), /必须填写处理说明/);
-  const order = domain.forceCompleteException(state, exception.id, "复核完工凭证后确认可验收");
+  const order = domain.forceCompleteException(state, exception.id, "复核完工凭证后确认可验收", "admin_root");
 
   assert.equal(order.status, domain.STATUS.ACCEPTED);
   assert.equal(exception.status, "已驳回并强制完成");
+  assert.equal(exception.createdBy, "c_001");
+  assert.equal(exception.handledBy, "admin_root");
   assert.equal(exception.adminNote, "复核完工凭证后确认可验收");
   assert.equal(exception.handledAt, "2026-09-21 20:00");
   assert.equal(order.cycles[0].adminResult, "管理员强制完成");
@@ -217,14 +223,16 @@ test("管理员驳回验收异常并强制完成必须填写说明", () => {
 
 test("管理员可以驳回取消申请并保留订单", () => {
   const state = domain.createInitialState();
-  domain.requestCancel(state, "JD20260921003", "客户误点取消");
+  domain.requestCancel(state, "JD20260921003", "客户误点取消", "c_001");
   const exception = state.exceptions.find((item) => item.orderId === "JD20260921003");
 
-  const order = domain.keepCancelOrder(state, exception.id, "已联系客户继续施工");
+  const order = domain.keepCancelOrder(state, exception.id, "已联系客户继续施工", "admin_root");
 
   assert.equal(order.status, domain.STATUS.DISPATCHING);
   assert.equal(order.cancelRequest, null);
   assert.equal(exception.status, "已保留订单");
+  assert.equal(exception.createdBy, "c_001");
+  assert.equal(exception.handledBy, "admin_root");
   assert.equal(exception.adminNote, "已联系客户继续施工");
   assert.equal(state.audit.some((item) => item.action === "管理员保留订单" && item.objectId === "JD20260921003"), true);
   assert.equal(domain.listNotifications(state).some((item) => item.event === "管理员保留订单"), true);

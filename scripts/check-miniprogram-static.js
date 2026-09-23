@@ -20,6 +20,7 @@ for (const file of wxmlFiles) {
   collectClientCompletedOrderSummary(file, body);
   collectMissingMasterDetailGroups(file, body);
   collectMissingAcceptanceCompletionProof(file, body);
+  collectMissingExceptionActors(file, body);
 }
 for (const file of pageJsFiles) {
   collectPageLayerLeaks(file, fs.readFileSync(file, "utf8"));
@@ -136,6 +137,13 @@ function collectMissingAcceptanceCompletionProof(file, body) {
   if (!/client\/pages\/acceptance\/acceptance\.wxml$/.test(relative(file))) return;
   if (!/completionImageItems/.test(body) || !/completionVideoItems/.test(body)) {
     problems.push(`${relative(file)} must list master completion images and videos`);
+  }
+}
+
+function collectMissingExceptionActors(file, body) {
+  if (!/admin\/pages\/exceptions\/exceptions\.wxml$/.test(relative(file))) return;
+  if (!/发起人/.test(body) || !/处理人/.test(body)) {
+    problems.push(`${relative(file)} must show exception creator and handler`);
   }
 }
 
