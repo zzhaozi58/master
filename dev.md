@@ -1,5 +1,13 @@
 # 开发记录
 
+## 2026-09-23 腾讯云服务器部署与域名备案边界
+
+- 任务：将当前 GitHub 项目部署到用户腾讯云轻量应用服务器，并配置 `jindashi.cc` 域名解析。
+- 主要实现：在腾讯云轻量应用服务器 `106.53.200.63` 安装 Node.js、Git、Nginx，克隆 `https://github.com/zzhaozi58/master.git` 到 `/opt/jindashi/app`；配置 systemd 服务 `jindashi.service` 运行 `backend/server.js`；配置 Nginx 静态页面与 `/health`、`/auth`、`/customer`、`/master`、`/admin`、`/media` 反向代理。
+- 域名配置：在腾讯云 DNSPod 为 `jindashi.cc` 和 `www.jindashi.cc` 添加 A 记录，均指向 `106.53.200.63`。
+- 重要边界：服务器位于腾讯云中国内地地域，域名正式访问必须先完成 ICP 备案或接入备案；当前域名请求会被腾讯云未备案拦截页面阻断，公网 IP 访问可用于部署验证。
+- 验证：服务器端 `npm run verify` 通过；服务器内侧 `/health` 返回 200；本机访问 `http://106.53.200.63/health` 返回 `{"ok":true,"data":{"status":"ok"}}`，访问 `http://106.53.200.63/` 返回金大师原型首页。
+
 ## 2026-09-13 金大师补漆维修小程序 MVP HTML 原型
 
 - 任务：根据 `/Users/zhanghao/Documents/金大师` 中的宣传单、报价表和 Logo，制作单页移动端 HTML 高保真原型。

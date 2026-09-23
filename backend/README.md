@@ -35,6 +35,30 @@ data/media
 PORT=8790 JINDASHI_DATA_FILE=/tmp/jindashi-state.json JINDASHI_MEDIA_DIR=/tmp/jindashi-media npm run start:backend
 ```
 
+## 腾讯云部署
+
+当前演示环境已部署到腾讯云轻量应用服务器：
+
+```text
+http://106.53.200.63/
+http://106.53.200.63/health
+```
+
+服务器使用 systemd 运行后端服务，核心环境变量如下：
+
+```text
+PORT=8787
+JINDASHI_DATA_FILE=/var/lib/jindashi/jindashi-state.json
+JINDASHI_MEDIA_DIR=/var/lib/jindashi/media
+```
+
+Nginx 负责静态页面和反向代理，`/health`、`/auth`、`/customer`、`/master`、
+`/admin`、`/media` 代理到本地后端 `127.0.0.1:8787`。
+
+`jindashi.cc` 与 `www.jindashi.cc` 的 DNS A 记录已指向服务器 IP，但域名
+正式访问需要先完成腾讯云 ICP 备案或接入备案。备案完成前，域名请求会被腾讯云
+未备案拦截，公网 IP 访问仍可用于验证部署和接口。
+
 ## 角色参数
 
 - 客户接口需要 `customerId`
