@@ -229,6 +229,8 @@ function assignment(masterId, level, receivableAmount, status = "待预约", pai
     receivableAmount,
     paidAmount,
     status,
+    dispatchedAt: "",
+    dispatchNote: "",
     appointedAt: "",
     checkedInAt: "",
     locationText: "",
@@ -424,7 +426,7 @@ function toMasterOrder(state, item, masterId) {
     paidAmount: item.status === STATUS.ACCEPTED || item.status === STATUS.CANCELED ? assign.paidAmount || 0 : null,
     paidAmountText: item.status === STATUS.ACCEPTED || item.status === STATUS.CANCELED ? `¥${assign.paidAmount || 0}` : "",
     address: item.address,
-    note: item.note || "按客户现场确认为准",
+    note: assign.dispatchNote || item.note || "按客户现场确认为准",
     checkIn: assign.locationText || "未打卡",
     canCheckIn: !assign.checkedInAt && [STATUS.APPOINTED, STATUS.WORKING, STATUS.REWORKING].includes(item.status),
     canComplete: !!assign.checkedInAt && [STATUS.WORKING, STATUS.REWORKING].includes(item.status),
@@ -539,7 +541,7 @@ function rankCandidates(state, orderId, level) {
     ));
 }
 
-function dispatchOrder(state, orderId, selections, actor = "system") {
+function dispatchOrder(state, orderId, selections, actor = "system", note = "") {
   const item = orderById(state, orderId);
   assert(item.status === STATUS.DISPATCHING, "只有待派单订单可以派单");
   const before = auditSnapshot(item, ["status", "assignments"]);
@@ -549,7 +551,10 @@ function dispatchOrder(state, orderId, selections, actor = "system") {
   const singleAmount = selectedIds.length === 1 ? amount : null;
   item.assignments = selectedIds.map((masterId) => {
     const masterInfo = findById(state.masters, masterId);
-    return assignment(masterId, masterInfo.level, singleAmount);
+    const assign = assignment(masterId, masterInfo.level, singleAmount);
+    assign.dispatchedAt = nowText();
+    assign.dispatchNote = note || "管理员电话确认后派单";
+    return assign;
   });
   item.dispatchDraft = normalizeSelections({});
   setOrderStatus(item, STATUS.APPOINTING);

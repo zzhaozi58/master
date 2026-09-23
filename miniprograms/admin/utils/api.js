@@ -20,8 +20,8 @@ function createAdminApi(state, domain) {
     rankCandidates(orderId, level) {
       return domain.rankCandidates(state, orderId, level);
     },
-    dispatch(orderId, selections) {
-      return domain.dispatchOrder(state, orderId, selections);
+    dispatch(orderId, selections, note = "") {
+      return domain.dispatchOrder(state, orderId, selections, "admin_root", note);
     },
     saveDispatchDraft(orderId, selections) {
       return domain.saveDispatchDraft(state, orderId, selections);
@@ -139,8 +139,8 @@ function createRemoteAdminApi(options) {
     rankCandidates(orderId, level) {
       return request.get(`/admin/orders/${orderId}/candidates`, Object.assign({}, identity, { level }));
     },
-    dispatch(orderId, selections) {
-      return request.post(`/admin/orders/${orderId}/dispatch`, Object.assign({}, identity, { selections, idempotencyKey: selections.idempotencyKey }));
+    dispatch(orderId, selections, note = "") {
+      return request.post(`/admin/orders/${orderId}/dispatch`, Object.assign({}, identity, { selections, note, idempotencyKey: selections.idempotencyKey }));
     },
     saveDispatchDraft(orderId, selections) {
       return request.post(`/admin/orders/${orderId}/dispatch-draft`, Object.assign({}, identity, { selections }));

@@ -168,7 +168,7 @@ function routeAdmin(backend, method, parts, url, body, authContext) {
   if (method === "POST" && parts[1] === "orders" && parts[3] === "quote") return api.submitQuote(parts[2], body.quote || body);
   if (method === "GET" && parts[1] === "orders" && parts[3] === "candidates") return api.rankCandidates(parts[2], required(url.searchParams.get("level"), "缺少 level"));
   if (method === "POST" && parts[1] === "orders" && parts[3] === "dispatch-draft") return api.saveDispatchDraft(parts[2], body.selections || body);
-  if (method === "POST" && parts[1] === "orders" && parts[3] === "dispatch") return api.dispatch(parts[2], body.selections || body);
+  if (method === "POST" && parts[1] === "orders" && parts[3] === "dispatch") return api.dispatch(parts[2], body.selections || body, body.note || "");
   if (method === "POST" && parts[1] === "orders" && parts[3] === "acceptance-reminder") return api.remindAcceptance(parts[2]);
   if (method === "POST" && parts[1] === "orders" && parts[3] === "confirm-customer-payment") return api.confirmCustomerPayment(parts[2], body.note || "");
   if (method === "POST" && parts[1] === "orders" && parts[3] === "confirm-master-payment") return api.confirmMasterPayment(parts[2], required(body.masterId, "缺少 masterId"), body.note || "");

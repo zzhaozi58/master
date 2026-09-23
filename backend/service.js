@@ -141,8 +141,8 @@ function adminApi(state, adminId) {
     rankCandidates(orderId, level) {
       return domain.rankCandidates(state, orderId, level);
     },
-    dispatch(orderId, selections) {
-      return domain.dispatchOrder(state, orderId, selections, adminId);
+    dispatch(orderId, selections, note = "") {
+      return domain.dispatchOrder(state, orderId, selections, adminId, note);
     },
     saveDispatchDraft(orderId, selections) {
       return domain.saveDispatchDraft(state, orderId, selections, adminId);

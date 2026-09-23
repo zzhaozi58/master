@@ -32,8 +32,11 @@ test("HTTP 后端可通过真实请求推进跨端主流程并持久化", async 
     await request(baseUrl, "POST", "/customer/orders/JD20260921001/confirm-quote", { customerId: "c_001" });
     await request(baseUrl, "POST", "/admin/orders/JD20260921001/dispatch", {
       adminId: "admin_root",
-      selections: { silver: ["m_silver_1"] }
+      selections: { silver: ["m_silver_1"] },
+      note: "HTTP 电话确认派单"
     });
+    const masterOrdersAfterDispatch = await request(baseUrl, "GET", "/master/orders?masterId=m_silver_1");
+    assert.equal(masterOrdersAfterDispatch.find((order) => order.id === "JD20260921001").note, "HTTP 电话确认派单");
     await request(baseUrl, "POST", "/master/orders/JD20260921001/appoint", { masterId: "m_silver_1" });
     await request(baseUrl, "POST", "/master/orders/JD20260921001/check-in", {
       masterId: "m_silver_1",

@@ -112,9 +112,12 @@ test("派单按客户确认等级人数精确匹配并进入待施工", () => {
   assert.throws(() => domain.saveDispatchDraft(state, "JD20260921003", { gold: [], bronze: ["m_gold_1"] }), /铜牌师傅只能选择铜牌等级/);
   assert.throws(() => domain.dispatchOrder(state, "JD20260921003", { gold: ["m_gold_1"], bronze: [] }), /bronze/);
   assert.throws(() => domain.dispatchOrder(state, "JD20260921003", { gold: ["m_gold_1"], bronze: ["m_gold_2"] }), /铜牌师傅只能选择铜牌等级/);
-  const order = domain.dispatchOrder(state, "JD20260921003", { gold: ["m_gold_1"], bronze: ["m_bronze_1"] });
+  const order = domain.dispatchOrder(state, "JD20260921003", { gold: ["m_gold_1"], bronze: ["m_bronze_1"] }, "admin_root", "已电话确认两位师傅");
   assert.equal(order.status, domain.STATUS.APPOINTING);
   assert.deepEqual(order.dispatchDraft, { gold: [], silver: [], bronze: [] });
+  assert(order.assignments.every((item) => item.dispatchedAt));
+  assert(order.assignments.every((item) => item.dispatchNote === "已电话确认两位师傅"));
+  assert.equal(domain.getMasterOrders(state, "m_gold_1").find((item) => item.id === order.id).note, "已电话确认两位师傅");
   assert.equal(domain.getAdminOrders(state, "待施工").some((item) => item.id === order.id), true);
 });
 

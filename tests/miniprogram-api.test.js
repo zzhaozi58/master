@@ -61,8 +61,9 @@ test("管理端 API 包装能报价派单并读取待施工", () => {
   assert.equal(dispatchDraft.status, adminDomain.STATUS.DISPATCHING);
   const reminder = api.remindAcceptance("JD20260921005");
   assert.equal(reminder.event, "提醒客户验收");
-  api.dispatch("JD20260921001", { silver: ["m_silver_1"] });
+  api.dispatch("JD20260921001", { silver: ["m_silver_1"] }, "API 电话确认派单");
   assert(api.listOrders("待施工").some((item) => item.id === "JD20260921001"));
+  assert.equal(adminDomain.getMasterOrders(state, "m_silver_1").find((item) => item.id === "JD20260921001").note, "API 电话确认派单");
   const searched = api.queryOrders({ filter: "全部", keyword: "锦禾", page: 1, pageSize: 1 });
   assert.equal(searched.items.length, 1);
   assert.equal(searched.hasMore, true);
