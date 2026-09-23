@@ -79,7 +79,7 @@ function createInitialState() {
       durationDays: 1,
       address: "成都市青羊区光华大道 16 号",
       requestedMasters: { gold: 0, silver: 1, bronze: 1 },
-      quote: quote(1, 430, 50, "瓷砖裂缝两处，含基础调色。", "待客户确认")
+      quote: quote("JD20260921002", 1, 430, 50, "瓷砖裂缝两处，含基础调色。", "待客户确认")
     }),
     order({
       id: "JD20260921003",
@@ -93,7 +93,7 @@ function createInitialState() {
       durationDays: 1,
       address: "成都市金牛区金府路 88 号",
       requestedMasters: { gold: 1, silver: 0, bronze: 1 },
-      quote: quote(1, 680, 50, "木饰面多处划痕补色。", "已确认"),
+      quote: quote("JD20260921003", 1, 680, 50, "木饰面多处划痕补色。", "已确认"),
       orderAmount: 730
     }),
     order({
@@ -108,7 +108,7 @@ function createInitialState() {
       durationDays: 1,
       address: "成都市青羊区光华大道 16 号",
       requestedMasters: { gold: 0, silver: 1, bronze: 0 },
-      quote: quote(1, 240, 50, "大理石缺角修复。", "已确认"),
+      quote: quote("JD20260921004", 1, 240, 50, "大理石缺角修复。", "已确认"),
       orderAmount: 290,
       assignments: [assignment("m_silver_1", "银牌", 261)]
     }),
@@ -124,7 +124,7 @@ function createInitialState() {
       durationDays: 1,
       address: "成都市金牛区金府路 88 号",
       requestedMasters: { gold: 0, silver: 1, bronze: 0 },
-      quote: quote(1, 320, 50, "瓷砖缺角及拼缝处理。", "已确认"),
+      quote: quote("JD20260921005", 1, 320, 50, "瓷砖缺角及拼缝处理。", "已确认"),
       orderAmount: 370,
       assignments: [assignment("m_silver_1", "银牌", 333, "已打卡")],
       cycles: [cycle(1, ["完工图 1", "完工图 2"], ["完工视频 1"], "已完成缺角补色和拼缝压平，边缘已做抛光。")]
@@ -141,7 +141,7 @@ function createInitialState() {
       durationDays: 1,
       address: "成都市青羊区光华大道 16 号",
       requestedMasters: { gold: 1, silver: 0, bronze: 0 },
-      quote: quote(1, 480, 50, "实木坑洞修复及补漆。", "已确认"),
+      quote: quote("JD20260921006", 1, 480, 50, "实木坑洞修复及补漆。", "已确认"),
       orderAmount: 530,
       assignments: [assignment("m_gold_1", "金牌", 477, "已完工", 477)],
       cycles: [cycle(1, ["完工图 1"], ["完工视频 1"], "表面已补平并完成同色处理。", "通过")],
@@ -204,10 +204,11 @@ function master(id, name, gender, level, creditScore, phone, wechat, city, distr
   };
 }
 
-function quote(version, repairFee, visitFee, description, status, submittedBy = "system") {
+function quote(orderId, version, repairFee, visitFee, description, status, submittedBy = "system") {
   const total = repairFee + visitFee;
   return {
-    id: `q_${version}`,
+    id: `q_${orderId}_${version}`,
+    orderId,
     version,
     repairFee,
     repairFeeCents: toCents(repairFee),
@@ -290,6 +291,10 @@ function order(input) {
   result.statusTimes = Object.assign({}, result.statusTimes || {});
   if (!result.statusTimes[result.status]) result.statusTimes[result.status] = result.createdAt;
   if (result.quote && !result.quoteHistory.length) result.quoteHistory = [result.quote];
+  if (result.quote && !result.quote.orderId) result.quote.orderId = result.id;
+  (result.quoteHistory || []).forEach((quoteItem) => {
+    if (!quoteItem.orderId) quoteItem.orderId = result.id;
+  });
   if (result.orderAmount != null && result.orderAmountCents == null) result.orderAmountCents = toCents(result.orderAmount);
   result.payments = Object.assign({ customerPaid: 0, customerPaidCents: 0, masterPaid: {}, masterPaidCents: {} }, result.payments || {});
   if (result.payments.customerPaidCents == null) result.payments.customerPaidCents = toCents(result.payments.customerPaid);
@@ -476,7 +481,7 @@ function submitQuote(state, orderId, repairFee, visitFee, description, actor = "
   item.quoteHistory = item.quoteHistory || [];
   if (item.quote && item.quote.status === "待客户确认") item.quote.status = "已作废";
   const nextVersion = item.quoteHistory.length ? Math.max(...item.quoteHistory.map((current) => current.version)) + 1 : 1;
-  item.quote = quote(nextVersion, Number(repairFee), Number(visitFee), description, "待客户确认", actor);
+  item.quote = quote(orderId, nextVersion, Number(repairFee), Number(visitFee), description, "待客户确认", actor);
   item.quoteHistory.push(item.quote);
   setOrderStatus(item, STATUS.QUOTE_CONFIRMING);
   touch(item);
@@ -493,7 +498,7 @@ function saveQuoteDraft(state, orderId, repairFee, visitFee, description, actor 
   const before = auditSnapshot(item, ["status", "quoteHistory"]);
   item.quoteHistory = item.quoteHistory || [];
   const nextVersion = item.quoteHistory.length ? Math.max(...item.quoteHistory.map((current) => current.version)) + 1 : 1;
-  const draft = quote(nextVersion, Number(repairFee), Number(visitFee), description, "草稿", actor);
+  const draft = quote(orderId, nextVersion, Number(repairFee), Number(visitFee), description, "草稿", actor);
   item.quoteHistory.push(draft);
   touch(item);
   audit(state, "管理员保存报价草稿", orderId, "", before, auditSnapshot(item, ["status", "quoteHistory"]), actor);

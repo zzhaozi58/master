@@ -180,6 +180,7 @@ test("HTTP 后端支持 idempotencyKey 防止重复提交生成重复记录", as
     const first = await request(baseUrl, "POST", "/admin/orders/JD20260921001/quote", body);
     const second = await request(baseUrl, "POST", "/admin/orders/JD20260921001/quote", body);
     assert.equal(first.version, second.version);
+    assert.equal(first.orderId, "JD20260921001");
     const order = (await request(baseUrl, "GET", "/admin/orders?adminId=admin_root&filter=%E5%85%A8%E9%83%A8"))
       .find((item) => item.id === "JD20260921001");
     assert.equal(order.quoteHistoryCount, 1);

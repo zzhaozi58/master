@@ -37,6 +37,8 @@ test("客户询价校验并生成待报价订单", () => {
 test("报价必须由客户确认后才能进入待派单", () => {
   const state = domain.createInitialState();
   const quote = domain.submitQuote(state, "JD20260921001", 300, 50, "岩板缺角处理", "admin_root");
+  assert.equal(quote.orderId, "JD20260921001");
+  assert.equal(quote.id, "q_JD20260921001_1");
   assert.equal(quote.submittedBy, "admin_root");
   assert.equal(domain.getAdminOrders(state, "待报价").find((item) => item.id === "JD20260921001").status, domain.STATUS.QUOTE_CONFIRMING);
   const order = domain.confirmQuote(state, "JD20260921001");
@@ -58,6 +60,7 @@ test("修改已提交报价会作废旧版本且客户只能确认最新报价",
   assert.equal(second.version, 2);
   const order = domain.confirmQuote(state, "JD20260921001");
   assert.equal(order.quoteHistory.length, 2);
+  assert(order.quoteHistory.every((item) => item.orderId === "JD20260921001"));
   assert.equal(order.quoteHistory[0].status, "已作废");
   assert.equal(order.quoteHistory[1].status, "已确认");
   assert.equal(order.orderAmount, 410);
@@ -69,6 +72,7 @@ test("报价草稿只留管理端记录且不改变订单状态", () => {
   const adminOrder = domain.getAdminOrders(state, "待报价").find((item) => item.id === "JD20260921001");
   const clientOrder = domain.getClientOrders(state, "c_001").find((item) => item.id === "JD20260921001");
   assert.equal(draft.status, "草稿");
+  assert.equal(draft.orderId, "JD20260921001");
   assert.equal(draft.submittedBy, "admin_root");
   assert.equal(adminOrder.status, domain.STATUS.QUOTING);
   assert.equal(adminOrder.quote, null);

@@ -103,6 +103,7 @@ test("后端管理端可查看通知失败并重新加入重试", () => {
   const backend = createBackend();
   const admin = backend.asAdmin("admin_root");
   const quote = admin.submitQuote("JD20260921001", { repairFee: 300, visitFee: 50, description: "通知测试报价" });
+  assert.equal(quote.orderId, "JD20260921001");
   assert.equal(quote.submittedBy, "admin_root");
   const notice = admin.listNotifications().find((item) => item.event === "报价待确认");
   assert(notice);

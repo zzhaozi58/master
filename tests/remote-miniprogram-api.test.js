@@ -133,6 +133,7 @@ test("远程 API 可用 idempotencyKey 防止重复报价", async () => {
     const first = await admin.submitQuote("JD20260921001", quote);
     const second = await admin.submitQuote("JD20260921001", quote);
     assert.equal(first.version, second.version);
+    assert.equal(first.orderId, "JD20260921001");
     assert.equal(first.submittedBy, "admin_root");
     const order = (await admin.listOrders("全部")).find((item) => item.id === "JD20260921001");
     assert.equal(order.quoteHistoryCount, 1);
