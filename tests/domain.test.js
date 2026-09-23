@@ -398,7 +398,10 @@ test("师傅可用时间限制未来 7 天且未填写显示未知", () => {
   assert.equal(rows[0].date, "2026-09-22");
   assert.equal(rows[0].slot, "上午");
   assert.equal(rows.some((item) => item.date === "2026-09-25" && item.slot === "下午" && item.status === "有空"), true);
+  assert.equal(rows.find((item) => item.date === "2026-09-25" && item.slot === "下午").updatedAt, "2026-09-21 20:00");
   assert.equal(rows.some((item) => item.status === "未知"), true);
+  const saved = domain.saveAvailability(state, "m_silver_1", [{ date: "2026-09-22", slot: "上午", status: "有空" }]);
+  assert.equal(saved.find((item) => item.date === "2026-09-22" && item.slot === "上午").updatedAt, "2026-09-21 20:00");
 
   assert.throws(
     () => domain.saveAvailability(state, "m_silver_1", [{ date: "2026-10-10", slot: "上午", status: "有空" }]),

@@ -173,9 +173,9 @@ function createInitialState() {
     exceptions: [],
     audit: [],
     availability: [
-      { masterId: "m_silver_1", date: "2026-09-25", slot: "下午", status: "有空" },
-      { masterId: "m_gold_1", date: "2026-09-24", slot: "上午", status: "有空" },
-      { masterId: "m_bronze_1", date: "2026-09-24", slot: "上午", status: "未知" }
+      { masterId: "m_silver_1", date: "2026-09-25", slot: "下午", status: "有空", updatedAt: nowText() },
+      { masterId: "m_gold_1", date: "2026-09-24", slot: "上午", status: "有空", updatedAt: nowText() },
+      { masterId: "m_bronze_1", date: "2026-09-24", slot: "上午", status: "未知", updatedAt: nowText() }
     ]
   };
 }
@@ -985,11 +985,12 @@ function updateMasterAdminFields(state, masterId, fields, actor = "system") {
 
 function saveAvailability(state, masterId, rows) {
   const allowedDates = new Set(availabilityWindowDates());
+  const updatedAt = nowText();
   const normalized = rows.map((row) => {
     assert(allowedDates.has(row.date), "只能维护未来 7 天可用时间");
     assert(AVAILABILITY_SLOTS.includes(row.slot), "可用时间时段无效");
     assert(AVAILABILITY_STATUSES.includes(row.status), "可用时间状态无效");
-    return { masterId, date: row.date, slot: row.slot, status: row.status };
+    return { masterId, date: row.date, slot: row.slot, status: row.status, updatedAt };
   });
   state.availability = state.availability.filter((item) => item.masterId !== masterId);
   normalized.forEach((row) => state.availability.push(row));
@@ -1002,7 +1003,7 @@ function getMasterAvailability(state, masterId) {
   availabilityWindowDates().forEach((date) => {
     AVAILABILITY_SLOTS.forEach((slot) => {
       const existing = saved.find((item) => item.date === date && item.slot === slot);
-      rows.push({ key: `${date}-${slot}`, masterId, date, slot, status: existing ? existing.status : "未知" });
+      rows.push({ key: `${date}-${slot}`, masterId, date, slot, status: existing ? existing.status : "未知", updatedAt: existing ? existing.updatedAt || "" : "" });
     });
   });
   return rows;
