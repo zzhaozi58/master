@@ -162,6 +162,9 @@ test("师傅预约、无定位打卡、完工提交和客户验收通过能跨�
   domain.submitCompletion(state, "JD20260921004", "m_silver_1", ["图1"], ["视频1"], "大理石缺角已修复。");
   assert.equal(domain.getClientOrders(state, "c_002").find((item) => item.id === "JD20260921004").category, "待验收");
   domain.acceptOrder(state, "JD20260921004");
+  const accepted = state.orders.find((item) => item.id === "JD20260921004").cycles[0];
+  assert.equal(accepted.orderId, "JD20260921004");
+  assert.equal(accepted.customerSubmittedAt, "2026-09-21 20:00");
   assert.equal(domain.getAdminOrders(state, "已验收").some((item) => item.id === "JD20260921004"), true);
 });
 
@@ -192,11 +195,16 @@ test("验收不通过进入异常，管理员可安排返修", () => {
   const exception = domain.rejectAcceptance(state, "JD20260921005", { images: ["问题图"], videos: [], description: "拼缝仍有高低差" }, "c_001");
   assert.equal(exception.type, "验收不通过");
   assert.equal(exception.createdBy, "c_001");
+  assert.deepEqual(exception.evidence, { images: ["问题图"], videos: [] });
   assert.equal(domain.getAdminOrders(state, "异常").some((item) => item.id === "JD20260921005"), true);
   const order = domain.arrangeRework(state, exception.id, "admin_root");
   assert.equal(order.status, domain.STATUS.REWORKING);
   assert.equal(exception.handledBy, "admin_root");
   assert.equal(exception.handledAt, "2026-09-21 20:00");
+  assert.equal(order.cycles[0].orderId, "JD20260921005");
+  assert.equal(order.cycles[0].customerSubmittedAt, "2026-09-21 20:00");
+  assert.equal(order.cycles[0].adminAction, "安排返修");
+  assert.equal(order.cycles[0].adminHandledAt, "2026-09-21 20:00");
 });
 
 test("取消申请只能在允许阶段由管理员确认", () => {
@@ -228,6 +236,8 @@ test("管理员驳回验收异常并强制完成必须填写说明", () => {
   assert.equal(exception.adminNote, "复核完工凭证后确认可验收");
   assert.equal(exception.handledAt, "2026-09-21 20:00");
   assert.equal(order.cycles[0].adminResult, "管理员强制完成");
+  assert.equal(order.cycles[0].adminAction, "驳回异常并强制完成");
+  assert.equal(order.cycles[0].adminHandledAt, "2026-09-21 20:00");
 });
 
 test("管理员可以驳回取消申请并保留订单", () => {

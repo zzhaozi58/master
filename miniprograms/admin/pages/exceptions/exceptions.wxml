@@ -7,6 +7,7 @@
     <view class="row"><view class="label">原订单状态</view><view class="value">{{item.statusSnapshot}}</view></view>
     <view class="row"><view class="label">原执行师傅</view><view class="value">{{item.mastersSnapshot}}</view></view>
     <view class="row"><view class="label">原因</view><view class="value">{{item.reason}}</view></view>
+    <view wx:if="{{item.evidence}}" class="row"><view class="label">相关凭证</view><view class="value">图片 {{item.evidence.images.length}} 张 / 视频 {{item.evidence.videos.length}} 个</view></view>
     <view wx:if="{{item.createdBy}}" class="row"><view class="label">发起人</view><view class="value">{{item.createdBy}}</view></view>
     <view wx:if="{{item.adminNote}}" class="row"><view class="label">处理说明</view><view class="value">{{item.adminNote}}</view></view>
     <view wx:if="{{item.handledBy}}" class="row"><view class="label">处理人</view><view class="value">{{item.handledBy}}</view></view>

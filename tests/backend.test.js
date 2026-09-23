@@ -143,6 +143,7 @@ test("后端管理端可驳回验收异常并强制完成", () => {
   assert.equal(order.status, "已验收");
   assert.equal(handled.adminNote, "客服复核后确认结果可接受");
   assert.equal(handled.createdBy, "c_001");
+  assert.deepEqual(handled.evidence, { images: ["问题图"], videos: [] });
   assert.equal(handled.handledBy, "admin_root");
   assert.equal(admin.listPaymentRecords("JD20260921005").some((item) => item.type === "客户收款"), true);
 });

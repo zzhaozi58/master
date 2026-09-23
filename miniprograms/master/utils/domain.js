@@ -127,7 +127,7 @@ function createInitialState() {
       quote: quote("JD20260921005", 1, 320, 50, "瓷砖缺角及拼缝处理。", "已确认"),
       orderAmount: 370,
       assignments: [assignment("m_silver_1", "银牌", 333, "已打卡")],
-      cycles: [cycle(1, ["完工图 1", "完工图 2"], ["完工视频 1"], "已完成缺角补色和拼缝压平，边缘已做抛光。")]
+      cycles: [cycle("JD20260921005", 1, ["完工图 1", "完工图 2"], ["完工视频 1"], "已完成缺角补色和拼缝压平，边缘已做抛光。")]
     }),
     order({
       id: "JD20260921006",
@@ -144,7 +144,7 @@ function createInitialState() {
       quote: quote("JD20260921006", 1, 480, 50, "实木坑洞修复及补漆。", "已确认"),
       orderAmount: 530,
       assignments: [assignment("m_gold_1", "金牌", 477, "已完工", 477)],
-      cycles: [cycle(1, ["完工图 1"], ["完工视频 1"], "表面已补平并完成同色处理。", "通过")],
+      cycles: [cycle("JD20260921006", 1, ["完工图 1"], ["完工视频 1"], "表面已补平并完成同色处理。", "通过")],
       payments: { customerPaid: 0, masterPaid: { m_gold_1: 477 } }
     })
   ];
@@ -244,15 +244,19 @@ function assignment(masterId, level, receivableAmount, status = "待预约", pai
   };
 }
 
-function cycle(round, images, videos, completionNote, result = "待确认") {
+function cycle(orderId, round, images, videos, completionNote, result = "待确认") {
   return {
+    orderId,
     round,
     completionMedia: { images, videos },
     completionNote,
     completedAt: nowText(),
     result,
     customerIssue: null,
-    adminResult: null
+    customerSubmittedAt: "",
+    adminResult: null,
+    adminAction: "",
+    adminHandledAt: ""
   };
 }
 
@@ -294,6 +298,12 @@ function order(input) {
   if (result.quote && !result.quote.orderId) result.quote.orderId = result.id;
   (result.quoteHistory || []).forEach((quoteItem) => {
     if (!quoteItem.orderId) quoteItem.orderId = result.id;
+  });
+  (result.cycles || []).forEach((cycleItem) => {
+    if (!cycleItem.orderId) cycleItem.orderId = result.id;
+    if (cycleItem.customerSubmittedAt == null) cycleItem.customerSubmittedAt = "";
+    if (cycleItem.adminAction == null) cycleItem.adminAction = "";
+    if (cycleItem.adminHandledAt == null) cycleItem.adminHandledAt = "";
   });
   if (result.orderAmount != null && result.orderAmountCents == null) result.orderAmountCents = toCents(result.orderAmount);
   result.payments = Object.assign({ customerPaid: 0, customerPaidCents: 0, masterPaid: {}, masterPaidCents: {} }, result.payments || {});
@@ -648,7 +658,7 @@ function submitCompletion(state, orderId, masterId, images, videos, note, actor 
   assert(images.length >= 1 && images.length <= 5, "完工图片必须 1-5 张");
   assert(videos.length >= 1 && videos.length <= 2, "完工视频必须 1-2 个");
   const before = auditSnapshot(item, ["status", "cycles"]);
-  item.cycles.push(cycle(item.cycles.length + 1, images, videos, note || ""));
+  item.cycles.push(cycle(orderId, item.cycles.length + 1, images, videos, note || ""));
   setOrderStatus(item, STATUS.ACCEPTING);
   touch(item);
   audit(state, "师傅提交完工", orderId, masterId, before, auditSnapshot(item, ["status", "cycles"]), actor);
@@ -663,6 +673,7 @@ function acceptOrder(state, orderId, actor = "system") {
   assert(current, "缺少完工轮次");
   const before = auditSnapshot(item, ["status", "cycles", "payments", "assignments"]);
   current.result = "通过";
+  current.customerSubmittedAt = nowText();
   setOrderStatus(item, STATUS.ACCEPTED);
   item.payments.customerPaid = item.payments.customerPaid || 0;
   item.assignments.forEach((assign) => {
@@ -686,9 +697,28 @@ function rejectAcceptance(state, orderId, issue, actor = "system") {
   const before = auditSnapshot(item, ["status", "cycles"]);
   const current = latestCycle(item);
   current.result = "不通过";
-  current.customerIssue = issue;
+  current.customerIssue = {
+    images: issue.images || [],
+    videos: issue.videos || [],
+    description: issue.description
+  };
+  current.customerSubmittedAt = nowText();
   setOrderStatus(item, STATUS.ACCEPT_REJECTED);
-  const exception = { id: `ex_${state.exceptions.length + 1}`, orderId, type: "验收不通过", status: "待处理", reason: issue.description, createdBy: actor, statusSnapshot: STATUS.ACCEPTING, mastersSnapshot: assignmentNames(state, item), createdAt: nowText(), handledBy: "", handledAt: "", adminNote: "" };
+  const exception = {
+    id: `ex_${state.exceptions.length + 1}`,
+    orderId,
+    type: "验收不通过",
+    status: "待处理",
+    reason: issue.description,
+    evidence: { images: issue.images || [], videos: issue.videos || [] },
+    createdBy: actor,
+    statusSnapshot: STATUS.ACCEPTING,
+    mastersSnapshot: assignmentNames(state, item),
+    createdAt: nowText(),
+    handledBy: "",
+    handledAt: "",
+    adminNote: ""
+  };
   state.exceptions.unshift(exception);
   touch(item);
   audit(state, "客户验收不通过", orderId, issue.description, before, auditSnapshot(item, ["status", "cycles"]), actor);
@@ -704,6 +734,12 @@ function arrangeRework(state, exceptionId, actor = "system") {
   exception.status = "已安排返修";
   exception.handledBy = actor;
   exception.handledAt = nowText();
+  const current = latestCycle(item);
+  if (current) {
+    current.adminResult = "已安排返修";
+    current.adminAction = "安排返修";
+    current.adminHandledAt = exception.handledAt;
+  }
   setOrderStatus(item, STATUS.REWORKING);
   touch(item);
   audit(state, "管理员安排返修", item.id, exceptionId, before, auditSnapshot(item, ["status"]), actor);
@@ -721,7 +757,11 @@ function forceCompleteException(state, exceptionId, description, actor = "system
   exception.adminNote = description;
   exception.handledAt = nowText();
   const current = latestCycle(item);
-  if (current) current.adminResult = "管理员强制完成";
+  if (current) {
+    current.adminResult = "管理员强制完成";
+    current.adminAction = "驳回异常并强制完成";
+    current.adminHandledAt = exception.handledAt;
+  }
   setOrderStatus(item, STATUS.ACCEPTED);
   ensureCustomerPaymentRecord(state, item);
   item.assignments.forEach((assign) => {
