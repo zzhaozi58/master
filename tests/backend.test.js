@@ -96,6 +96,7 @@ test("管理员白名单形态校验和敏感操作审计", () => {
   assert.equal(paymentRecords.some((item) => item.type === "师傅付款" && item.status === "已完成"), true);
   assert(paymentRecords.every((item) => item.confirmedBy === "admin_root"));
   assert(paymentRecords.every((item) => item.confirmedAmount === item.dueAmount));
+  assert(paymentRecords.every((item) => item.note));
 });
 
 test("后端管理端可查看通知失败并重新加入重试", () => {

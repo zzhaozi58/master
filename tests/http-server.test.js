@@ -210,16 +210,18 @@ test("HTTP 后端支持验收和付款接口幂等", async () => {
     assert.equal(firstAccept.status, secondAccept.status);
     assert.equal(firstAccept.cycles.length, 1);
 
-    const customerPayBody = { adminId: "admin_root", idempotencyKey: "customer-pay-once-001" };
+    const customerPayBody = { adminId: "admin_root", note: "HTTP 客户已转账", idempotencyKey: "customer-pay-once-001" };
     await request(baseUrl, "POST", "/admin/orders/JD20260921004/confirm-customer-payment", customerPayBody);
     await request(baseUrl, "POST", "/admin/orders/JD20260921004/confirm-customer-payment", customerPayBody);
-    const masterPayBody = { adminId: "admin_root", masterId: "m_silver_1", idempotencyKey: "master-pay-once-001" };
+    const masterPayBody = { adminId: "admin_root", masterId: "m_silver_1", note: "HTTP 师傅已结算", idempotencyKey: "master-pay-once-001" };
     await request(baseUrl, "POST", "/admin/orders/JD20260921004/confirm-master-payment", masterPayBody);
     await request(baseUrl, "POST", "/admin/orders/JD20260921004/confirm-master-payment", masterPayBody);
     const payments = await request(baseUrl, "GET", "/admin/payments?adminId=admin_root&orderId=JD20260921004");
     assert.equal(payments.filter((item) => item.type === "客户收款").length, 1);
     assert.equal(payments.filter((item) => item.type === "师傅付款").length, 1);
     assert(payments.every((item) => item.status === "已完成"));
+    assert(payments.some((item) => item.type === "客户收款" && item.note === "HTTP 客户已转账"));
+    assert(payments.some((item) => item.type === "师傅付款" && item.note === "HTTP 师傅已结算"));
   } finally {
     await close(server);
     fs.rmSync(tempDir, { recursive: true, force: true });

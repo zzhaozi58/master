@@ -259,9 +259,9 @@ test("验收后生成款项明细且重复确认收付款保持幂等", () => {
   assert(records.some((item) => item.type === "客户收款" && item.dueAmountCents === 29000));
   assert(records.some((item) => item.type === "师傅付款" && item.dueAmountCents === 26100));
 
+  domain.confirmCustomerPayment(state, "JD20260921004", "admin_root", "客户微信确认已转账");
   domain.confirmCustomerPayment(state, "JD20260921004", "admin_root");
-  domain.confirmCustomerPayment(state, "JD20260921004", "admin_root");
-  domain.confirmMasterPayment(state, "JD20260921004", "m_silver_1", "admin_root");
+  domain.confirmMasterPayment(state, "JD20260921004", "m_silver_1", "admin_root", "师傅线下已收款");
   domain.confirmMasterPayment(state, "JD20260921004", "m_silver_1", "admin_root");
   const after = domain.listPaymentRecords(state, "JD20260921004");
   assert.equal(after.length, 2);
@@ -270,6 +270,8 @@ test("验收后生成款项明细且重复确认收付款保持幂等", () => {
   assert(after.every((item) => item.confirmedBy === "admin_root"));
   assert(after.every((item) => item.confirmedAmount === item.dueAmount));
   assert(after.every((item) => item.confirmedAmountCents === item.dueAmountCents));
+  assert(after.some((item) => item.type === "客户收款" && item.note === "客户微信确认已转账"));
+  assert(after.some((item) => item.type === "师傅付款" && item.note === "师傅线下已收款"));
   assert.equal(domain.listNotifications(state).filter((item) => item.event === "平台已确认师傅付款").length, 1);
 });
 

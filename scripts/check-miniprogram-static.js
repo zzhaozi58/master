@@ -97,6 +97,9 @@ function collectMissingAdminOrderDetailFields(file, body) {
   if (/款项明细/.test(body) && (!/确认人/.test(body) || !/确认金额/.test(body))) {
     problems.push(`${relative(file)} must show payment confirmation actor and amount`);
   }
+  if (/款项明细/.test(body) && !/备注/.test(body)) {
+    problems.push(`${relative(file)} must show payment note`);
+  }
 }
 
 function collectMissingOrderMediaLists(file, body) {

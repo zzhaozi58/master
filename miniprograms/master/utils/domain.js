@@ -795,7 +795,7 @@ function allocateMasterAmounts(state, orderId, amounts, actor = "system") {
   return item;
 }
 
-function confirmCustomerPayment(state, orderId, actor = "system") {
+function confirmCustomerPayment(state, orderId, actor = "system", note = "") {
   const item = orderById(state, orderId);
   assert(item.status === STATUS.ACCEPTED, "只有已验收订单可以确认客户收款");
   const record = ensureCustomerPaymentRecord(state, item);
@@ -806,6 +806,7 @@ function confirmCustomerPayment(state, orderId, actor = "system") {
   record.confirmedBy = actor;
   record.confirmedAmount = record.dueAmount;
   record.confirmedAmountCents = record.dueAmountCents;
+  record.note = note || "管理员确认客户全额收款";
   record.status = "已完成";
   record.confirmedAt = nowText();
   record.updatedAt = nowText();
@@ -815,7 +816,7 @@ function confirmCustomerPayment(state, orderId, actor = "system") {
   return item;
 }
 
-function confirmMasterPayment(state, orderId, masterId, actor = "system") {
+function confirmMasterPayment(state, orderId, masterId, actor = "system", note = "") {
   const item = orderById(state, orderId);
   assert(item.status === STATUS.ACCEPTED, "只有已验收订单可以确认师傅付款");
   const assign = assignmentByMaster(item, masterId);
@@ -828,6 +829,7 @@ function confirmMasterPayment(state, orderId, masterId, actor = "system") {
   record.confirmedBy = actor;
   record.confirmedAmount = record.dueAmount;
   record.confirmedAmountCents = record.dueAmountCents;
+  record.note = note || "管理员确认师傅全额付款";
   record.status = "已完成";
   record.confirmedAt = nowText();
   record.updatedAt = nowText();
@@ -1029,6 +1031,7 @@ function applyMasterPaidAmountAggregate(state, masterId, paidAmount, actor = "sy
     record.confirmedBy = nextPaid >= record.dueAmount ? actor : "";
     record.confirmedAmount = nextPaid >= record.dueAmount ? nextPaid : 0;
     record.confirmedAmountCents = nextPaid >= record.dueAmount ? toCents(nextPaid) : 0;
+    record.note = nextPaid > 0 ? "管理员编辑累计已支付金额" : "";
     record.updatedAt = nowText();
     if (beforePaid !== nextPaid) {
       state.paymentAdjustments.push({
@@ -1059,6 +1062,7 @@ function ensureCustomerPaymentRecord(state, item) {
     record.dueAmount = item.orderAmount || 0;
     record.dueAmountCents = toCents(record.dueAmount);
     record.paidAmountCents = toCents(record.paidAmount);
+    if (record.note == null) record.note = "";
     record.status = record.paidAmount >= record.dueAmount ? "已完成" : record.paidAmount > 0 ? "部分完成" : "未完成";
   }
   return record;
@@ -1075,6 +1079,7 @@ function ensureMasterPaymentRecord(state, item, assign) {
     record.paidAmount = assign.paidAmount || record.paidAmount || 0;
     record.dueAmountCents = toCents(record.dueAmount);
     record.paidAmountCents = toCents(record.paidAmount);
+    if (record.note == null) record.note = "";
     record.status = record.paidAmount >= record.dueAmount ? "已完成" : record.paidAmount > 0 ? "部分完成" : "未完成";
   }
   return record;
@@ -1095,6 +1100,7 @@ function paymentRecord(orderId, type, targetId, dueAmount, paidAmount) {
     confirmedBy: "",
     confirmedAmount: status === "已完成" ? paidAmount : 0,
     confirmedAmountCents: status === "已完成" ? toCents(paidAmount) : 0,
+    note: "",
     confirmedAt: status === "已完成" ? nowText() : "",
     createdAt: nowText(),
     updatedAt: nowText()

@@ -194,11 +194,11 @@ function adminApi(state, adminId) {
       domain.recordAudit(state, "管理员修改客户资料", customerId, "", before, after, adminId);
       return clone(customer);
     },
-    confirmCustomerPayment(orderId) {
-      return domain.confirmCustomerPayment(state, orderId, adminId);
+    confirmCustomerPayment(orderId, note = "") {
+      return domain.confirmCustomerPayment(state, orderId, adminId, note);
     },
-    confirmMasterPayment(orderId, masterId) {
-      return domain.confirmMasterPayment(state, orderId, masterId, adminId);
+    confirmMasterPayment(orderId, masterId, note = "") {
+      return domain.confirmMasterPayment(state, orderId, masterId, adminId, note);
     },
     allocateMasterAmounts(orderId, amounts) {
       return domain.allocateMasterAmounts(state, orderId, amounts, adminId);

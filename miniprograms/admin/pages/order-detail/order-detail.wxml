@@ -85,6 +85,7 @@
           <view class="value">¥{{item.paidAmount}} / ¥{{item.dueAmount}}</view>
         </view>
         <view wx:if="{{item.confirmedBy}}" class="muted payment-confirmed">确认人：{{item.confirmedBy}} · 确认金额 ¥{{item.confirmedAmount}} · {{item.confirmedAt}}</view>
+        <view wx:if="{{item.note}}" class="muted payment-confirmed">备注：{{item.note}}</view>
       </view>
     </view>
     <view class="actions">

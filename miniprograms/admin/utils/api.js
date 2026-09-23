@@ -78,11 +78,11 @@ function createAdminApi(state, domain) {
       Object.assign(customer, profile);
       return clone(customer);
     },
-    confirmCustomerPayment(orderId) {
-      return domain.confirmCustomerPayment(state, orderId);
+    confirmCustomerPayment(orderId, note = "") {
+      return domain.confirmCustomerPayment(state, orderId, "admin_root", note);
     },
-    confirmMasterPayment(orderId, masterId) {
-      return domain.confirmMasterPayment(state, orderId, masterId);
+    confirmMasterPayment(orderId, masterId, note = "") {
+      return domain.confirmMasterPayment(state, orderId, masterId, "admin_root", note);
     },
     listPaymentRecords(orderId = "") {
       return domain.listPaymentRecords(state, orderId);
@@ -193,11 +193,11 @@ function createRemoteAdminApi(options) {
     updateCustomer(profile) {
       return request.post(`/admin/customers/${profile.id}`, Object.assign({}, identity, { profile }));
     },
-    confirmCustomerPayment(orderId) {
-      return request.post(`/admin/orders/${orderId}/confirm-customer-payment`, identity);
+    confirmCustomerPayment(orderId, note = "") {
+      return request.post(`/admin/orders/${orderId}/confirm-customer-payment`, Object.assign({}, identity, { note }));
     },
-    confirmMasterPayment(orderId, masterId) {
-      return request.post(`/admin/orders/${orderId}/confirm-master-payment`, Object.assign({}, identity, { masterId }));
+    confirmMasterPayment(orderId, masterId, note = "") {
+      return request.post(`/admin/orders/${orderId}/confirm-master-payment`, Object.assign({}, identity, { masterId, note }));
     },
     listPaymentRecords(orderId = "") {
       return request.get("/admin/payments", Object.assign({}, identity, { orderId }));
