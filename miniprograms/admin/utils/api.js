@@ -12,10 +12,10 @@ function createAdminApi(state, domain) {
       return domain.getAdminOrders(state).find((item) => item.id === orderId);
     },
     submitQuote(orderId, quote) {
-      return domain.submitQuote(state, orderId, quote.repairFee, quote.visitFee, quote.description || "");
+      return domain.submitQuote(state, orderId, quote.repairFee, quote.visitFee, quote.description || "", "admin_root");
     },
     saveQuoteDraft(orderId, quote) {
-      return domain.saveQuoteDraft(state, orderId, quote.repairFee, quote.visitFee, quote.description || "");
+      return domain.saveQuoteDraft(state, orderId, quote.repairFee, quote.visitFee, quote.description || "", "admin_root");
     },
     rankCandidates(orderId, level) {
       return domain.rankCandidates(state, orderId, level);

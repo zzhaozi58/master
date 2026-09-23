@@ -55,7 +55,9 @@ test("管理端 API 包装能报价派单并读取待施工", () => {
   assert.throws(() => api.updateCustomer({ id: "c_001", phone: "bad-phone" }), /联系电话格式不正确/);
   const draft = api.saveQuoteDraft("JD20260921001", { repairFee: 280, visitFee: 50, description: "API 草稿" });
   assert.equal(draft.status, "草稿");
-  api.submitQuote("JD20260921001", { repairFee: 300, visitFee: 50, description: "API 报价" });
+  assert.equal(draft.submittedBy, "admin_root");
+  const submitted = api.submitQuote("JD20260921001", { repairFee: 300, visitFee: 50, description: "API 报价" });
+  assert.equal(submitted.submittedBy, "admin_root");
   adminDomain.confirmQuote(state, "JD20260921001");
   const dispatchDraft = api.saveDispatchDraft("JD20260921001", { silver: [] });
   assert.equal(dispatchDraft.status, adminDomain.STATUS.DISPATCHING);

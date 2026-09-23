@@ -204,7 +204,7 @@ function master(id, name, gender, level, creditScore, phone, wechat, city, distr
   };
 }
 
-function quote(version, repairFee, visitFee, description, status) {
+function quote(version, repairFee, visitFee, description, status, submittedBy = "system") {
   const total = repairFee + visitFee;
   return {
     id: `q_${version}`,
@@ -217,6 +217,7 @@ function quote(version, repairFee, visitFee, description, status) {
     totalCents: toCents(total),
     description,
     status,
+    submittedBy,
     submittedAt: nowText(),
     confirmedAt: ""
   };
@@ -475,7 +476,7 @@ function submitQuote(state, orderId, repairFee, visitFee, description, actor = "
   item.quoteHistory = item.quoteHistory || [];
   if (item.quote && item.quote.status === "待客户确认") item.quote.status = "已作废";
   const nextVersion = item.quoteHistory.length ? Math.max(...item.quoteHistory.map((current) => current.version)) + 1 : 1;
-  item.quote = quote(nextVersion, Number(repairFee), Number(visitFee), description, "待客户确认");
+  item.quote = quote(nextVersion, Number(repairFee), Number(visitFee), description, "待客户确认", actor);
   item.quoteHistory.push(item.quote);
   setOrderStatus(item, STATUS.QUOTE_CONFIRMING);
   touch(item);
@@ -492,7 +493,7 @@ function saveQuoteDraft(state, orderId, repairFee, visitFee, description, actor 
   const before = auditSnapshot(item, ["status", "quoteHistory"]);
   item.quoteHistory = item.quoteHistory || [];
   const nextVersion = item.quoteHistory.length ? Math.max(...item.quoteHistory.map((current) => current.version)) + 1 : 1;
-  const draft = quote(nextVersion, Number(repairFee), Number(visitFee), description, "草稿");
+  const draft = quote(nextVersion, Number(repairFee), Number(visitFee), description, "草稿", actor);
   item.quoteHistory.push(draft);
   touch(item);
   audit(state, "管理员保存报价草稿", orderId, "", before, auditSnapshot(item, ["status", "quoteHistory"]), actor);
