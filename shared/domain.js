@@ -279,10 +279,13 @@ function order(input) {
     cancelRequest: null,
     payments: { customerPaid: 0, customerPaidCents: 0, masterPaid: {}, masterPaidCents: {} },
     note: "",
+    statusTimes: {},
     createdAt: nowText(),
     updatedAt: nowText()
   };
   const result = Object.assign(base, input);
+  result.statusTimes = Object.assign({}, result.statusTimes || {});
+  if (!result.statusTimes[result.status]) result.statusTimes[result.status] = result.createdAt;
   if (result.quote && !result.quoteHistory.length) result.quoteHistory = [result.quote];
   if (result.orderAmount != null && result.orderAmountCents == null) result.orderAmountCents = toCents(result.orderAmount);
   result.payments = Object.assign({ customerPaid: 0, customerPaidCents: 0, masterPaid: {}, masterPaidCents: {} }, result.payments || {});
@@ -390,6 +393,7 @@ function toAdminOrder(state, item) {
     paymentStatus: paymentStatus(item),
     paymentRecords: listPaymentRecords(state, item.id),
     paymentRecordCount: listPaymentRecords(state, item.id).length,
+    statusTimes: clone(item.statusTimes || {}),
     dispatchDraft: normalizeSelections(item.dispatchDraft || {}),
     assignments: item.assignments.map((assign) => withMaster(state, assign)),
     latestCycle: latestCycle(item)
@@ -471,7 +475,7 @@ function submitQuote(state, orderId, repairFee, visitFee, description, actor = "
   const nextVersion = item.quoteHistory.length ? Math.max(...item.quoteHistory.map((current) => current.version)) + 1 : 1;
   item.quote = quote(nextVersion, Number(repairFee), Number(visitFee), description, "待客户确认");
   item.quoteHistory.push(item.quote);
-  item.status = STATUS.QUOTE_CONFIRMING;
+  setOrderStatus(item, STATUS.QUOTE_CONFIRMING);
   touch(item);
   audit(state, "管理员提交报价", orderId, "", before, auditSnapshot(item, ["status", "quote", "quoteHistory"]), actor);
   enqueueNotification(state, "报价待确认", [{ role: "customer", id: item.customerId }], orderId, { total: item.quote.total });
@@ -502,7 +506,7 @@ function confirmQuote(state, orderId, actor = "system") {
   item.quote.confirmedAt = nowText();
   item.orderAmount = item.quote.total;
   item.orderAmountCents = item.quote.totalCents;
-  item.status = STATUS.DISPATCHING;
+  setOrderStatus(item, STATUS.DISPATCHING);
   touch(item);
   audit(state, "客户确认报价", orderId, "", before, auditSnapshot(item, ["status", "quote", "orderAmount", "orderAmountCents"]), actor);
   enqueueNotification(state, "客户已确认报价", [{ role: "admin", id: "admin_root" }], orderId, { total: item.orderAmount, totalCents: item.orderAmountCents });
@@ -548,7 +552,7 @@ function dispatchOrder(state, orderId, selections, actor = "system") {
     return assignment(masterId, masterInfo.level, singleAmount);
   });
   item.dispatchDraft = normalizeSelections({});
-  item.status = STATUS.APPOINTING;
+  setOrderStatus(item, STATUS.APPOINTING);
   touch(item);
   audit(state, "管理员确认派单", orderId, "", before, auditSnapshot(item, ["status", "assignments"]), actor);
   enqueueNotification(state, "订单已派单", [{ role: "customer", id: item.customerId }, ...selectedIds.map((id) => ({ role: "master", id }))], orderId, { masters: selectedIds });
@@ -595,7 +599,7 @@ function appointOrder(state, orderId, masterId, actor = masterId) {
   const before = auditSnapshot(item, ["status", "assignments"]);
   assign.status = "已预约";
   assign.appointedAt = nowText();
-  item.status = STATUS.APPOINTED;
+  setOrderStatus(item, STATUS.APPOINTED);
   touch(item);
   audit(state, "师傅确认预约", orderId, masterId, before, auditSnapshot(item, ["status", "assignments"]), actor);
   enqueueNotification(state, "师傅已确认预约", [{ role: "customer", id: item.customerId }, { role: "admin", id: "admin_root" }], orderId, { masterId });
@@ -618,7 +622,7 @@ function checkInOrder(state, orderId, masterId, locationResult, actor = masterId
   assign.locationText = assign.locationOk
     ? `定位成功 ${assign.checkedInAt}（${assign.latitude}, ${assign.longitude}，精度 ${assign.accuracy}m）`
     : `（无定位：${assign.locationReason}）${assign.checkedInAt}`;
-  item.status = STATUS.WORKING;
+  setOrderStatus(item, STATUS.WORKING);
   touch(item);
   audit(state, "师傅到场打卡", orderId, assign.locationText, before, auditSnapshot(item, ["status", "assignments"]), actor);
   enqueueNotification(state, "师傅已到场打卡", [{ role: "admin", id: "admin_root" }], orderId, { masterId, locationOk: assign.locationOk });
@@ -634,7 +638,7 @@ function submitCompletion(state, orderId, masterId, images, videos, note, actor 
   assert(videos.length >= 1 && videos.length <= 2, "完工视频必须 1-2 个");
   const before = auditSnapshot(item, ["status", "cycles"]);
   item.cycles.push(cycle(item.cycles.length + 1, images, videos, note || ""));
-  item.status = STATUS.ACCEPTING;
+  setOrderStatus(item, STATUS.ACCEPTING);
   touch(item);
   audit(state, "师傅提交完工", orderId, masterId, before, auditSnapshot(item, ["status", "cycles"]), actor);
   enqueueNotification(state, "师傅已提交完工", [{ role: "customer", id: item.customerId }, { role: "admin", id: "admin_root" }], orderId, { masterId });
@@ -648,7 +652,7 @@ function acceptOrder(state, orderId, actor = "system") {
   assert(current, "缺少完工轮次");
   const before = auditSnapshot(item, ["status", "cycles", "payments", "assignments"]);
   current.result = "通过";
-  item.status = STATUS.ACCEPTED;
+  setOrderStatus(item, STATUS.ACCEPTED);
   item.payments.customerPaid = item.payments.customerPaid || 0;
   item.assignments.forEach((assign) => {
     if (assign.receivableAmount == null && item.assignments.length === 1) assign.receivableAmount = masterPoolAmount(item.orderAmount);
@@ -672,7 +676,7 @@ function rejectAcceptance(state, orderId, issue, actor = "system") {
   const current = latestCycle(item);
   current.result = "不通过";
   current.customerIssue = issue;
-  item.status = STATUS.ACCEPT_REJECTED;
+  setOrderStatus(item, STATUS.ACCEPT_REJECTED);
   const exception = { id: `ex_${state.exceptions.length + 1}`, orderId, type: "验收不通过", status: "待处理", reason: issue.description, statusSnapshot: STATUS.ACCEPTING, mastersSnapshot: assignmentNames(state, item), createdAt: nowText() };
   state.exceptions.unshift(exception);
   touch(item);
@@ -688,7 +692,7 @@ function arrangeRework(state, exceptionId, actor = "system") {
   const before = auditSnapshot(item, ["status"]);
   exception.status = "已安排返修";
   exception.handledAt = nowText();
-  item.status = STATUS.REWORKING;
+  setOrderStatus(item, STATUS.REWORKING);
   touch(item);
   audit(state, "管理员安排返修", item.id, exceptionId, before, auditSnapshot(item, ["status"]), actor);
   enqueueNotification(state, "管理员安排返修", [{ role: "customer", id: item.customerId }, ...item.assignments.map((assign) => ({ role: "master", id: assign.masterId }))], item.id, { exceptionId });
@@ -705,7 +709,7 @@ function forceCompleteException(state, exceptionId, description, actor = "system
   exception.handledAt = nowText();
   const current = latestCycle(item);
   if (current) current.adminResult = "管理员强制完成";
-  item.status = STATUS.ACCEPTED;
+  setOrderStatus(item, STATUS.ACCEPTED);
   ensureCustomerPaymentRecord(state, item);
   item.assignments.forEach((assign) => {
     if (assign.receivableAmount != null) ensureMasterPaymentRecord(state, item, assign);
@@ -736,7 +740,7 @@ function confirmCancel(state, exceptionId, adminReason, actor = "system") {
   exception.status = "已取消";
   exception.adminNote = adminReason;
   exception.handledAt = nowText();
-  item.status = STATUS.CANCELED;
+  setOrderStatus(item, STATUS.CANCELED);
   item.assignments.forEach((assign) => { assign.status = "已取消"; });
   touch(item);
   audit(state, "管理员确认取消", item.id, adminReason, before, auditSnapshot(item, ["status", "assignments"]), actor);
@@ -751,7 +755,7 @@ function keepCancelOrder(state, exceptionId, adminReason, actor = "system") {
   assert(adminReason && adminReason.trim(), "保留订单必须填写原因");
   const item = orderById(state, exception.orderId);
   const before = auditSnapshot(item, ["status", "cancelRequest"]);
-  if (item.cancelRequest && item.cancelRequest.previousStatus) item.status = item.cancelRequest.previousStatus;
+  if (item.cancelRequest && item.cancelRequest.previousStatus) setOrderStatus(item, item.cancelRequest.previousStatus);
   item.cancelRequest = null;
   exception.status = "已保留订单";
   exception.adminNote = adminReason;
@@ -1290,6 +1294,12 @@ function pick(value, keys) {
 
 function touch(item) {
   item.updatedAt = nowText();
+}
+
+function setOrderStatus(item, status) {
+  item.status = status;
+  item.statusTimes = Object.assign({}, item.statusTimes || {});
+  item.statusTimes[status] = nowText();
 }
 
 function nowText() {

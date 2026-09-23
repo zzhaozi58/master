@@ -43,6 +43,10 @@ test("报价必须由客户确认后才能进入待派单", () => {
   assert.equal(order.orderAmount, 350);
   assert.equal(order.quote.totalCents, 35000);
   assert.equal(order.orderAmountCents, 35000);
+  assert(order.statusTimes[domain.STATUS.QUOTING]);
+  assert(order.statusTimes[domain.STATUS.QUOTE_CONFIRMING]);
+  assert(order.statusTimes[domain.STATUS.DISPATCHING]);
+  assert.equal(domain.getAdminOrders(state).find((item) => item.id === order.id).statusTimes[domain.STATUS.DISPATCHING], order.statusTimes[domain.STATUS.DISPATCHING]);
 });
 
 test("修改已提交报价会作废旧版本且客户只能确认最新报价", () => {
@@ -251,7 +255,11 @@ test("验收后生成款项明细且重复确认收付款保持幂等", () => {
   domain.appointOrder(state, "JD20260921004", "m_silver_1");
   domain.checkInOrder(state, "JD20260921004", "m_silver_1", { ok: false, reason: "测试定位失败" });
   domain.submitCompletion(state, "JD20260921004", "m_silver_1", ["图"], ["视频"], "完工");
-  domain.acceptOrder(state, "JD20260921004");
+  const accepted = domain.acceptOrder(state, "JD20260921004");
+  assert(accepted.statusTimes[domain.STATUS.APPOINTED]);
+  assert(accepted.statusTimes[domain.STATUS.WORKING]);
+  assert(accepted.statusTimes[domain.STATUS.ACCEPTING]);
+  assert(accepted.statusTimes[domain.STATUS.ACCEPTED]);
   const records = domain.listPaymentRecords(state, "JD20260921004");
   assert.equal(records.length, 2);
   assert(records.some((item) => item.type === "客户收款" && item.dueAmount === 290));
