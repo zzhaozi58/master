@@ -110,7 +110,7 @@ function createInitialState() {
       requestedMasters: { gold: 0, silver: 1, bronze: 0 },
       quote: quote("JD20260921004", 1, 240, 50, "大理石缺角修复。", "已确认"),
       orderAmount: 290,
-      assignments: [assignment("m_silver_1", "银牌", 261)]
+      assignments: [assignment("JD20260921004", "m_silver_1", "银牌", 261)]
     }),
     order({
       id: "JD20260921005",
@@ -126,7 +126,7 @@ function createInitialState() {
       requestedMasters: { gold: 0, silver: 1, bronze: 0 },
       quote: quote("JD20260921005", 1, 320, 50, "瓷砖缺角及拼缝处理。", "已确认"),
       orderAmount: 370,
-      assignments: [assignment("m_silver_1", "银牌", 333, "已打卡")],
+      assignments: [assignment("JD20260921005", "m_silver_1", "银牌", 333, "已打卡")],
       cycles: [cycle("JD20260921005", 1, ["完工图 1", "完工图 2"], ["完工视频 1"], "已完成缺角补色和拼缝压平，边缘已做抛光。")]
     }),
     order({
@@ -143,7 +143,7 @@ function createInitialState() {
       requestedMasters: { gold: 1, silver: 0, bronze: 0 },
       quote: quote("JD20260921006", 1, 480, 50, "实木坑洞修复及补漆。", "已确认"),
       orderAmount: 530,
-      assignments: [assignment("m_gold_1", "金牌", 477, "已完工", 477)],
+      assignments: [assignment("JD20260921006", "m_gold_1", "金牌", 477, "已完工", 477)],
       cycles: [cycle("JD20260921006", 1, ["完工图 1"], ["完工视频 1"], "表面已补平并完成同色处理。", "通过")],
       payments: { customerPaid: 0, masterPaid: { m_gold_1: 477 } }
     })
@@ -224,8 +224,9 @@ function quote(orderId, version, repairFee, visitFee, description, status, submi
   };
 }
 
-function assignment(masterId, level, receivableAmount, status = "待预约", paidAmount = 0) {
+function assignment(orderId, masterId, level, receivableAmount, status = "待预约", paidAmount = 0) {
   return {
+    orderId,
     masterId,
     level,
     receivableAmount,
@@ -304,6 +305,9 @@ function order(input) {
     if (cycleItem.customerSubmittedAt == null) cycleItem.customerSubmittedAt = "";
     if (cycleItem.adminAction == null) cycleItem.adminAction = "";
     if (cycleItem.adminHandledAt == null) cycleItem.adminHandledAt = "";
+  });
+  (result.assignments || []).forEach((assignItem) => {
+    if (!assignItem.orderId) assignItem.orderId = result.id;
   });
   if (result.orderAmount != null && result.orderAmountCents == null) result.orderAmountCents = toCents(result.orderAmount);
   result.payments = Object.assign({ customerPaid: 0, customerPaidCents: 0, masterPaid: {}, masterPaidCents: {} }, result.payments || {});
@@ -449,6 +453,7 @@ function toMasterOrder(state, item, masterId) {
     customerPhone: customer.phone,
     customerName: customer.contact,
     isCanceled: item.status === STATUS.CANCELED,
+    assignment: clone(assign),
     latestCycle: latestCycle(item)
   };
 }
@@ -567,7 +572,7 @@ function dispatchOrder(state, orderId, selections, actor = "system", note = "") 
   const singleAmount = selectedIds.length === 1 ? amount : null;
   item.assignments = selectedIds.map((masterId) => {
     const masterInfo = findById(state.masters, masterId);
-    const assign = assignment(masterId, masterInfo.level, singleAmount);
+    const assign = assignment(orderId, masterId, masterInfo.level, singleAmount);
     assign.dispatchedAt = nowText();
     assign.dispatchNote = note || "管理员电话确认后派单";
     return assign;

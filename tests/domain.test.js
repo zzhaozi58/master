@@ -121,9 +121,12 @@ test("派单按客户确认等级人数精确匹配并进入待施工", () => {
   const order = domain.dispatchOrder(state, "JD20260921003", { gold: ["m_gold_1"], bronze: ["m_bronze_1"] }, "admin_root", "已电话确认两位师傅");
   assert.equal(order.status, domain.STATUS.APPOINTING);
   assert.deepEqual(order.dispatchDraft, { gold: [], silver: [], bronze: [] });
+  assert(order.assignments.every((item) => item.orderId === "JD20260921003"));
   assert(order.assignments.every((item) => item.dispatchedAt));
   assert(order.assignments.every((item) => item.dispatchNote === "已电话确认两位师傅"));
-  assert.equal(domain.getMasterOrders(state, "m_gold_1").find((item) => item.id === order.id).note, "已电话确认两位师傅");
+  const masterOrder = domain.getMasterOrders(state, "m_gold_1").find((item) => item.id === order.id);
+  assert.equal(masterOrder.assignment.orderId, "JD20260921003");
+  assert.equal(masterOrder.note, "已电话确认两位师傅");
   assert.equal(domain.getAdminOrders(state, "待施工").some((item) => item.id === order.id), true);
 });
 
@@ -273,6 +276,7 @@ test("多师傅金额按订单金额 90% 总池分配，付款需手动确认", 
   domain.confirmCustomerPayment(state, "JD20260921003");
   domain.confirmMasterPayment(state, "JD20260921003", "m_gold_1");
   const adminOrder = domain.getAdminOrders(state, "已验收").find((item) => item.id === "JD20260921003");
+  assert(adminOrder.assignments.every((item) => item.orderId === "JD20260921003"));
   assert.equal(adminOrder.paymentStatus, "收/付款未完成");
   assert.equal(domain.listPaymentRecords(state, "JD20260921003").find((item) => item.targetId === "m_gold_1").status, "已完成");
 });
