@@ -49,6 +49,40 @@ test("客户端 API 包装校验我的资料必填和联系电话", () => {
   assert.equal(updated.phone, "13800008889");
 });
 
+test("客户端 API 包装支持客户注册审核后再提交询价", () => {
+  const state = clientDomain.createInitialState();
+  state.currentCustomerId = "c_pending_1";
+  const api = createClientApi(state, clientDomain);
+  const form = {
+    media: { images: ["图"], videos: [] },
+    material: "木材",
+    materialOther: "",
+    types: ["划痕"],
+    typeOther: "",
+    woundCount: 1,
+    woundLength: 5,
+    visitTime: "2026-09-27 10:00",
+    durationDays: 1,
+    address: "成都市金牛区测试路 1 号",
+    requestedMasters: { gold: 0, silver: 1, bronze: 0 },
+    customerName: "待审核客户",
+    wechat: "pending_client",
+    phone: "13800008880"
+  };
+
+  assert.throws(() => api.submitInquiry(form), /管理员确认后才能下单/);
+  const registered = api.register({
+    name: "待审核客户",
+    wechat: "pending_client",
+    phone: "13800008880",
+    address: "成都市金牛区测试路 1 号"
+  });
+  assert.equal(registered.reviewStatus, "待审核");
+  assert.equal(api.getProfile().reviewStatus, "待审核");
+  clientDomain.reviewCustomer(state, "c_pending_1", true, "", "admin_root");
+  assert.equal(api.submitInquiry(form).status, "待报价");
+});
+
 test("管理端 API 包装能报价派单并读取待施工", () => {
   const state = adminDomain.createInitialState();
   const api = createAdminApi(state, adminDomain);

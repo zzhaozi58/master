@@ -67,6 +67,44 @@ test("三端远程 API 可维护资料和处理异常", async () => {
   }
 });
 
+test("远程客户端注册需管理端审核后才能提交询价", async () => {
+  const fixture = await createFixture();
+  const client = createRemoteClientApi({ backendBaseUrl: fixture.baseUrl, customerId: "c_pending_1" });
+  const admin = createRemoteAdminApi({ backendBaseUrl: fixture.baseUrl, adminId: "admin_root" });
+  const form = {
+    media: { images: ["现场图"], videos: [] },
+    material: "瓷砖",
+    materialOther: "",
+    types: ["缺角"],
+    typeOther: "",
+    woundCount: 1,
+    woundLength: 5,
+    visitTime: "2026-09-27 10:00",
+    durationDays: 1,
+    address: "成都市金牛区远程路 1 号",
+    requestedMasters: { gold: 0, silver: 1, bronze: 0 },
+    customerName: "远程注册客户",
+    wechat: "remote_pending",
+    phone: "13800006668"
+  };
+
+  try {
+    await assert.rejects(() => client.submitInquiry(form), /管理员确认后才能下单/);
+    const registered = await client.register({
+      name: "远程注册客户",
+      wechat: "remote_pending",
+      phone: "13800006668",
+      address: "成都市金牛区远程路 1 号"
+    });
+    assert.equal(registered.reviewStatus, "待审核");
+    await assert.rejects(() => client.submitInquiry(form), /管理员确认后才能下单/);
+    assert.equal((await admin.reviewCustomer("c_pending_1", true)).reviewStatus, "已通过");
+    assert.equal((await client.submitInquiry(form)).status, "待报价");
+  } finally {
+    await fixture.close();
+  }
+});
+
 test("三端远程 API 可使用登录 token 而不是前端业务 ID", async () => {
   const fixture = await createFixture();
   const loginClient = createRemoteClientApi({ backendBaseUrl: fixture.baseUrl, customerId: "unused" });

@@ -34,6 +34,10 @@ function customerApi(state, customerId) {
       state.currentCustomerId = customerId;
       return domain.submitInquiry(state, form);
     },
+    register(profile) {
+      state.currentCustomerId = customerId;
+      return domain.registerCustomer(state, profile, customerId);
+    },
     confirmQuote(orderId) {
       assertOwnCustomerOrder(state, customerId, orderId);
       return domain.confirmQuote(state, orderId, customerId);
@@ -193,6 +197,9 @@ function adminApi(state, adminId) {
       const after = pick(customer, ["name", "contact", "type", "wechat", "phone", "address", "note"]);
       domain.recordAudit(state, "管理员修改客户资料", customerId, "", before, after, adminId);
       return clone(customer);
+    },
+    reviewCustomer(customerId, approved, reason = "") {
+      return domain.reviewCustomer(state, customerId, approved, reason, adminId);
     },
     confirmCustomerPayment(orderId, note = "") {
       return domain.confirmCustomerPayment(state, orderId, adminId, note);

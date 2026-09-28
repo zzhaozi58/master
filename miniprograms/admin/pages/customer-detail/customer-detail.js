@@ -1,5 +1,5 @@
 Page({
-  data: { form: {}, submitting: false, message: "" },
+  data: { form: {}, submitting: false, message: "", rejectReason: "" },
   onShow() { this.refresh(); },
   async refresh() {
     const app = getApp();
@@ -8,6 +8,9 @@ Page({
   },
   inputField(event) {
     this.setData({ [`form.${event.currentTarget.dataset.field}`]: event.detail.value });
+  },
+  inputRejectReason(event) {
+    this.setData({ rejectReason: event.detail.value });
   },
   async save() {
     if (this.data.submitting) return;
@@ -23,6 +26,36 @@ Page({
       this.setData({ message: "客户资料已保存。" });
     } catch (saveError) {
       this.setData({ message: saveError.message });
+    } finally {
+      this.setData({ submitting: false });
+    }
+  },
+  async approveCustomer() {
+    if (this.data.submitting) return;
+    const app = getApp();
+    this.setData({ submitting: true, message: "" });
+    try {
+      const customer = await app.globalData.api.reviewCustomer(this.data.form.id, true);
+      this.setData({ form: Object.assign({}, customer), message: "已通过客户注册。" });
+    } catch (error) {
+      this.setData({ message: error.message });
+    } finally {
+      this.setData({ submitting: false });
+    }
+  },
+  async rejectCustomer() {
+    if (this.data.submitting) return;
+    if (!this.data.rejectReason || !this.data.rejectReason.trim()) {
+      this.setData({ message: "拒绝客户注册必须填写原因" });
+      return;
+    }
+    const app = getApp();
+    this.setData({ submitting: true, message: "" });
+    try {
+      const customer = await app.globalData.api.reviewCustomer(this.data.form.id, false, this.data.rejectReason);
+      this.setData({ form: Object.assign({}, customer), message: "已拒绝客户注册。" });
+    } catch (error) {
+      this.setData({ message: error.message });
     } finally {
       this.setData({ submitting: false });
     }

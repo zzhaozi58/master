@@ -11,6 +11,10 @@ function createClientApi(state, domain) {
       state.currentCustomerId = customerId;
       return domain.submitInquiry(state, form);
     },
+    register(profile) {
+      state.currentCustomerId = customerId;
+      return clone(domain.registerCustomer(state, profile, customerId));
+    },
     confirmQuote(orderId) {
       return domain.confirmQuote(state, orderId);
     },
@@ -53,6 +57,9 @@ function createRemoteClientApi(options) {
     },
     submitInquiry(form) {
       return request.post("/customer/inquiries", Object.assign({}, identity, { form }));
+    },
+    register(profile) {
+      return request.post("/customer/register", Object.assign({}, identity, { profile }));
     },
     confirmQuote(orderId) {
       return request.post(`/customer/orders/${orderId}/confirm-quote`, identity);

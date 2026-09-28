@@ -1099,6 +1099,10 @@
       cursor: not-allowed;
     }
 
+    .is-hidden {
+      display: none !important;
+    }
+
     .empty-state {
       padding: 18px 12px;
       border: 1px dashed var(--line);
@@ -1307,7 +1311,18 @@
         </div>
       </section>
 
-      <section class="section" aria-labelledby="form-title">
+      <section class="section" aria-labelledby="register-title" id="registrationGate">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title" id="register-title">注册成为客户</h2>
+            <p class="section-note" id="registrationHint">首次使用需提交客户信息，由管理员确认后才可以下单。</p>
+          </div>
+          <span class="pill">需审核</span>
+        </div>
+        <button class="inline-submit" type="button" id="registerCustomerBtn">提交注册申请</button>
+      </section>
+
+      <section class="section is-hidden" aria-labelledby="form-title" id="repairFormSection">
         <div class="section-head">
           <div>
             <h2 class="section-title" id="form-title">维修需求</h2>
@@ -1799,7 +1814,8 @@
       activeOrderGroup: "unquoted",
       activeAcceptanceOrder: "JD20260915010",
       activeClientDetailOrder: "",
-      acceptanceResult: "pass"
+      acceptanceResult: "pass",
+      customerApproved: false
     };
 
     const orderGroups = [
@@ -2269,6 +2285,19 @@
       showToast("已为你打开客服沟通入口，正式小程序可接入企微/电话/在线客服。");
     });
 
+    $("#registerCustomerBtn").addEventListener("click", () => {
+      $("#registrationHint").textContent = "注册申请已提交，等待管理员确认后才可以下单。";
+      $("#registerCustomerBtn").textContent = "等待管理员确认";
+      $("#registerCustomerBtn").disabled = true;
+      showToast("注册申请已提交，当前仍不可提交维修需求。");
+      window.setTimeout(() => {
+        state.customerApproved = true;
+        $("#registrationGate").classList.add("is-hidden");
+        $("#repairFormSection").classList.remove("is-hidden");
+        showToast("管理员已确认客户注册，现在可以提交维修需求。");
+      }, 5000);
+    });
+
     $("#materialChoices").addEventListener("click", (event) => {
       const btn = event.target.closest(".choice");
       if (!btn) return;
@@ -2353,6 +2382,11 @@
 
     $("#repairForm").addEventListener("submit", (event) => {
       event.preventDefault();
+
+      if (!state.customerApproved) {
+        showToast("客户注册需管理员确认后才能下单。");
+        return;
+      }
 
       const filesCount = currentInquiryUploadCount();
       const visitTime = $("#visitTime").value;

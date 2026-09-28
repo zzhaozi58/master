@@ -90,6 +90,62 @@ test("HTTP 后端可维护客户资料并持久化", async () => {
   }
 });
 
+test("HTTP 后端客户注册需管理员审核后才能提交询价", async () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "jindashi-http-"));
+  const store = createJsonStore(path.join(tempDir, "state.json"));
+  const server = await listen(createHttpServer({ store }));
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
+  const inquiry = {
+    customerId: "c_pending_1",
+    form: {
+      media: { images: ["现场图"], videos: [] },
+      material: "瓷砖",
+      materialOther: "",
+      types: ["缺角"],
+      typeOther: "",
+      woundCount: 1,
+      woundLength: 5,
+      visitTime: "2026-09-27 10:00",
+      durationDays: 1,
+      address: "成都市金牛区注册路 1 号",
+      requestedMasters: { gold: 0, silver: 1, bronze: 0 },
+      customerName: "HTTP 注册客户",
+      wechat: "http_client",
+      phone: "13800006667"
+    }
+  };
+
+  try {
+    await assert.rejects(
+      () => request(baseUrl, "POST", "/customer/inquiries", inquiry),
+      /管理员确认后才能下单/
+    );
+    const registered = await request(baseUrl, "POST", "/customer/register", {
+      customerId: "c_pending_1",
+      profile: {
+        name: "HTTP 注册客户",
+        wechat: "http_client",
+        phone: "13800006667",
+        address: "成都市金牛区注册路 1 号"
+      }
+    });
+    assert.equal(registered.reviewStatus, "待审核");
+    await assert.rejects(
+      () => request(baseUrl, "POST", "/customer/inquiries", inquiry),
+      /管理员确认后才能下单/
+    );
+    const approved = await request(baseUrl, "POST", "/admin/customers/c_pending_1/review", {
+      adminId: "admin_root",
+      approved: true
+    });
+    assert.equal(approved.reviewStatus, "已通过");
+    assert.equal((await request(baseUrl, "POST", "/customer/inquiries", inquiry)).status, "待报价");
+  } finally {
+    await close(server);
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
 test("HTTP 后端拒绝越权和错误角色", async () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "jindashi-http-"));
   const store = createJsonStore(path.join(tempDir, "state.json"));

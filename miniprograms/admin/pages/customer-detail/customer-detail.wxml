@@ -1,6 +1,8 @@
 <view class="page">
   <view class="section">
     <view class="section-title">客户详情</view>
+    <view class="row"><view class="label">审核状态</view><view class="value">{{form.reviewStatus}}</view></view>
+    <view wx:if="{{form.reviewReason}}" class="row"><view class="label">拒绝原因</view><view class="value">{{form.reviewReason}}</view></view>
     <view class="field"><view class="field-label">公司名称 / 用户名字 <text class="required">*</text></view><input class="input" value="{{form.name}}" data-field="name" bindinput="inputField" /></view>
     <view class="field"><view class="field-label">联系人</view><input class="input" value="{{form.contact}}" data-field="contact" bindinput="inputField" /></view>
     <view class="field"><view class="field-label">客户类型</view><input class="input" value="{{form.type}}" data-field="type" bindinput="inputField" /></view>
@@ -10,5 +12,14 @@
     <view class="field"><view class="field-label">客户备注</view><textarea class="textarea" value="{{form.note}}" data-field="note" bindinput="inputField" /></view>
     <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="save">保存客户资料</view>
     <view wx:if="{{message}}" class="toast">{{message}}</view>
+  </view>
+
+  <view wx:if="{{form.reviewStatus === '待审核'}}" class="section">
+    <view class="section-title">客户注册审核</view>
+    <view class="actions">
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="approveCustomer">通过注册</view>
+      <view class="btn {{submitting ? 'btn-disabled' : 'btn-danger'}}" bindtap="rejectCustomer">拒绝注册</view>
+    </view>
+    <view class="field"><view class="field-label">拒绝原因</view><textarea class="textarea" value="{{rejectReason}}" bindinput="inputRejectReason" /></view>
   </view>
 </view>

@@ -78,6 +78,9 @@ function createAdminApi(state, domain) {
       Object.assign(customer, profile);
       return clone(customer);
     },
+    reviewCustomer(customerId, approved, reason = "") {
+      return clone(domain.reviewCustomer(state, customerId, approved, reason, "admin_root"));
+    },
     confirmCustomerPayment(orderId, note = "") {
       return domain.confirmCustomerPayment(state, orderId, "admin_root", note);
     },
@@ -192,6 +195,9 @@ function createRemoteAdminApi(options) {
     },
     updateCustomer(profile) {
       return request.post(`/admin/customers/${profile.id}`, Object.assign({}, identity, { profile }));
+    },
+    reviewCustomer(customerId, approved, reason = "") {
+      return request.post(`/admin/customers/${customerId}/review`, Object.assign({}, identity, { approved, reason }));
     },
     confirmCustomerPayment(orderId, note = "") {
       return request.post(`/admin/orders/${orderId}/confirm-customer-payment`, Object.assign({}, identity, { note }));

@@ -49,6 +49,42 @@ test("客户询价校验并生成待报价订单", () => {
   );
 });
 
+test("客户注册需管理员审核通过后才能提交询价", () => {
+  const state = domain.createInitialState();
+  state.currentCustomerId = "c_pending_1";
+  const form = {
+    media: { images: ["现场图"], videos: [] },
+    material: "瓷砖",
+    materialOther: "",
+    types: ["缺角"],
+    typeOther: "",
+    woundCount: 1,
+    woundLength: 5,
+    repairLevel: "普通",
+    visitTime: "2026-09-26 09:30",
+    durationDays: 1,
+    address: "成都市金牛区一环路 1 号",
+    requestedMasters: { gold: 0, silver: 1, bronze: 0 },
+    customerName: "新客户公司",
+    wechat: "new_client",
+    phone: "13800009998"
+  };
+
+  assert.throws(() => domain.submitInquiry(state, form), /管理员确认后才能下单/);
+  const registered = domain.registerCustomer(state, {
+    name: "新客户公司",
+    wechat: "new_client",
+    phone: "13800009998",
+    address: "成都市金牛区一环路 1 号"
+  });
+  assert.equal(registered.reviewStatus, "待审核");
+  assert.throws(() => domain.submitInquiry(state, form), /管理员确认后才能下单/);
+  assert.throws(() => domain.reviewCustomer(state, "c_pending_1", false, ""), /必须填写原因/);
+  domain.reviewCustomer(state, "c_pending_1", true, "", "admin_root");
+  const order = domain.submitInquiry(state, form);
+  assert.equal(order.status, domain.STATUS.QUOTING);
+});
+
 test("报价必须由客户确认后才能进入待派单", () => {
   const state = domain.createInitialState();
   const quote = domain.submitQuote(state, "JD20260921001", 300, 50, "岩板缺角处理", "admin_root");

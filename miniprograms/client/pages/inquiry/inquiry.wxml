@@ -26,7 +26,21 @@
     </view>
   </view>
 
-  <view class="section">
+  <view wx:if="{{!canSubmitInquiry}}" class="section">
+    <view class="section-title">{{registrationTitle}}</view>
+    <view class="muted">{{registrationHint}}</view>
+    <view wx:if="{{customerProfile.reviewStatus !== '待审核'}}">
+      <view class="field"><view class="field-label">公司名称 / 用户名字 <text class="required">*</text></view><input class="input" value="{{registrationForm.name}}" data-field="name" bindinput="inputRegistrationField" /></view>
+      <view class="field"><view class="field-label">微信号 / 微信昵称 <text class="required">*</text></view><input class="input" value="{{registrationForm.wechat}}" data-field="wechat" bindinput="inputRegistrationField" /></view>
+      <view class="field"><view class="field-label">联系电话 <text class="required">*</text></view><input class="input" type="number" value="{{registrationForm.phone}}" data-field="phone" bindinput="inputRegistrationField" /></view>
+      <view class="field"><view class="field-label">常用上门地址 <text class="required">*</text></view><input class="input" value="{{registrationForm.address}}" data-field="address" bindinput="inputRegistrationField" /></view>
+      <view class="btn {{registering ? 'btn-disabled' : 'btn-primary'}}" bindtap="submitRegistration">提交注册申请</view>
+    </view>
+    <view wx:else class="btn btn-disabled">等待管理员确认</view>
+    <view wx:if="{{message}}" class="toast">{{message}}</view>
+  </view>
+
+  <view wx:if="{{canSubmitInquiry}}" class="section">
     <view class="section-title">维修需求</view>
     <view class="field">
       <view class="field-label">上传图片 / 视频 <text class="required">*</text></view>

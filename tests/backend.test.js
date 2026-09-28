@@ -163,6 +163,42 @@ test("客户和管理员可以通过后端服务维护客户资料", () => {
   assert.equal(audit.after.note, "管理员备注");
 });
 
+test("后端客户注册需管理员审核通过后才能下单", () => {
+  const backend = createBackend();
+  const customer = backend.asCustomer("c_pending_1");
+  const form = {
+    media: { images: ["现场图"], videos: [] },
+    material: "岩板",
+    materialOther: "",
+    types: ["缺角"],
+    typeOther: "",
+    woundCount: 1,
+    woundLength: 5,
+    visitTime: "2026-09-27 10:00",
+    durationDays: 1,
+    address: "成都市金牛区注册路 1 号",
+    requestedMasters: { gold: 0, silver: 1, bronze: 0 },
+    customerName: "注册客户公司",
+    wechat: "registered_client",
+    phone: "13800006666"
+  };
+
+  assert.throws(() => customer.submitInquiry(form), /管理员确认后才能下单/);
+  const registered = customer.register({
+    name: "注册客户公司",
+    wechat: "registered_client",
+    phone: "13800006666",
+    address: "成都市金牛区注册路 1 号"
+  });
+  assert.equal(registered.reviewStatus, "待审核");
+  assert.throws(() => customer.submitInquiry(form), /管理员确认后才能下单/);
+
+  const approved = backend.asAdmin("admin_root").reviewCustomer("c_pending_1", true);
+  assert.equal(approved.reviewStatus, "已通过");
+  assert.equal(customer.submitInquiry(form).status, "待报价");
+  assert(backend.asAdmin("admin_root").auditTrail().some((item) => item.action === "管理员通过客户注册"));
+});
+
 test("订单保留客户提交时的信息快照", () => {
   const backend = createBackend();
   const customer = backend.asCustomer("c_001");

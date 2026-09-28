@@ -18,6 +18,12 @@ const AVAILABILITY_STATUSES = ["未知", "有空", "无空"];
 const AVAILABILITY_SLOTS = ["上午", "下午"];
 const AVAILABILITY_RANK = { "有空": 0, "未知": 1, "无空": 2 };
 const REPAIR_LEVELS = ["简修", "普通", "精修"];
+const CUSTOMER_REVIEW_STATUS = {
+  UNREGISTERED: "待注册",
+  PENDING: "待审核",
+  APPROVED: "已通过",
+  REJECTED: "已拒绝"
+};
 
 function createInitialState() {
   const customers = [
@@ -29,7 +35,13 @@ function createInitialState() {
       wechat: "jinhe_zhou",
       phone: "13800001001",
       address: "成都市金牛区金府路 88 号",
-      note: "长期合作客户"
+      note: "长期合作客户",
+      reviewStatus: CUSTOMER_REVIEW_STATUS.APPROVED,
+      reviewReason: "",
+      reviewedBy: "",
+      reviewedAt: "",
+      registeredAt: "2026-09-21 20:00",
+      updatedAt: "2026-09-21 20:00"
     },
     {
       id: "c_002",
@@ -39,7 +51,29 @@ function createInitialState() {
       wechat: "li_gong_26",
       phone: "13800001002",
       address: "成都市青羊区光华大道 16 号",
-      note: "常有瓷砖与岩板修复"
+      note: "常有瓷砖与岩板修复",
+      reviewStatus: CUSTOMER_REVIEW_STATUS.APPROVED,
+      reviewReason: "",
+      reviewedBy: "",
+      reviewedAt: "",
+      registeredAt: "2026-09-21 20:00",
+      updatedAt: "2026-09-21 20:00"
+    },
+    {
+      id: "c_pending_1",
+      name: "",
+      contact: "",
+      type: "待审核客户",
+      wechat: "",
+      phone: "",
+      address: "",
+      note: "",
+      reviewStatus: CUSTOMER_REVIEW_STATUS.UNREGISTERED,
+      reviewReason: "",
+      reviewedBy: "",
+      reviewedAt: "",
+      registeredAt: "",
+      updatedAt: "2026-09-21 20:00"
     }
   ];
 
@@ -162,6 +196,7 @@ function createInitialState() {
     wechatIdentities: [
       { role: "customer", appid: "client-demo-app", openid: "client-openid-c001", unionid: "union-c001", subjectId: "c_001" },
       { role: "customer", appid: "client-demo-app", openid: "client-openid-c002", unionid: "union-c002", subjectId: "c_002" },
+      { role: "customer", appid: "client-demo-app", openid: "client-openid-pending", unionid: "union-pending", subjectId: "c_pending_1" },
       { role: "master", appid: "master-demo-app", openid: "master-openid-silver1", unionid: "union-master-silver1", subjectId: "m_silver_1" },
       { role: "admin", appid: "admin-demo-app", openid: "admin-openid-root", unionid: "union-admin-root", subjectId: "admin_root" }
     ],
@@ -463,7 +498,8 @@ function toMasterOrder(state, item, masterId) {
 function submitInquiry(state, form) {
   validateInquiry(form);
   const id = `JD${new Date().toISOString().slice(0, 10).replace(/-/g, "")}${String(state.orders.length + 1).padStart(3, "0")}`;
-  const customer = state.customers.find((item) => item.id === state.currentCustomerId);
+  const customer = findById(state.customers, state.currentCustomerId);
+  assert(customer.reviewStatus === CUSTOMER_REVIEW_STATUS.APPROVED, "客户注册需管理员确认后才能下单");
   customer.name = form.customerName;
   customer.wechat = form.wechat;
   customer.phone = form.phone;
@@ -488,6 +524,41 @@ function submitInquiry(state, form) {
   state.orders.unshift(created);
   audit(state, "客户提交询价", id);
   return created;
+}
+
+function registerCustomer(state, profile, actor = state.currentCustomerId) {
+  const customer = findById(state.customers, state.currentCustomerId);
+  validateCustomerProfile(Object.assign({}, customer, profile));
+  const before = auditSnapshot(customer, ["name", "contact", "type", "wechat", "phone", "address", "note", "reviewStatus", "reviewReason", "reviewedBy", "reviewedAt", "registeredAt", "updatedAt"]);
+  const allowed = ["name", "contact", "type", "wechat", "phone", "address", "note"];
+  allowed.forEach((key) => {
+    if (profile[key] != null) customer[key] = profile[key];
+  });
+  customer.type = customer.type || "企业客户";
+  customer.reviewStatus = CUSTOMER_REVIEW_STATUS.PENDING;
+  customer.reviewReason = "";
+  customer.reviewedBy = "";
+  customer.reviewedAt = "";
+  customer.registeredAt = customer.registeredAt || nowText();
+  customer.updatedAt = nowText();
+  audit(state, "客户提交注册申请", customer.id, "", before, auditSnapshot(customer, ["name", "contact", "type", "wechat", "phone", "address", "note", "reviewStatus", "reviewReason", "reviewedBy", "reviewedAt", "registeredAt", "updatedAt"]), actor);
+  enqueueNotification(state, "客户注册待审核", [{ role: "admin", id: "admin_root" }], customer.id, { customerName: customer.name });
+  return customer;
+}
+
+function reviewCustomer(state, customerId, approved, reason = "", actor = "system") {
+  const customer = findById(state.customers, customerId);
+  assert(customer.reviewStatus === CUSTOMER_REVIEW_STATUS.PENDING, "只有待审核客户可以审核");
+  if (!approved) assert(reason && String(reason).trim(), "拒绝客户注册必须填写原因");
+  const before = auditSnapshot(customer, ["reviewStatus", "reviewReason", "reviewedBy", "reviewedAt", "updatedAt"]);
+  customer.reviewStatus = approved ? CUSTOMER_REVIEW_STATUS.APPROVED : CUSTOMER_REVIEW_STATUS.REJECTED;
+  customer.reviewReason = approved ? "" : reason;
+  customer.reviewedBy = actor;
+  customer.reviewedAt = nowText();
+  customer.updatedAt = nowText();
+  audit(state, approved ? "管理员通过客户注册" : "管理员拒绝客户注册", customerId, reason, before, auditSnapshot(customer, ["reviewStatus", "reviewReason", "reviewedBy", "reviewedAt", "updatedAt"]), actor);
+  enqueueNotification(state, approved ? "客户注册已通过" : "客户注册已拒绝", [{ role: "customer", id: customerId }], customerId, { reason });
+  return customer;
 }
 
 function submitQuote(state, orderId, repairFee, visitFee, description, actor = "system") {
@@ -1387,6 +1458,7 @@ function assert(condition, message) {
 
 module.exports = {
   STATUS,
+  CUSTOMER_REVIEW_STATUS,
   createInitialState,
   getClientOrders,
   getAdminOrders,
@@ -1394,6 +1466,8 @@ module.exports = {
   getAdminMaster,
   queryAdminOrders,
   getMasterOrders,
+  registerCustomer,
+  reviewCustomer,
   submitInquiry,
   saveQuoteDraft,
   submitQuote,

@@ -126,6 +126,7 @@ function routeCustomer(backend, method, parts, url, body, authContext) {
   if (method === "GET" && parts[1] === "orders") return api.listOrders();
   if (method === "GET" && parts[1] === "profile") return api.profile();
   if (method === "POST" && parts[1] === "profile") return api.updateProfile(body.profile || body);
+  if (method === "POST" && parts[1] === "register") return api.register(body.profile || body);
   if (method === "POST" && parts[1] === "inquiries") return api.submitInquiry(body.form || body);
   if (method === "POST" && parts[1] === "orders" && parts[3] === "confirm-quote") return api.confirmQuote(parts[2]);
   if (method === "POST" && parts[1] === "orders" && parts[3] === "cancel") return api.requestCancel(parts[2], body.reason);
@@ -184,6 +185,7 @@ function routeAdmin(backend, method, parts, url, body, authContext) {
   if (method === "GET" && parts[1] === "masters") return api.listMasters(url.searchParams.get("filter") || "全部");
   if (method === "POST" && parts[1] === "masters" && parts[3] === "review") return api.reviewMaster(parts[2], !!body.approved, body.reason || "");
   if (method === "POST" && parts[1] === "masters" && parts[3] === "update") return api.updateMasterAdminFields(parts[2], body.fields || body);
+  if (method === "POST" && parts[1] === "customers" && parts[3] === "review") return api.reviewCustomer(parts[2], !!body.approved, body.reason || "");
   if (method === "GET" && parts[1] === "customers" && parts[2]) return api.getCustomer(parts[2]);
   if (method === "POST" && parts[1] === "customers" && parts[2]) return api.updateCustomer(parts[2], body.profile || body);
   if (method === "GET" && parts[1] === "customers-export") return api.exportCustomers();

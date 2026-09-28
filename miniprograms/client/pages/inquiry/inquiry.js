@@ -34,6 +34,17 @@ Page({
       wechat: "jinhe_zhou",
       phone: "13800001001"
     },
+    customerProfile: {},
+    canSubmitInquiry: false,
+    registrationForm: {
+      name: "",
+      wechat: "",
+      phone: "",
+      address: ""
+    },
+    registrationTitle: "注册成为客户",
+    registrationHint: "首次使用需提交客户信息，由管理员确认后才可以下单。",
+    registering: false,
     visitDate: "",
     visitClock: "",
     visitDateLabel: "选择日期",
@@ -45,8 +56,34 @@ Page({
     submitting: false,
     message: ""
   },
-  onLoad() {
+  async onLoad() {
+    await this.loadCustomerProfile();
     this.refreshDerivedState();
+  },
+  async loadCustomerProfile() {
+    const app = getApp();
+    const profile = await app.globalData.api.getProfile();
+    const approved = profile.reviewStatus === "已通过";
+    const rejected = profile.reviewStatus === "已拒绝";
+    const pending = profile.reviewStatus === "待审核";
+    this.setData({
+      customerProfile: profile,
+      canSubmitInquiry: approved,
+      registrationForm: {
+        name: profile.name || "",
+        wechat: profile.wechat || "",
+        phone: profile.phone || "",
+        address: profile.address || ""
+      },
+      registrationTitle: approved ? "已通过客户认证" : rejected ? "注册未通过" : pending ? "注册申请待确认" : "注册成为客户",
+      registrationHint: approved
+        ? "可以提交维修需求，平台报价确认后进入派单。"
+        : rejected
+          ? `管理员驳回原因：${profile.reviewReason || "请补充资料后重新提交。"}`
+          : pending
+            ? "申请已提交，管理员确认后即可下单。"
+            : "首次使用需提交客户信息，由管理员确认后才可以下单。"
+    });
   },
   async addMedia() {
     const app = getApp();
@@ -92,6 +129,28 @@ Page({
   inputField(event) {
     this.setData({ [`form.${event.currentTarget.dataset.field}`]: event.detail.value });
   },
+  inputRegistrationField(event) {
+    this.setData({ [`registrationForm.${event.currentTarget.dataset.field}`]: event.detail.value });
+  },
+  async submitRegistration() {
+    if (this.data.registering || this.data.customerProfile.reviewStatus === "待审核") return;
+    const error = validateRegistration(this.data.registrationForm);
+    if (error) {
+      this.setData({ message: error });
+      return;
+    }
+    const app = getApp();
+    this.setData({ registering: true, message: "" });
+    try {
+      await app.globalData.api.register(this.data.registrationForm);
+      await this.loadCustomerProfile();
+      this.setData({ message: "注册申请已提交，请等待管理员确认。" });
+    } catch (error) {
+      this.setData({ message: error.message });
+    } finally {
+      this.setData({ registering: false });
+    }
+  },
   pickVisitDate(event) {
     this.setData({ visitDate: event.detail.value, visitDateLabel: event.detail.value });
     this.refreshVisitTime();
@@ -132,6 +191,10 @@ Page({
   },
   async submit() {
     if (this.data.submitting) return;
+    if (!this.data.canSubmitInquiry) {
+      this.setData({ message: "客户注册需管理员确认后才能下单。" });
+      return;
+    }
     const app = getApp();
     this.setData({ submitting: true });
     try {
@@ -183,4 +246,12 @@ async function chooseMediaFallback(options) {
     });
   }
   return uploads;
+}
+
+function validateRegistration(form) {
+  if (!form.name || !form.name.trim()) return "公司名称 / 用户名字必填";
+  if (!form.wechat || !form.wechat.trim()) return "微信号 / 微信昵称必填";
+  if (!form.phone || !(/^1\d{10}$/.test(form.phone) || /^0\d{2,3}-?\d{7,8}$/.test(form.phone))) return "联系电话格式不正确";
+  if (!form.address || !form.address.trim()) return "常用上门地址必填";
+  return "";
 }
