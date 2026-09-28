@@ -22,6 +22,7 @@ test("客户询价校验并生成待报价订单", () => {
     typeOther: "烫痕",
     woundCount: 2,
     woundLength: 12,
+    repairLevel: "精修",
     visitTime: "2026-09-26 09:30",
     durationDays: 1,
     address: "成都市金牛区一环路 1 号",
@@ -31,7 +32,21 @@ test("客户询价校验并生成待报价订单", () => {
     phone: "13800009999"
   });
   assert.equal(order.status, domain.STATUS.QUOTING);
+  assert.equal(order.repairLevel, "精修");
   assert.equal(domain.getClientOrders(state)[0].category, "待报价");
+  assert.throws(
+    () => domain.submitInquiry(state, Object.assign({}, order, {
+      media: { images: ["现场图"], videos: [] },
+      material: "木材",
+      types: ["划痕"],
+      repairLevel: "随便修",
+      requestedMasters: { gold: 0, silver: 1, bronze: 0 },
+      customerName: "测试客户",
+      wechat: "test_wechat",
+      phone: "13800009999"
+    })),
+    /期望修复程度/
+  );
 });
 
 test("报价必须由客户确认后才能进入待派单", () => {

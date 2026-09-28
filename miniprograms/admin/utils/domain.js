@@ -17,6 +17,7 @@ const LEVEL_BY_SELECTION_KEY = { gold: "金牌", silver: "银牌", bronze: "铜�
 const AVAILABILITY_STATUSES = ["未知", "有空", "无空"];
 const AVAILABILITY_SLOTS = ["上午", "下午"];
 const AVAILABILITY_RANK = { "有空": 0, "未知": 1, "无空": 2 };
+const REPAIR_LEVELS = ["简修", "普通", "精修"];
 
 function createInitialState() {
   const customers = [
@@ -273,6 +274,7 @@ function order(input) {
     typeOther: "",
     woundCount: 1,
     woundLength: 0,
+    repairLevel: "普通",
     visitTime: "",
     durationDays: 1,
     address: "",
@@ -475,6 +477,7 @@ function submitInquiry(state, form) {
     typeOther: form.typeOther || "",
     woundCount: Number(form.woundCount),
     woundLength: Number(form.woundLength),
+    repairLevel: form.repairLevel || "普通",
     visitTime: form.visitTime,
     durationDays: Number(form.durationDays),
     address: form.address,
@@ -1252,6 +1255,7 @@ function validateInquiry(form) {
   assert(!form.types.includes("其他") || form.typeOther, "其他类型必填");
   assert(Number(form.woundCount) >= 1, "伤口总数至少为 1");
   assert(Number(form.woundLength) >= 0, "伤口总长度不能小于 0");
+  assert(REPAIR_LEVELS.includes(form.repairLevel || "普通"), "期望修复程度无效");
   assert(form.visitTime, "期望上门时间必填");
   assert(Number(form.durationDays) >= 1, "预计工期至少为 1 天");
   assert(form.address, "上门地址必填");

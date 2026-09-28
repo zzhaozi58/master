@@ -63,6 +63,13 @@
     </view>
 
     <view class="field">
+      <view class="field-label">期望修复程度</view>
+      <view class="chip-grid">
+        <view wx:for="{{repairLevels}}" wx:key="*this" data-value="{{item}}" bindtap="chooseRepairLevel" class="chip {{form.repairLevel === item ? 'active' : ''}}">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="field">
       <view class="field-label">期望上门时间 <text class="required">*</text></view>
       <view class="actions">
         <picker mode="date" value="{{visitDate}}" bindchange="pickVisitDate">

@@ -9,6 +9,7 @@ Page({
     services: ["平台报价确认", "按等级匹配师傅", "师傅完工凭证", "客户验收闭环"],
     materials: ["木材", "实木", "瓷砖", "岩板", "大理石", "水磨石", "其他"],
     repairTypeValues: ["划痕", "坑洞", "缺角", "裂缝", "拼缝", "补漆", "其他"],
+    repairLevels: ["简修", "普通", "精修"],
     repairTypes: [],
     levels: [
       { key: "gold", label: "金牌大师" },
@@ -24,6 +25,7 @@ Page({
       typeOther: "",
       woundCount: "",
       woundLength: "",
+      repairLevel: "普通",
       visitTime: "",
       durationDays: "1",
       address: "",
@@ -108,6 +110,9 @@ Page({
   },
   inputTypeOther(event) {
     this.setData({ "form.typeOther": event.detail.value });
+  },
+  chooseRepairLevel(event) {
+    this.setData({ "form.repairLevel": event.currentTarget.dataset.value });
   },
   stepMaster(event) {
     const key = event.currentTarget.dataset.key;

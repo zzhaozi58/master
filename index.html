@@ -1389,6 +1389,15 @@
             </div>
           </div>
 
+          <div class="field" data-field="repairLevel">
+            <label>期望修复程度：</label>
+            <div class="choice-grid" id="repairLevelChoices" role="group" aria-label="期望修复程度">
+              <button class="choice" type="button" data-value="简修">简修</button>
+              <button class="choice active" type="button" data-value="普通">普通</button>
+              <button class="choice" type="button" data-value="精修">精修</button>
+            </div>
+          </div>
+
           <div class="two-col">
             <div class="field" data-field="visitTime">
               <label for="visitTime">期望上门时间</label>
@@ -1785,6 +1794,7 @@
     const state = {
       material: "",
       repairTypes: new Set(),
+      repairLevel: "普通",
       masters: { gold: 0, silver: 0, bronze: 0 },
       activeOrderGroup: "unquoted",
       activeAcceptanceOrder: "JD20260915010",
@@ -2322,6 +2332,13 @@
     $("#materialOther").addEventListener("input", () => setInvalid("material", false));
     $("#typeOther").addEventListener("input", () => setInvalid("repairTypes", false));
 
+    $("#repairLevelChoices").addEventListener("click", (event) => {
+      const btn = event.target.closest(".choice");
+      if (!btn) return;
+      state.repairLevel = btn.dataset.value;
+      $$(".choice", $("#repairLevelChoices")).forEach((item) => item.classList.toggle("active", item === btn));
+    });
+
     $$(".master-row").forEach((row) => {
       row.addEventListener("click", (event) => {
         const btn = event.target.closest("button[data-step]");
@@ -2385,6 +2402,7 @@
       console.log("金大师维修需求", {
         material: materialValue,
         repairTypes: repairTypeValues,
+        repairLevel: state.repairLevel,
         damageCount,
         damageLength,
         visitTime,
