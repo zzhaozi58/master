@@ -55,9 +55,15 @@ JINDASHI_MEDIA_DIR=/var/lib/jindashi/media
 Nginx 负责静态页面和反向代理，`/health`、`/auth`、`/customer`、`/master`、
 `/admin`、`/media` 代理到本地后端 `127.0.0.1:8787`。
 
-`jindashi.cc` 与 `www.jindashi.cc` 的 DNS A 记录已指向服务器 IP，但域名
-正式访问需要先完成腾讯云 ICP 备案或接入备案。备案完成前，域名请求会被腾讯云
-未备案拦截，公网 IP 访问仍可用于验证部署和接口。
+`jindashi.cc` 与 `www.jindashi.cc` 的 DNS A 记录已指向服务器 IP，ICP备案
+通过后域名入口已可访问。可使用以下地址验证部署和接口：
+
+```text
+http://jindashi.cc/
+http://jindashi.cc/health
+http://www.jindashi.cc/
+http://www.jindashi.cc/health
+```
 
 ## 角色参数
 

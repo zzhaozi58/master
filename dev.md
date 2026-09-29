@@ -733,3 +733,11 @@
 - 主要实现：客户实体新增注册审核状态与审核信息；共享领域层新增客户注册、管理员审核和未审核下单拦截；客户端首次本地演示使用待注册客户，价格与服务保障后展示注册入口，审核通过前隐藏维修需求表单；管理端客户详情新增通过 / 拒绝客户注册；HTTP、本地小程序 API 和远程 API 同步注册审核接口。静态客户端原型点击提交注册后模拟 5 秒审核通过并切到维修需求，刷新后回到未注册首屏。PRD 同步补充微信登录、客户准入、管理端审核和状态触发规则。
 - 重要边界：微信登录只识别 `openid` / `unionid`，不等于客户资格；注册申请进入待审核，不自动创建订单；刷新静态原型不持久化已注册状态。
 - 验证：`npm run verify` 通过，覆盖领域层、后端服务、本地/远程小程序 API、HTTP 接口、共享 domain 同步和小程序静态检查。
+
+## 2026-09-29 备案后部署验证
+
+- 任务：ICP备案通过后继续部署和验证线上入口。
+- 主要实现：使用 Vercel CLI 将当前仓库根目录部署到生产环境，关闭该 Vercel 项目的 SSO 部署保护，公开访问最新三端静态原型；`.vercel/` 已加入 `.gitignore`。更新 README 和后端部署说明，记录 `jindashi.cc` / `www.jindashi.cc` 备案后域名健康检查已可访问。
+- 线上结果：Vercel 生产地址 `https://referenced-chatgpt-conversation-this-is-lv4n6jk8w.vercel.app/`、`/admin.html`、`/master.html` 均返回 200，并能检索到最新客户注册审核、管理端款项和师傅端金额字段。腾讯云域名 `http://jindashi.cc/health` 与 `http://www.jindashi.cc/health` 均返回 `{"ok":true,"data":{"status":"ok"}}`。
+- 未完成事项：腾讯云服务器 `/opt/jindashi/app` 尚未拉取最新 GitHub 版本；当前本机 SSH key 对 `root`、`ubuntu`、`lighthouse`、`zhanghao` 均被服务器拒绝，无法执行 `git pull` 与 `systemctl restart jindashi.service`。需要提供可用 SSH 用户 / 密钥 / 密码登录方式后再更新 `jindashi.cc` 正式服务器内容。
+- 验证：`curl -I` 验证 Vercel 三端页面 200；`curl` 关键字检索验证 Vercel 页面包含最新原型内容；`curl` 验证腾讯云域名健康检查 200。

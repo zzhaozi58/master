@@ -27,8 +27,8 @@ npm run verify
 - 腾讯云轻量应用服务器：`106.53.200.63`
 - HTTP 健康检查：`http://106.53.200.63/health`
 - 原型首页：`http://106.53.200.63/`
+- 备用静态原型部署：`https://referenced-chatgpt-conversation-this-is-lv4n6jk8w.vercel.app/`
 
 `jindashi.cc` 和 `www.jindashi.cc` 已在腾讯云 DNSPod 添加 A 记录并指向
-`106.53.200.63`。由于该服务器位于腾讯云中国内地地域，域名访问需要先完成
-ICP 备案或接入备案；备案完成前，公网 IP 可用于部署验证，域名访问会被腾讯云
-未备案拦截页面阻断。
+`106.53.200.63`，ICP备案通过后域名入口已可访问，`http://jindashi.cc/health`
+和 `http://www.jindashi.cc/health` 可用于验证后端健康状态。

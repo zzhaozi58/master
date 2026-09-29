@@ -16,3 +16,4 @@ outputs/.vercel/
 # Logs and temporary files
 *.log
 *.tmp
+.vercel
