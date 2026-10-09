@@ -59,6 +59,7 @@ test("媒体上传可生成私有媒体记录并用于询价订单", async () =>
     assert.equal(order.media.images[0].id, media.id);
     await admin.submitQuote(order.id, { repairFee: 300, visitFee: 50, description: "媒体权限报价" });
     await client.confirmQuote(order.id);
+    await admin.confirmCustomerPayment(order.id);
     await admin.dispatch(order.id, { silver: ["m_silver_1"] });
     const masterRead = await fetchMedia(fixture.baseUrl, `${media.url}?ownerRole=master&masterId=m_silver_1`);
     assert.equal(Buffer.from(await masterRead.arrayBuffer()).toString("utf8"), "customer site image");
@@ -84,6 +85,7 @@ test("师傅完工凭证可使用上传后的图片和视频媒体对象", async
   try {
     await admin.submitQuote("JD20260921001", { repairFee: 300, visitFee: 50, description: "媒体测试报价" });
     await client.confirmQuote("JD20260921001");
+    await admin.confirmCustomerPayment("JD20260921001");
     await admin.dispatch("JD20260921001", { silver: ["m_silver_1"] });
     await master.appoint("JD20260921001");
     await master.checkIn("JD20260921001", { ok: false, reason: "测试无定位" });

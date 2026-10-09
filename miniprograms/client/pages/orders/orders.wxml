@@ -15,6 +15,13 @@
     <view wx:if="{{activeTab !== '已完成'}}" class="row"><view class="label">上门时间</view><view class="value">{{item.visitTime}}</view></view>
     <view wx:if="{{activeTab !== '已完成'}}" class="row"><view class="label">服务师傅</view><view class="value">{{item.masters}}</view></view>
     <view class="row"><view class="label">订单金额</view><view class="value">{{item.orderAmountText}}</view></view>
+    <view wx:if="{{activeTab === '待付款'}}" class="section payment-section">
+      <view class="section-title">扫码付款</view>
+      <view class="row"><view class="label">应付金额</view><view class="value">{{item.orderAmountText}}</view></view>
+      <image class="payment-qr" src="/assets/wechat-payment-qr.jpg" mode="aspectFit" />
+      <view class="muted">请使用微信扫码支付订单金额；支付后联系平台，管理员确认到账后订单进入待派单。</view>
+      <view class="btn btn-secondary" bindtap="callService">我已支付，联系确认</view>
+    </view>
     <view wx:if="{{activeTab === '已完成'}}" class="row"><view class="label">付款状态</view><view class="value">{{item.customerPaymentStatus}}</view></view>
     <view wx:if="{{activeTab === '待确认报价'}}" class="section">
       <view class="row"><view class="label">维修报价</view><view class="value">¥{{item.quote.repairFee}}</view></view>

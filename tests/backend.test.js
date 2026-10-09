@@ -29,6 +29,7 @@ test("三端经由同一后端推进报价、派单、预约、完工和验收",
 
   admin.submitQuote("JD20260921001", { repairFee: 300, visitFee: 50, description: "岩板缺角修复" });
   customer.confirmQuote("JD20260921001");
+  admin.confirmCustomerPayment("JD20260921001");
   admin.dispatch("JD20260921001", { silver: ["m_silver_1"] });
 
   const silver = backend.asMaster("m_silver_1");

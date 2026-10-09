@@ -1,4 +1,4 @@
-const tabs = ["待报价", "待确认报价", "待派单", "施工中", "待验收", "已完成"];
+const tabs = ["待报价", "待确认报价", "待付款", "待派单", "施工中", "待验收", "已完成"];
 
 Page({
   data: {
@@ -29,7 +29,7 @@ Page({
     this.setData({ submitting: true });
     try {
       await app.globalData.api.confirmQuote(event.currentTarget.dataset.id);
-      this.setData({ activeTab: "待派单", message: "报价已确认，等待平台派单。" });
+      this.setData({ activeTab: "待付款", message: "报价已确认，请扫码付款，管理员确认到账后进入派单。" });
       this.refresh();
     } finally {
       this.setData({ submitting: false });

@@ -30,6 +30,7 @@ test("HTTP 后端可通过真实请求推进跨端主流程并持久化", async 
       quote: { repairFee: 300, visitFee: 50, description: "HTTP 报价" }
     });
     await request(baseUrl, "POST", "/customer/orders/JD20260921001/confirm-quote", { customerId: "c_001" });
+    await request(baseUrl, "POST", "/admin/orders/JD20260921001/confirm-customer-payment", { adminId: "admin_root" });
     await request(baseUrl, "POST", "/admin/orders/JD20260921001/dispatch", {
       adminId: "admin_root",
       selections: { silver: ["m_silver_1"] },

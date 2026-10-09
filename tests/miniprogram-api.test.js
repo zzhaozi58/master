@@ -95,6 +95,7 @@ test("管理端 API 包装能报价派单并读取待施工", () => {
   assert.equal(submitted.orderId, "JD20260921001");
   assert.equal(submitted.submittedBy, "admin_root");
   adminDomain.confirmQuote(state, "JD20260921001");
+  api.confirmCustomerPayment("JD20260921001");
   const dispatchDraft = api.saveDispatchDraft("JD20260921001", { silver: [] });
   assert.equal(dispatchDraft.status, adminDomain.STATUS.DISPATCHING);
   const reminder = api.remindAcceptance("JD20260921005");

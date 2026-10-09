@@ -85,7 +85,7 @@ test("客户注册需管理员审核通过后才能提交询价", () => {
   assert.equal(order.status, domain.STATUS.QUOTING);
 });
 
-test("报价必须由客户确认后才能进入待派单", () => {
+test("报价必须由客户付款后才能进入待派单", () => {
   const state = domain.createInitialState();
   const quote = domain.submitQuote(state, "JD20260921001", 300, 50, "岩板缺角处理", "admin_root");
   assert.equal(quote.orderId, "JD20260921001");
@@ -93,14 +93,19 @@ test("报价必须由客户确认后才能进入待派单", () => {
   assert.equal(quote.submittedBy, "admin_root");
   assert.equal(domain.getAdminOrders(state, "待报价").find((item) => item.id === "JD20260921001").status, domain.STATUS.QUOTE_CONFIRMING);
   const order = domain.confirmQuote(state, "JD20260921001");
-  assert.equal(order.status, domain.STATUS.DISPATCHING);
+  assert.equal(order.status, domain.STATUS.PAYING);
   assert.equal(order.orderAmount, 350);
   assert.equal(order.quote.totalCents, 35000);
   assert.equal(order.orderAmountCents, 35000);
+  assert.throws(() => domain.dispatchOrder(state, "JD20260921001", { silver: ["m_silver_1"] }), /只有待派单订单/);
+  const paid = domain.confirmCustomerPayment(state, "JD20260921001", "admin_root");
+  assert.equal(paid.status, domain.STATUS.DISPATCHING);
+  assert.equal(domain.getAdminOrders(state, "待派单").find((item) => item.id === order.id).paymentStatus, "客户已付款");
   assert(order.statusTimes[domain.STATUS.QUOTING]);
   assert(order.statusTimes[domain.STATUS.QUOTE_CONFIRMING]);
+  assert(order.statusTimes[domain.STATUS.PAYING]);
   assert(order.statusTimes[domain.STATUS.DISPATCHING]);
-  assert.equal(domain.getAdminOrders(state).find((item) => item.id === order.id).statusTimes[domain.STATUS.DISPATCHING], order.statusTimes[domain.STATUS.DISPATCHING]);
+  assert.equal(domain.getAdminOrders(state).find((item) => item.id === order.id).statusTimes[domain.STATUS.DISPATCHING], paid.statusTimes[domain.STATUS.DISPATCHING]);
 });
 
 test("修改已提交报价会作废旧版本且客户只能确认最新报价", () => {
@@ -115,6 +120,7 @@ test("修改已提交报价会作废旧版本且客户只能确认最新报价",
   assert.equal(order.quoteHistory[0].status, "已作废");
   assert.equal(order.quoteHistory[1].status, "已确认");
   assert.equal(order.orderAmount, 410);
+  assert.equal(order.status, domain.STATUS.PAYING);
 });
 
 test("报价草稿只留管理端记录且不改变订单状态", () => {
@@ -138,13 +144,15 @@ test("关键状态变更生成通知且失败通知可重试", () => {
   const state = domain.createInitialState();
   domain.submitQuote(state, "JD20260921001", 300, 50, "报价通知");
   domain.confirmQuote(state, "JD20260921001");
+  domain.confirmCustomerPayment(state, "JD20260921001");
   domain.dispatchOrder(state, "JD20260921001", { silver: ["m_silver_1"] });
   const reminder = domain.remindAcceptance(state, "JD20260921005");
   assert.equal(reminder.event, "提醒客户验收");
   assert.throws(() => domain.remindAcceptance(state, "JD20260921003"), /只有待验收订单/);
   const events = domain.listNotifications(state).map((item) => item.event);
   assert(events.includes("报价待确认"));
-  assert(events.includes("客户已确认报价"));
+  assert(events.includes("客户已确认报价待收款"));
+  assert(events.includes("客户已付款待派单"));
   assert(events.includes("订单已派单"));
   assert(events.includes("提醒客户验收"));
 
@@ -235,6 +243,7 @@ test("到场打卡保存定位成功详情或失败原因", () => {
 
   domain.submitQuote(state, "JD20260921001", 300, 50, "定位失败测试报价");
   domain.confirmQuote(state, "JD20260921001");
+  domain.confirmCustomerPayment(state, "JD20260921001");
   domain.dispatchOrder(state, "JD20260921001", { silver: ["m_silver_1"] });
   domain.appointOrder(state, "JD20260921001", "m_silver_1");
   domain.checkInOrder(state, "JD20260921001", "m_silver_1", { ok: false, reason: "用户拒绝定位授权" });

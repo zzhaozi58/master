@@ -1,4 +1,4 @@
-const tabs = ["待报价", "待派单", "待施工", "施工中", "待验收", "已验收"];
+const tabs = ["待报价", "待收款", "待派单", "待施工", "施工中", "待验收", "已验收"];
 
 Page({
   data: { activeTab: "待报价", tabs: [], orders: [], keyword: "", page: 1, pageSize: 5, hasMore: false, total: 0 },

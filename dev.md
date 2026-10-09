@@ -741,3 +741,10 @@
 - 线上结果：Vercel 生产地址 `https://referenced-chatgpt-conversation-this-is-lv4n6jk8w.vercel.app/`、`/admin.html`、`/master.html` 均返回 200，并能检索到最新客户注册审核、管理端款项和师傅端金额字段。腾讯云正式域名 `http://jindashi.cc/`、`http://www.jindashi.cc/`、`/admin.html`、`/master.html` 和 `/health` 均可访问，并能检索到最新客户注册审核、管理端款项和师傅端金额字段。
 - 重要边界：服务器 `git status` 显示相对 `origin/main` ahead，是因为服务器无法从 GitHub Git 端点 fetch 更新远端引用；工作树实际已通过 bundle 更新到 `a92f3ce`。后续如服务器 GitHub 连接仍不稳定，可继续使用 bundle 部署，或配置可访问的镜像 / 代理。
 - 验证：服务器端 `npm run verify` 通过；`systemctl is-active jindashi.service` 为 `active`；服务器内侧 `127.0.0.1:8787/health` 和 Nginx `127.0.0.1/health` 返回健康状态；公网 `jindashi.cc` 与 `www.jindashi.cc` 健康检查和三端关键内容检索通过。
+
+## 2026-09-30 客户付款后才能派单
+
+- 任务：客户下单后，管理员确认报价后必须先完成客户付款确认，订单才能真正派给师傅。
+- 主要实现：统一状态机新增 `待付款`，客户端映射为“待付款”，管理端映射为“待收款”；客户确认报价后只进入待付款并生成客户收款记录，管理员点击“确认已从客户收款”后才进入待派单。管理端派单接口仍只允许待派单订单，防止绕过付款直接派单。客户端订单页展示平台微信收款码和付款说明，管理端订单页 / 详情页展示待收款状态和确认收款按钮；静态 `index.html`、`admin.html` 同步更新演示流程。三端共享 domain 副本已同步。
+- 重要边界：当前 MVP 使用收款码 + 管理员人工核对，不接入微信支付商户 API、自动到账识别或自动分账；系统内“支付成功”以管理员确认收款为准。
+- 验证：`npm run verify` 通过，覆盖领域层、后端服务、本地 / 远程小程序 API、HTTP 接口、共享 domain 同步和小程序静态检查。

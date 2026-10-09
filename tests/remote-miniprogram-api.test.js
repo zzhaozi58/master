@@ -27,6 +27,7 @@ test("三端远程 API 可通过 HTTP 后端推进订单主流程", async () => 
     assert.equal(reminder.event, "提醒客户验收");
     await admin.submitQuote("JD20260921001", { repairFee: 320, visitFee: 50, description: "远程 API 报价" });
     await client.confirmQuote("JD20260921001");
+    await admin.confirmCustomerPayment("JD20260921001");
     const dispatchDraft = await admin.saveDispatchDraft("JD20260921001", { silver: [] });
     assert.equal(dispatchDraft.status, "待派单");
     await admin.dispatch("JD20260921001", { silver: ["m_silver_1"] });
@@ -137,6 +138,7 @@ test("三端远程 API 可使用登录 token 而不是前端业务 ID", async ()
 
     await admin.submitQuote("JD20260921001", { repairFee: 330, visitFee: 50, description: "token 报价" });
     await client.confirmQuote("JD20260921001");
+    await admin.confirmCustomerPayment("JD20260921001");
     await admin.dispatch("JD20260921001", { silver: ["m_silver_1"] });
     await master.appoint("JD20260921001");
     assert((await master.listOrders()).some((order) => order.id === "JD20260921001"));

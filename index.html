@@ -806,8 +806,26 @@
     }
 
     .client-order-card .quote-confirm-card,
+    .client-order-card .payment-box,
     .client-order-card .empty-state {
       margin-top: 12px;
+    }
+
+    .payment-box {
+      padding: 12px;
+      border: 1px solid rgba(0, 85, 54, .16);
+      border-radius: var(--radius);
+      background: #f7fbf8;
+    }
+
+    .payment-qr {
+      display: block;
+      width: 180px;
+      height: 180px;
+      object-fit: contain;
+      margin: 12px auto;
+      border-radius: 10px;
+      background: #fff;
     }
 
     .completed-order-item {
@@ -1821,6 +1839,7 @@
     const orderGroups = [
       { key: "unquoted", label: "待报价", types: ["unquoted"] },
       { key: "quote", label: "待确认报价", types: ["quote"] },
+      { key: "payment", label: "待付款", types: ["payment"] },
       { key: "dispatch", label: "待派单", types: ["dispatch"] },
       { key: "progress", label: "施工中", types: ["progress", "rework"] },
       { key: "acceptance", label: "待验收", types: ["acceptance"] },
@@ -2055,6 +2074,17 @@
       if (order.type === "dispatch") {
         return `<div class="empty-state">报价已确认，平台正在联系符合等级与时间要求的师傅。</div>`;
       }
+      if (order.type === "payment") {
+        return `
+          <div class="payment-box">
+            <div class="mini-row"><span>应付金额</span><strong>${clientOrderAmount(order)}</strong></div>
+            <img class="payment-qr" src="assets/wechat-payment-qr.jpg" alt="微信收款码">
+            <p class="muted">请使用微信扫码支付订单金额；支付后联系平台，管理员确认到账后订单进入待派单。</p>
+            <div class="order-actions single">
+              <button class="inline-submit" type="button" data-order-action="contactService" data-order-no="${orderNo}">我已支付，联系确认</button>
+            </div>
+          </div>`;
+      }
       if (order.type === "progress" || order.type === "rework") {
         return `
           <div class="order-actions">
@@ -2221,16 +2251,16 @@
         showToast("已打开报价沟通入口，订单仍等待确认。");
       }
       if (button.dataset.orderAction === "quoteConfirm") {
-        order.type = "dispatch";
+        order.type = "payment";
         order.orderAmount = Number(order.quoteFee || 0) + Number(order.visitFee || 0);
-        order.statusLabel = "待派单";
-        order.tagClass = "done";
-        order.status = "报价已确认，平台正在安排银牌大师 1 位";
-        order.serviceMaster = "银牌大师 1 位（待派单）";
-        state.activeOrderGroup = "dispatch";
-        $("#historyQuoteStatus").textContent = "待派单";
+        order.statusLabel = "待付款";
+        order.tagClass = "";
+        order.status = "报价已确认，请扫码付款，等待平台确认到账";
+        order.serviceMaster = "银牌大师 1 位（付款后派单）";
+        state.activeOrderGroup = "payment";
+        $("#historyQuoteStatus").textContent = "待付款";
         $("#historyQuoteStatus").className = "status-tag done";
-        showToast("报价已确认，平台将按银牌大师 1 位进行派单。");
+        showToast("报价已确认，请扫码付款，管理员确认到账后进入派单。");
         console.log("金大师报价确认", { orderNo, result: "confirmed" });
         renderClientOrders();
       }

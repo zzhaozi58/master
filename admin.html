@@ -481,6 +481,16 @@
       font-size: 12px;
     }
 
+    .payment-qr {
+      display: block;
+      width: 180px;
+      height: 180px;
+      object-fit: contain;
+      margin: 8px auto;
+      border-radius: 10px;
+      background: #fff;
+    }
+
     .master-select-list {
       display: grid;
       gap: 10px;
@@ -859,6 +869,7 @@
       <main>
         <div class="stats">
           <button class="stat active" type="button" data-stat-filter="quote"><span>待报价</span><strong id="statQuote">0</strong></button>
+          <button class="stat" type="button" data-stat-filter="payment"><span>待收款</span><strong id="statPayment">0</strong></button>
           <button class="stat" type="button" data-stat-filter="dispatch"><span>待派单</span><strong id="statDispatch">0</strong></button>
           <button class="stat" type="button" data-stat-filter="progress"><span>施工中</span><strong id="statProgress">0</strong></button>
           <button class="stat" type="button" data-stat-filter="acceptance"><span>待验收</span><strong id="statAcceptance">0</strong></button>
@@ -1148,6 +1159,7 @@
     const orders = [
       { no: "JD20260915009", customer: "成都某家具厂", contact: "张先生", wechat: "jindashi_client", phone: "13800138000", address: "成都市武侯区科华南路 88 号", material: "木材", types: ["浅表划痕"], damageCount: 3, damageLength: 12, time: "2026-09-17 10:00", duration: 1, masterRequest: { gold: 0, silver: 1, bronze: 0 }, status: "待客户确认", filter: "quote", quoteState: "awaitingCustomer", quoteAmount: 150, visitFee: 50, quoteNote: "浅表划痕按 3 处计价。" },
       { no: "JD20260914001", customer: "成都某家具厂", contact: "张先生", wechat: "wx_demo", phone: "13800138000", address: "成都市高新区天府三街 66 号", material: "木材", types: ["划痕", "补漆"], damageCount: 3, damageLength: 15, time: "2026-09-16 10:00", duration: 2, masterRequest: { gold: 0, silver: 1, bronze: 0 }, status: "待报价", filter: "quote", quoteState: "needsQuote", quoteAmount: "", visitFee: 50, quoteNote: "按客户上传资料初步定损，最终以现场确认损伤深度、纹理和色差为准。" },
+      { no: "JD20260913006", customer: "成都某木门厂", contact: "罗经理", wechat: "door_luo", phone: "13900139006", address: "成都市武侯区簇桥 28 号", material: "实木", types: ["坑洞", "补漆"], damageCount: 2, damageLength: 10, time: "2026-09-15 13:30", duration: 1, masterRequest: { gold: 0, silver: 1, bronze: 0 }, status: "待收款", filter: "payment", quoteAmount: 430, visitFee: 50, orderAmount: 480, receivableAmount: 480, receivedAmount: 0, quoteNote: "客户已确认报价，待核对收款码到账。" },
       { no: "JD20260912002", customer: "成都某建材门店", contact: "刘女士", wechat: "stone_store", phone: "13900139000", address: "成都市金牛区金府路 18 号", material: "岩板", types: ["缺角", "坑洞"], damageCount: 1, damageLength: 8, time: "2026-09-14 14:00", duration: 1, masterRequest: { gold: 2, silver: 0, bronze: 0 }, selectedMasters: { gold: [], silver: [], bronze: [] }, status: "待派单", filter: "dispatch", quoteAmount: 810, visitFee: 50, orderAmount: 860 },
       { no: "JD20260911005", customer: "品牌售后团队", contact: "售后主管", wechat: "after_sales", phone: "13700137000", address: "成都市锦江区东大街 120 号", material: "大理石", types: ["裂缝", "拼缝"], damageCount: 2, damageLength: 34, time: "2026-09-13 10:30", duration: 2, masterRequest: { gold: 0, silver: 2, bronze: 0 }, selectedMasters: { gold: [], silver: ["李建军", "周海峰"], bronze: [] }, status: "施工中", filter: "progress", orderAmount: 620, progressNote: "师傅已到场，正在进行裂缝填补与纹理复原。" },
       { no: "JD20260910008", customer: "物业工程部", contact: "周经理", wechat: "property_fix", phone: "13600136000", address: "成都市成华区建设南路 9 号", material: "水磨石", types: ["其他：表面翻新"], damageCount: 4, damageLength: 0, time: "2026-09-17 09:00", duration: 3, masterRequest: { gold: 0, silver: 0, bronze: 1 }, status: "待报价", filter: "quote", quoteState: "needsQuote", quoteAmount: "", visitFee: 50, quoteNote: "需结合现场面积和工艺确认最终报价。" },
@@ -1185,13 +1197,14 @@
     }
 
     function statusClass(status) {
-      if (status === "待报价" || status === "待客户确认" || status === "待派单") return "warn";
+      if (status === "待报价" || status === "待客户确认" || status === "待收款" || status === "待派单") return "warn";
       if (status === "待验收") return "danger";
       return "";
     }
 
     const stageMeta = {
       quote: { status: "待报价", cardAction: "去报价", title: "提交维修报价", note: "核对客户资料，填写金额后提交给客户确认。" },
+      payment: { status: "待收款", cardAction: "确认收款", title: "确认客户付款", note: "客户已确认报价，核对收款码到账后才能进入派单。" },
       dispatch: { status: "待派单", cardAction: "去派单", title: "选择施工师傅", note: "按客户已确认的金、银、铜人数，在对应分类中选择具体师傅。" },
       progress: { status: "施工中", cardAction: "跟进施工", title: "更新施工进度", note: "跟进师傅施工情况，完工后发起客户验收。" },
       acceptance: { status: "待验收", cardAction: "查看验收", title: "客户验收进度", note: "施工已完成，等待客户在小程序确认验收结果。" },
@@ -1569,6 +1582,7 @@
 
     function renderStats() {
       $("#statQuote").textContent = orders.filter((order) => order.filter === "quote").length;
+      $("#statPayment").textContent = orders.filter((order) => order.filter === "payment").length;
       $("#statDispatch").textContent = orders.filter((order) => order.filter === "dispatch").length;
       $("#statProgress").textContent = orders.filter((order) => order.filter === "progress").length;
       $("#statAcceptance").textContent = orders.filter((order) => order.filter === "acceptance").length;
@@ -1600,6 +1614,7 @@
             <div class="mini-row"><span>伤口</span><strong>${order.damageCount} 处 / ${order.damageLength} 厘米</strong></div>
             <div class="mini-row"><span>订单金额</span><strong>${orderAmountLabel(order)}</strong></div>
             <div class="mini-row"><span>师傅金额</span><strong>${masterAmountLabel(order)}</strong></div>
+            ${order.filter === "payment" ? `<div class="mini-row"><span>收款状态</span><strong>待确认客户付款</strong></div>` : ""}
             ${order.filter === "settled" ? `<div class="mini-row"><span>款项状态</span><strong>${paymentStateLabel(order)}</strong></div>` : ""}
             <div class="mini-row"><span>客户确认师傅</span><strong>${masterRequestSummary(order)}</strong></div>
           </div>
@@ -1678,7 +1693,7 @@
             <div class="mini-row"><span>订单金额</span><strong>${total} 元（待客户确认）</strong></div>
             <div class="mini-row"><span>师傅金额</span><strong>${masterAmountLabel(order)}</strong></div>
               <div class="mini-row"><span>报价说明</span><strong>${order.quoteNote || "-"}</strong></div>
-              <p class="workflow-hint">客户在用户端确认后，正式系统自动把订单移入“待派单”。</p>
+              <p class="workflow-hint">客户在用户端确认后，正式系统自动把订单移入“待收款”，管理员确认到账后才可派单。</p>
             </div>
             <div class="actions">
               <button class="btn" type="button" data-workflow-action="editQuote">修改报价</button>
@@ -1708,6 +1723,19 @@
               </div>
             </form>`;
         }
+      } else if (order.filter === "payment") {
+        $("#workflowBody").innerHTML = `
+          <div class="workflow-summary">
+            <div class="mini-row"><span>订单金额</span><strong>${orderAmountLabel(order)}</strong></div>
+            <div class="mini-row"><span>师傅金额</span><strong>${masterAmountLabel(order)}</strong></div>
+            <div class="mini-row"><span>收款状态</span><strong>待确认客户付款</strong></div>
+            <div class="mini-row"><span>客户</span><strong>${order.customer} · ${order.contact}</strong></div>
+            <img class="payment-qr" src="assets/wechat-payment-qr.jpg" alt="微信收款码">
+            <p class="workflow-hint">客户使用收款码付款后，管理员核对实际到账，再点击确认。确认后订单进入“待派单”。</p>
+          </div>
+          <div class="actions">
+            <button class="btn primary" type="button" data-workflow-action="confirmPreDispatchPayment">确认已从客户收款</button>
+          </div>`;
       } else if (order.filter === "dispatch") {
         $("#workflowBody").innerHTML = `
           <div class="workflow-summary">
@@ -1888,6 +1916,13 @@
 
       const remindQuote = $("[data-workflow-action='remindQuote']");
       if (remindQuote) remindQuote.addEventListener("click", () => showToast("已向客户发送报价确认提醒。"));
+
+      const confirmPreDispatchPayment = $("[data-workflow-action='confirmPreDispatchPayment']");
+      if (confirmPreDispatchPayment) confirmPreDispatchPayment.addEventListener("click", () => {
+        order.receivableAmount = Number(order.orderAmount || 0);
+        order.receivedAmount = order.receivableAmount;
+        advanceOrder(order, "dispatch", "已确认客户收款，订单进入待派单。");
+      });
 
       const saveDispatch = $("[data-workflow-action='saveDispatch']");
       if (saveDispatch) saveDispatch.addEventListener("click", () => {

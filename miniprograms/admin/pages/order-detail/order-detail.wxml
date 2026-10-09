@@ -38,6 +38,15 @@
     </view>
   </view>
 
+  <view wx:if="{{order.status === '待付款'}}" class="section">
+    <view class="section-title">客户收款确认</view>
+    <view class="row"><view class="label">订单金额</view><view class="value">{{order.orderAmountText}}</view></view>
+    <view class="row"><view class="label">收款状态</view><view class="value">{{order.paymentStatus}}</view></view>
+    <image class="payment-qr" src="/assets/wechat-payment-qr.jpg" mode="aspectFit" />
+    <view class="muted">客户扫码付款后，管理员核对到账再确认。确认后订单进入待派单。</view>
+    <view class="btn {{submitting ? 'btn-disabled' : 'btn-primary'}}" bindtap="confirmCustomerPayment">确认已从客户收款</view>
+  </view>
+
   <view wx:if="{{order.status === '待派单'}}" class="section">
     <view class="section-title">选择施工师傅</view>
     <view class="muted">按客户确认等级人数选择，确认前请拨打电话。</view>

@@ -1,6 +1,7 @@
 const STATUS = {
   QUOTING: "待报价",
   QUOTE_CONFIRMING: "待客户确认报价",
+  PAYING: "待付款",
   DISPATCHING: "待派单",
   APPOINTING: "待预约",
   APPOINTED: "已预约",
@@ -129,7 +130,8 @@ function createInitialState() {
       address: "成都市金牛区金府路 88 号",
       requestedMasters: { gold: 1, silver: 0, bronze: 1 },
       quote: quote("JD20260921003", 1, 680, 50, "木饰面多处划痕补色。", "已确认"),
-      orderAmount: 730
+      orderAmount: 730,
+      payments: { customerPaid: 730, customerPaidCents: 73000 }
     }),
     order({
       id: "JD20260921004",
@@ -145,6 +147,7 @@ function createInitialState() {
       requestedMasters: { gold: 0, silver: 1, bronze: 0 },
       quote: quote("JD20260921004", 1, 240, 50, "大理石缺角修复。", "已确认"),
       orderAmount: 290,
+      payments: { customerPaid: 290, customerPaidCents: 29000 },
       assignments: [assignment("JD20260921004", "m_silver_1", "银牌", 261)]
     }),
     order({
@@ -161,6 +164,7 @@ function createInitialState() {
       requestedMasters: { gold: 0, silver: 1, bronze: 0 },
       quote: quote("JD20260921005", 1, 320, 50, "瓷砖缺角及拼缝处理。", "已确认"),
       orderAmount: 370,
+      payments: { customerPaid: 370, customerPaidCents: 37000 },
       assignments: [assignment("JD20260921005", "m_silver_1", "银牌", 333, "已打卡")],
       cycles: [cycle("JD20260921005", 1, ["完工图 1", "完工图 2"], ["完工视频 1"], "已完成缺角补色和拼缝压平，边缘已做抛光。")]
     }),
@@ -180,7 +184,7 @@ function createInitialState() {
       orderAmount: 530,
       assignments: [assignment("JD20260921006", "m_gold_1", "金牌", 477, "已完工", 477)],
       cycles: [cycle("JD20260921006", 1, ["完工图 1"], ["完工视频 1"], "表面已补平并完成同色处理。", "通过")],
-      payments: { customerPaid: 0, masterPaid: { m_gold_1: 477 } }
+      payments: { customerPaid: 530, customerPaidCents: 53000, masterPaid: { m_gold_1: 477 } }
     })
   ];
   orders.forEach((item) => {
@@ -598,15 +602,16 @@ function confirmQuote(state, orderId, actor = "system") {
   const item = orderById(state, orderId);
   assert(item.status === STATUS.QUOTE_CONFIRMING, "当前订单不在待客户确认报价状态");
   assert(item.quote && item.quote.status === "待客户确认", "没有可确认的最新报价");
-  const before = auditSnapshot(item, ["status", "quote", "orderAmount", "orderAmountCents"]);
+  const before = auditSnapshot(item, ["status", "quote", "orderAmount", "orderAmountCents", "payments"]);
   item.quote.status = "已确认";
   item.quote.confirmedAt = nowText();
   item.orderAmount = item.quote.total;
   item.orderAmountCents = item.quote.totalCents;
-  setOrderStatus(item, STATUS.DISPATCHING);
+  ensureCustomerPaymentRecord(state, item);
+  setOrderStatus(item, STATUS.PAYING);
   touch(item);
-  audit(state, "客户确认报价", orderId, "", before, auditSnapshot(item, ["status", "quote", "orderAmount", "orderAmountCents"]), actor);
-  enqueueNotification(state, "客户已确认报价", [{ role: "admin", id: "admin_root" }], orderId, { total: item.orderAmount, totalCents: item.orderAmountCents });
+  audit(state, "客户确认报价", orderId, "", before, auditSnapshot(item, ["status", "quote", "orderAmount", "orderAmountCents", "payments"]), actor);
+  enqueueNotification(state, "客户已确认报价待收款", [{ role: "admin", id: "admin_root" }], orderId, { total: item.orderAmount, totalCents: item.orderAmountCents });
   return item;
 }
 
@@ -935,9 +940,33 @@ function allocateMasterAmounts(state, orderId, amounts, actor = "system") {
 
 function confirmCustomerPayment(state, orderId, actor = "system", note = "") {
   const item = orderById(state, orderId);
-  assert(item.status === STATUS.ACCEPTED, "只有已验收订单可以确认客户收款");
+  assert([STATUS.PAYING, STATUS.ACCEPTED].includes(item.status), "只有待付款或已验收订单可以确认客户收款");
+  assert(item.orderAmount != null, "订单金额未确认时不得确认客户收款");
   const record = ensureCustomerPaymentRecord(state, item);
-  if (record.paidAmount >= record.dueAmount) return item;
+  const before = auditSnapshot(item, ["status", "payments"]);
+  if (record.paidAmount >= record.dueAmount) {
+    const wasPaying = item.status === STATUS.PAYING;
+    let changed = wasPaying;
+    if (!record.confirmedBy || note) {
+      record.confirmedBy = actor;
+      record.confirmedAmount = record.dueAmount;
+      record.confirmedAmountCents = record.dueAmountCents;
+      record.note = note || record.note || "管理员确认客户全额收款";
+      record.status = "已完成";
+      record.confirmedAt = record.confirmedAt || nowText();
+      record.updatedAt = nowText();
+      changed = true;
+    }
+    if (wasPaying) {
+      setOrderStatus(item, STATUS.DISPATCHING);
+      enqueueNotification(state, "客户已付款待派单", [{ role: "admin", id: "admin_root" }, { role: "customer", id: item.customerId }], orderId, { total: item.orderAmount });
+    }
+    if (changed) {
+      touch(item);
+      audit(state, "确认已从客户收款", orderId, "", before, auditSnapshot(item, ["status", "payments"]), actor);
+    }
+    return item;
+  }
   const beforePaid = record.paidAmount;
   record.paidAmount = record.dueAmount;
   record.paidAmountCents = record.dueAmountCents;
@@ -950,7 +979,12 @@ function confirmCustomerPayment(state, orderId, actor = "system", note = "") {
   record.updatedAt = nowText();
   item.payments.customerPaid = item.orderAmount;
   item.payments.customerPaidCents = item.orderAmountCents;
-  audit(state, "确认已从客户收款", orderId, "", { paidAmount: beforePaid }, { paidAmount: record.paidAmount }, actor);
+  if (item.status === STATUS.PAYING) {
+    setOrderStatus(item, STATUS.DISPATCHING);
+    enqueueNotification(state, "客户已付款待派单", [{ role: "admin", id: "admin_root" }, { role: "customer", id: item.customerId }], orderId, { total: item.orderAmount });
+  }
+  touch(item);
+  audit(state, "确认已从客户收款", orderId, "", Object.assign({ paidAmount: beforePaid }, before), auditSnapshot(item, ["status", "payments"]), actor);
   return item;
 }
 
@@ -1086,6 +1120,7 @@ function getMasterAvailability(state, masterId) {
 function clientCategory(item) {
   if (item.status === STATUS.QUOTING) return "待报价";
   if (item.status === STATUS.QUOTE_CONFIRMING) return "待确认报价";
+  if (item.status === STATUS.PAYING) return "待付款";
   if (item.status === STATUS.DISPATCHING) return "待派单";
   if ([STATUS.APPOINTING, STATUS.APPOINTED, STATUS.WORKING, STATUS.REWORKING, STATUS.ACCEPT_REJECTED].includes(item.status)) return "施工中";
   if (item.status === STATUS.ACCEPTING) return "待验收";
@@ -1094,6 +1129,7 @@ function clientCategory(item) {
 
 function adminCategory(item) {
   if ([STATUS.QUOTING, STATUS.QUOTE_CONFIRMING].includes(item.status)) return "待报价";
+  if (item.status === STATUS.PAYING) return "待收款";
   if (item.status === STATUS.DISPATCHING) return "待派单";
   if ([STATUS.APPOINTING, STATUS.APPOINTED].includes(item.status)) return "待施工";
   if ([STATUS.WORKING, STATUS.REWORKING].includes(item.status)) return "施工中";
@@ -1110,10 +1146,12 @@ function masterCategory(item) {
 }
 
 function canCancel(item) {
-  return [STATUS.QUOTING, STATUS.QUOTE_CONFIRMING, STATUS.DISPATCHING, STATUS.APPOINTING, STATUS.APPOINTED].includes(item.status);
+  return [STATUS.QUOTING, STATUS.QUOTE_CONFIRMING, STATUS.PAYING, STATUS.DISPATCHING, STATUS.APPOINTING, STATUS.APPOINTED].includes(item.status);
 }
 
 function paymentStatus(item) {
+  if (item.status === STATUS.PAYING) return "待确认客户付款";
+  if (item.orderAmount && item.payments.customerPaid >= item.orderAmount && item.status !== STATUS.ACCEPTED) return "客户已付款";
   if (item.status !== STATUS.ACCEPTED) return "未进入收付款";
   const customerDone = item.payments.customerPaid >= item.orderAmount;
   const mastersDone = item.assignments.every((assign) => (assign.paidAmount || 0) >= (assign.receivableAmount || 0));
@@ -1259,6 +1297,8 @@ function clientProgress(item) {
 }
 
 function clientCustomerPaymentStatus(item) {
+  if (item.status === STATUS.PAYING) return "待付款";
+  if (item.orderAmount && item.payments.customerPaid >= item.orderAmount) return "已付款";
   if (item.status !== STATUS.ACCEPTED) return "未进入收款";
   return item.payments.customerPaid >= item.orderAmount ? "已付款" : "待付款";
 }
@@ -1311,7 +1351,7 @@ function matchesMasterFilter(masterItem, filter) {
 
 function adminCounts(state) {
   const result = {};
-  ["待报价", "待派单", "待施工", "施工中", "待验收", "已验收"].forEach((name) => {
+  ["待报价", "待收款", "待派单", "待施工", "施工中", "待验收", "已验收"].forEach((name) => {
     result[name] = getAdminOrders(state, name).length;
   });
   result["全部"] = getAdminOrders(state, "全部").length;

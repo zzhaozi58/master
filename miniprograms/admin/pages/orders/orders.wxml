@@ -20,6 +20,7 @@
     <view class="row"><view class="label">订单金额</view><view class="value">{{item.orderAmountText}}</view></view>
     <view class="row"><view class="label">师傅金额</view><view class="value">{{item.masterPoolAmountText}}</view></view>
     <view class="row"><view class="label">确认人数</view><view class="value">{{item.requestedMastersText}}</view></view>
+    <view wx:if="{{activeTab === '待收款'}}" class="row"><view class="label">收款状态</view><view class="value">{{item.paymentStatus}}</view></view>
     <view wx:if="{{activeTab === '已验收'}}" class="row"><view class="label">款项</view><view class="value">{{item.paymentStatus}}</view></view>
     <view class="btn btn-secondary">进入订单详情</view>
   </view>
